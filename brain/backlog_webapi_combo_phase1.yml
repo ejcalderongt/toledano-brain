@@ -1,0 +1,178 @@
+backlog_webapi_combo_phase1:
+  updated_at: 2026-05-31
+  planning_context:
+    sprint_name: PDT_Promociones_Fase1.2
+    jira_deployment: pendiente
+    execution_gate: "No desplegar ni crear sprint hasta autorizacion del usuario."
+  objective: >
+    Consolidar WebAPI SAP->ROAD para descuentos/recargos/combos sin romper sincronizacion HH/BOF.
+  out_of_scope:
+    - Excepciones cliente-producto para promociones en esta fase.
+    - Creacion de tabla de exclusiones dedicada.
+  planning_basis:
+    - Documentacion funcional/técnica compartida (mayo 2026).
+    - Fine trace codigo y BD QAS.
+    - Convenciones Jira portable del proyecto.
+
+  epics:
+    - id: EPIC-WAPI-01
+      name: Contrato y seguridad de integracion SAP
+      estimate_hours: 24
+      items:
+        - id: API-SEC-001
+          title: Implementar autenticacion X-API-KEY real (middleware/attribute + store configurable)
+          estimate_hours: 10
+          priority: alta
+          jira_type: Story
+          acceptance:
+            - Rechaza requests sin key (401).
+            - Rechaza key invalida/expirada.
+            - Registra traceId y evento de seguridad.
+        - id: API-CTR-002
+          title: Estandarizar respuestas JSON segun plantillas tecnicas SAP/ROAD
+          estimate_hours: 8
+          priority: alta
+          jira_type: Story
+          acceptance:
+            - Campos success/statusCode/message/traceId/timestamp/result/errors/warnings.
+            - Codigos de error funcional y tecnico consistentes.
+        - id: API-CTR-003
+          title: Versionar endpoint final de integracion (/api/sap/descuentos)
+          estimate_hours: 6
+          priority: media
+          jira_type: Task
+
+    - id: EPIC-WAPI-02
+      name: Transformacion funcional y reglas de prioridad
+      estimate_hours: 52
+      items:
+        - id: API-CAT-003A
+          title: Alinear catalogos fijos CTIPO/PTIPO en contrato de integracion
+          estimate_hours: 6
+          priority: alta
+          jira_type: Story
+          acceptance:
+            - CTIPO restringido a 0..14 segun negocio ROAD.
+            - PTIPO incorpora valor 6 para combos.
+            - Validaciones devuelven error claro cuando se recibe catalogo invalido.
+        - id: API-MAP-004
+          title: Ajustar mapper combo para aplicacion por producto (no global)
+          estimate_hours: 10
+          priority: alta
+          jira_type: Story
+        - id: API-MAP-005
+          title: Soportar mapeos A908-A912 con ctipo extendido y clave comercial correcta
+          estimate_hours: 14
+          priority: alta
+          jira_type: Story
+        - id: API-BL-006
+          title: Motor de prioridad unica por material/cliente con vigencia
+          estimate_hours: 12
+          priority: alta
+          jira_type: Story
+        - id: API-BL-007
+          title: Regla de exclusion para NC ordinarias (excepto error de precio)
+          estimate_hours: 6
+          priority: media
+          jira_type: Task
+        - id: API-BL-008
+          title: Validaciones de payload por tipo de condicion y secuencia de acceso
+          estimate_hours: 10
+          priority: alta
+          jira_type: Story
+
+    - id: EPIC-WAPI-03
+      name: Compatibilidad operativa HH/BOF/RDC7
+      estimate_hours: 38
+      items:
+        - id: INT-CAT-008A
+          title: Propagar PTIPO=6 (combo) en BOF, RDC7 y HH
+          estimate_hours: 12
+          priority: alta
+          jira_type: Story
+          acceptance:
+            - BOF reconoce PTIPO=6 sin romper catalogo legado 0..5.
+            - RDC7 sincroniza y exporta descuentos combo con PTIPO=6.
+            - HH interpreta PTIPO=6 y consulta detalle en P_DESCUENTO_COMBO_DET.
+        - id: INT-SYNC-009
+          title: Corregir export/import de P_DESCUENTO en RDC7 para columnas nuevas
+          estimate_hours: 12
+          priority: alta
+          jira_type: Story
+          acceptance:
+            - Incluye ES_RECARGO, PORPORCENTAJE, PRIORIDAD, UMVENTA/UMSTOCK/UMPESO.
+            - Valida recepcion HH sin degradar rutas existentes.
+        - id: INT-SYNC-010
+          title: Definir estrategia de envio/uso de P_DESCUENTO_COMBO_DET hacia HH
+          estimate_hours: 10
+          priority: alta
+          jira_type: Spike
+        - id: INT-DATA-011
+          title: Implementar mapeo confirmado A909/A910 (Ramo3=Tipologia, ABC=Priorizacion) y PROVG
+          estimate_hours: 10
+          priority: alta
+          jira_type: Story
+          acceptance:
+            - A909 usa Tipologia + Priorizacion (+ Centro si aplica reglas).
+            - A910 usa Tipologia.
+            - Grupo comision de material (PROVG) integrado para combos.
+        - id: INT-DATA-011B
+          title: Definir mapeo futuro de Ramo4 (A911) con ROAD
+          estimate_hours: 4
+          priority: media
+          jira_type: Spike
+          phase: posterior
+          acceptance:
+            - Decision funcional/técnica documentada.
+            - Estrategia de almacenamiento ROAD definida para Ramo4.
+        - id: INT-OBS-012
+          title: Trazabilidad SAP_CONDICION_LOG + correlacion traceId
+          estimate_hours: 6
+          priority: media
+          jira_type: Task
+
+    - id: EPIC-WAPI-04
+      name: QA y despliegue controlado
+      estimate_hours: 30
+      items:
+        - id: QA-013
+          title: Suite pruebas unitarias mapper/controller prioridades
+          estimate_hours: 12
+          priority: alta
+          jira_type: Story
+        - id: QA-014
+          title: Pruebas integrales QAS (casos ZK/ZR, A903/A907/A906 y A908-A912)
+          estimate_hours: 10
+          priority: alta
+          jira_type: Story
+        - id: REL-015
+          title: Plan de despliegue, rollback y checklist de salida
+          estimate_hours: 8
+          priority: media
+          jira_type: Task
+
+  totals:
+    estimated_hours: 162
+    confidence: media
+    assumptions:
+      - Disponibilidad de equipo SAP/SOFOS para validar mapeos abiertos.
+      - Acceso VPN activo para pruebas en ROADSAP_QAS.
+      - Sin cambios disruptivos fuera de alcance en HH/BOF durante ejecucion.
+
+  jira_management_model:
+    status_flow:
+      - To Do
+      - En curso
+      - Bloqueado
+      - En pruebas
+      - Finalizada
+    update_template:
+      required_fields:
+        - contexto
+        - archivos_tocados
+        - riesgo_impacto
+        - pruebas
+        - siguiente_paso
+    cadence:
+      - daily_note: resumen tecnico diario por issue activo
+      - gate_review: cierre por epic con evidencia de pruebas

@@ -1,0 +1,33 @@
+project:
+  name: ROAD Toledano
+  key: ROAD
+  board_id: 4
+  epic_default_key: ROAD-XX
+  prefix_summary: "Codex:"
+  assignee_default: "erik"
+
+issue_types:
+  requerimiento_nuevo: "10016"
+  mejora: "10017"
+  error: "10018"
+  epic: "10019"
+  subtarea: "10020"
+
+statuses:
+  por_hacer: "10010"
+  en_curso: "10011"
+  finalizada: "10012"
+
+rules:
+  auto_assign_to_me: true
+  require_epic_for_descuentos_combo_toledano: true
+  epic_scope_keywords:
+    - descuento
+    - descuentos
+    - combo
+    - combos
+    - toledano
+
+notes:
+  - "Duplicar este archivo como project.jira.config.yml para cada proyecto."
+  - "No guardar credenciales ni tokens en este archivo."

@@ -1,0 +1,27 @@
+{
+  "regCond": "9101008",
+  "promo": "7101008",
+  "coddescSap": "ZR96",
+  "coddesc": 3101008,
+  "orgVent": "1000",
+  "canDist": "10",
+  "sector": "01",
+  "indJerarq": 2,
+  "accessSequence": "A912",
+  "ruta": "8809-1",
+  "producto": "*",
+  "fechaini": "2026-06-01T00:00:00",
+  "fechafin": "2026-06-30T23:59:59",
+  "importe": 8,
+  "unidadCondicion": "%",
+  "cantidadBase": 1,
+  "unidadMedidaCondicion": "UN",
+  "monedaCondicion": "USD",
+  "grupoCombo": "COMBO-A912",
+  "descuentoCombo": 8,
+  "comboItems": [
+    { "producto": "0220", "cantidad": 2, "umventa": "UN", "umstock": "UN" },
+    { "producto": "0892", "cantidad": 1, "umventa": "UN", "umstock": "UN" }
+  ],
+  "mecanica": "Recargo combo por ruta"
+}

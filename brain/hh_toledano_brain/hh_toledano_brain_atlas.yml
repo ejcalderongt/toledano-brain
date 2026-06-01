@@ -1,0 +1,179 @@
+hh_toledano_brain_atlas:
+  updated_at: 2026-06-01
+  hh_repo:
+    path: C:/Users/yejc2/source/repos/road_hh_toledano
+    branch: dev_road_2024_bak3
+  scope:
+    - Venta.java
+    - Precio.java
+    - DevolCli.java
+    - DevCliCant.java
+    - clsDescuento.java
+    - clsDescFiltro.java
+    - ComWS.java
+  objective: >
+    Atlas funcional/técnico de aplicación de precio, descuento y recargo en HH,
+    incluyendo flujo de venta y nota de crédito para diseñar cambios quirúrgicos.
+
+  operational_pipeline:
+    preload_sync:
+      source:
+        file: app/src/main/java/com/dts/roadp/ComWS.java
+        lines: [3911, 3914]
+      behavior: Carga P_DESCUENTO vigente a HH local.
+      includes:
+        - ES_RECARGO
+        - PORPORCENTAJE
+        - PRIORIDAD
+        - UMVENTA
+        - CODDESC
+    customer_filter_to_temp:
+      source:
+        file: app/src/main/java/com/dts/roadp/clsDescFiltro.java
+        lines: [82, 121, 140, 169]
+      behavior: Copia P_DESCUENTO a T_DESC según CTIPO y vigencia para cliente/ruta.
+      ctipo_paths:
+        - base: CTIPO 0,1,2,3,4,5,6,8,9
+        - group: CTIPO 10 via P_CLIGRUPO
+    discount_resolution_core:
+      source:
+        file: app/src/main/java/com/dts/roadp/clsDescuento.java
+        lines: [52, 69, 82, 113]
+      behavior: >
+        Busca en T_DESC por rango, ES_RECARGO, PTIPO<4, DESCTIPO='R', GLOBDESC='N',
+        ordenando por PRIORIDAD ASC y seleccionando primera coincidencia por PTIPO.
+      note:
+        - hoy no considera PTIPO=6 (combos)
+
+  class_trace:
+    precio_java:
+      file: app/src/main/java/com/dts/roadp/Precio.java
+      key_methods:
+        - method: precio(...)
+          lines: [51, 77]
+          purpose: Orquestador de precio base + descuento/recargo + impuesto.
+          calls:
+            - clsDescuento.getDescuentoRecargo(false)
+            - clsDescuento.getDescuentoRecargo(true)
+            - prodPrecio / prodPrecioBase
+        - method: prodPrecio(...)
+          lines: [92, 170]
+          purpose: >
+            Obtiene precio de P_PRODPRECIO por nivel/UM, aplica descuento y recargo,
+            luego calcula precio final con impuesto.
+          formulas:
+            - descmon: porcentaje o monto fijo
+            - recargoMonto: porcentaje o monto fijo
+            - precio_final_unitario: pr - descmon + recargoMonto
+        - method: existePrecioEspecial(...)
+          lines: [79, 87]
+          purpose: Evalúa si hay precio especial y expone precioespecial.
+        - method: prodPrecioEsp(...)
+          lines: [328, 390]
+          purpose: >
+            Busca en TMP_PRECESPEC por PRODUCTO+UM y prioridad CLIENTE/RUTA/TIPO.
+
+    venta_java:
+      file: app/src/main/java/com/dts/roadp/Venta.java
+      key_methods:
+        - method: processCant / bloque principal cantidad
+          lines: [747, 867]
+          purpose: >
+            Con cantidad seleccionada, calcula precio, descuento/recargo, bonificación,
+            y decide navegación DescBon/BonList.
+        - method: prodPrecio()
+          lines: [880, 896]
+          purpose: Wrapper local de Precio.java (actualiza recargo/desc/totales UI).
+        - method: getPrecio()
+          lines: [898, 937]
+          purpose: Recalcula precio en escenarios de edición y productos barra.
+        - method: addItem()
+          lines: [939, 1160]
+          purpose: Persiste item en T_VENTA con CANT, PRECIO, DESMON, IMP, TOTAL, UM.
+        - method: reconstruccion_venta_desde_pedido
+          lines: [3087, 3174]
+          purpose: >
+            Recalcula precio y totales por item al reprocesar pedido/barra, reinserta en T_VENTA.
+        - method: bootstrap_descuentos_bonif
+          lines: [3675, 3677]
+          purpose: Inicializa filtros clsDescFiltro/clsBonFiltro por cliente-ruta.
+
+    devclicant_java:
+      file: app/src/main/java/com/dts/roadp/DevCliCant.java
+      key_methods:
+        - method: showData()
+          lines: [394, 433]
+          purpose: >
+            Calcula precio para NC usando Precio.java y opcional TMP_PRECESPEC.
+        - method: getPrecio()
+          lines: [762, 783]
+          purpose: Convierte precio según UM seleccionada en spinner.
+        - method: finalizar_cantidad_nc
+          lines: [183, 218]
+          purpose: >
+            Fija gl.dvprec/gl.dvtotal/gl.dvpeso, valida no cero y cierra pantalla.
+
+    devolcli_java:
+      file: app/src/main/java/com/dts/roadp/DevolCli.java
+      key_methods:
+        - method: setCant / updCant
+          lines: [342, 379]
+          purpose: Navega a DevCliCant para capturar cantidad/precio de NC.
+        - method: processCant / addItem
+          lines: [388, 465]
+          purpose: >
+            Inserta en T_CxCD usando gl.dvprec/gl.dvtotal calculados en DevCliCant.
+        - method: saveDevol
+          lines: [483, 560]
+          purpose: Persiste cabeceras D_CxC y D_NOTACRED (flujo NC).
+
+  shared_logic_assertion:
+    statement: Venta y DevCliCant comparten motor de precio/descuento via Precio.java.
+    shared_points:
+      - Precio.precio(...)
+      - clsDescuento.getDescuentoRecargo(...)
+      - Consulta de precio especial TMP_PRECESPEC
+    differences:
+      - Venta persiste en T_VENTA/T_VENTA_DESPACHO.
+      - NC persiste temporal en T_CxCD y luego en D_CxC/D_NOTACRED.
+
+  key_risks_for_changes:
+    - id: HH-R1
+      detail: Filtros clsDescuento usan PTIPO<4; combos PTIPO=6 no entran al motor transaccional actual.
+      files:
+        - app/src/main/java/com/dts/roadp/clsDescuento.java:64
+        - app/src/main/java/com/dts/roadp/clsDescuento.java:68
+    - id: HH-R2
+      detail: Orden PRIORIDAD funciona en consulta; cambios de semántica pueden alterar primera coincidencia.
+      files:
+        - app/src/main/java/com/dts/roadp/clsDescuento.java:64
+        - app/src/main/java/com/dts/roadp/clsDescuento.java:68
+    - id: HH-R3
+      detail: DevCliCant depende de globals (gl.dv*) para total NC; ruptura afecta DevolCli.addItem.
+      files:
+        - app/src/main/java/com/dts/roadp/DevCliCant.java:193
+        - app/src/main/java/com/dts/roadp/DevolCli.java:450
+
+  surgical_change_zones:
+    - zone: motor_descuento_local
+      file: app/src/main/java/com/dts/roadp/clsDescuento.java
+      methods:
+        - getDescuentoRecargo
+      impact: alto
+    - zone: integracion_precio
+      file: app/src/main/java/com/dts/roadp/Precio.java
+      methods:
+        - precio
+        - prodPrecio
+      impact: alto
+    - zone: venta_persistencia_temporal
+      file: app/src/main/java/com/dts/roadp/Venta.java
+      methods:
+        - addItem
+      impact: medio
+    - zone: nc_captura_precio_cantidad
+      file: app/src/main/java/com/dts/roadp/DevCliCant.java
+      methods:
+        - showData
+        - getPrecio
+      impact: medio

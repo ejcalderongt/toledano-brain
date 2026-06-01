@@ -1,0 +1,27 @@
+{
+  "regCond": "9101007",
+  "promo": "7101007",
+  "coddescSap": "ZK96",
+  "coddesc": 3101007,
+  "orgVent": "1000",
+  "canDist": "10",
+  "sector": "01",
+  "indJerarq": 1,
+  "accessSequence": "A910",
+  "tipologia": "Z0011101",
+  "producto": "*",
+  "fechaini": "2026-06-01T00:00:00",
+  "fechafin": "2026-06-30T23:59:59",
+  "importe": 15,
+  "unidadCondicion": "%",
+  "cantidadBase": 1,
+  "unidadMedidaCondicion": "UN",
+  "monedaCondicion": "USD",
+  "grupoCombo": "COMBO-A910",
+  "descuentoCombo": 15,
+  "comboItems": [
+    { "producto": "0486", "cantidad": 2, "umventa": "UN", "umstock": "UN" },
+    { "producto": "1249", "cantidad": 1, "umventa": "UN", "umstock": "UN" }
+  ],
+  "mecanica": "Combo por tipologia"
+}

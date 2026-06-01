@@ -1,0 +1,181 @@
+integration:
+  endpoint_purpose: Recibir payload SAP rico y transformar internamente hacia estructuras ROAD.
+  design_principle: No replicar SAP 1:1 en tablas operativas; usar DTO/staging/log para trazabilidad SAP.
+  critical_constraint: CTIPO y PTIPO son catalogos fijos hardcodeados en BOF/HH.
+
+hardcoded_catalog_rules:
+  ctipo:
+    dynamic: false
+    allowed_values: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+    semantics:
+      0: Todos clientes
+      1: Codigo cliente
+      2: Tipo de negocio
+      3: Tipo de cliente
+      4: Subtipo cliente
+      5: Canal
+      6: Subcanal
+      7: Region
+      8: Sucursal
+      9: Nivel precio
+      10: Grupo clientes
+      11: Ruta
+      12: Tipologia - Ramo 3
+      13: Priorizacion
+      14: Ramo 4
+    note: >
+      No introducir nuevos CTIPO sin cambio coordinado en BOF, RDC7 y HH.
+      Para integracion SAP fase 1.2 los mapeos principales operan sobre valores existentes.
+  ptipo:
+    dynamic: false
+    current_values: [0, 1, 2, 3, 4, 5]
+    required_for_phase_1_2:
+      value: 6
+      meaning: combo
+      processing_rule: Si PTIPO=6, resolver mecanica contra P_DESCUENTO_COMBO_DET.
+
+input_payload_fields:
+  required_core:
+    - regCond
+    - promo
+    - coddescSap
+    - orgVent
+    - canDist
+    - sector
+    - indJerarq
+    - fechaini
+    - fechafin
+  conditional_fields:
+    cliente: requerido para A903/A908
+    ruta: requerido para A907/A912
+    grClientes: requerido para A906 (valor de tipo cliente ROAD / P_TIPOCLI)
+    producto: requerido para condiciones no combo
+    grupoCombo: requerido para ZK96/ZR96
+    comboItems: requerido para ZK96/ZR96
+    escalas: requerido si indEscala viene informado
+
+condition_type_mapping:
+  ZK94:
+    esRecargo: false
+    porporcentaje: N
+    target: P_DESCUENTO
+    description: Descuento monto/cantidad
+  ZK95:
+    esRecargo: false
+    porporcentaje: S
+    target: P_DESCUENTO
+    description: Descuento porcentual
+  ZK97:
+    esRecargo: false
+    porporcentaje: S
+    target: P_DESCUENTO
+    description: Descuento porcentual escalonado
+    generates_multiple_rows: true
+  ZK96:
+    esRecargo: false
+    porporcentaje: S
+    target: P_DESCUENTO + P_DESCUENTO_COMBO_DET
+    description: Descuento combo
+  ZR94:
+    esRecargo: true
+    porporcentaje: N
+    target: P_DESCUENTO
+    description: Recargo monto/cantidad
+  ZR95:
+    esRecargo: true
+    porporcentaje: S
+    target: P_DESCUENTO
+    description: Recargo porcentual
+  ZR97:
+    esRecargo: true
+    porporcentaje: S
+    target: P_DESCUENTO
+    description: Recargo porcentual escalonado
+    generates_multiple_rows: true
+  ZR96:
+    esRecargo: true
+    porporcentaje: S
+    target: P_DESCUENTO + P_DESCUENTO_COMBO_DET
+    description: Recargo combo
+
+road_application_semantics:
+  globdesc:
+    S:
+      meaning: Aplicacion global sobre total de factura.
+      business_moment: totalizacion
+    N:
+      meaning: Aplicacion individual por producto.
+      business_moment: calculo por linea
+  producto:
+    asterisk:
+      value: "*"
+      meaning: Regla aplicable a todos los productos.
+
+standard_access_sequences:
+  non_combo:
+    A903:
+      indJerarq: 1
+      ctipo: 1
+      road_cliente_value: cliente
+      combination: Org.Ventas/Can.distr./Sector/Cliente/Material
+    A907:
+      indJerarq: 2
+      ctipo: 2
+      road_cliente_value: ruta
+      combination: Org.Ventas/Can.distr./Sector/RutaTransp/Material
+    A906:
+      indJerarq: 3
+      ctipo: 3
+      road_cliente_value: grClientes
+      combination: Org.Ventas/Can.distr./Sector/Gr.Cliente(Tipo cliente)/Material
+  combo:
+    A908:
+      indJerarq: 1
+      ctipo: 1
+      road_cliente_value: cliente
+      combination: Org.Ventas/Can.distr./Sector/Cliente/Gr-comis.
+    A909:
+      indJerarq: 1
+      ctipo: 12
+      road_cliente_value: tipologia_priorizacion_centro
+      combination: Org.Ventas/Can.distr./Sector/Cod.ramo3/Clasif.ABC/Centro/Gr
+      mapping_note: Ramo3 -> P_CLIENTE.TIPOLOGIA; Clasificacion ABC -> P_CLIENTE.PRIORIZACION
+    A910:
+      indJerarq: 1
+      ctipo: 12
+      road_cliente_value: tipologia
+      combination: Org.Ventas/Can.distr./Sector/Cod.ramo3/Gr-comis.
+      mapping_note: Ramo3 -> P_CLIENTE.TIPOLOGIA
+    A911:
+      indJerarq: 1
+      ctipo: 14
+      road_cliente_value: ramo4
+      combination: Org.Ventas/Can.distr./Sector/Cod.ramo4/Gr-comis.
+      status: pendiente_backlog
+      requires_new_customer_field: true
+      mapping_note: Ramo4 aun no existe en ROAD; definir en fase posterior.
+    A912:
+      indJerarq: 1
+      ctipo: 3
+      road_cliente_value: ruta
+      combination: Org.Ventas/Can.distr./Sector/RutaTransp/Gr-comis.
+
+scale_transformation:
+  when: indEscala no vacio
+  rule: Generar una fila P_DESCUENTO por cada linea de escala.
+  rangoini: ctdEscala actual
+  rangofin: ctdEscala siguiente menos 1
+  last_rangofin: 999999
+  valor: abs(importeEscala)
+
+combo_transformation:
+  header_table: P_DESCUENTO
+  detail_table: P_DESCUENTO_COMBO_DET
+  detail_key: coddesc
+  header_ptipo_phase_1_2: 6
+  quantity_type: minima
+  group_commission_source: MVKE.PROVG
+  validation:
+    - Todos los materiales requeridos del grupo deben estar en el pedido.
+    - Todas las cantidades minimas deben cumplirse.
+    - Si falta un material requerido, no aplica el combo.

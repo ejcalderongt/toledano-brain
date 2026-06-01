@@ -1,0 +1,107 @@
+codex_setup:
+  objective: >
+    Guiar a Codex/agentes para implementar los cambios de promociones SAP -> ROAD de forma trazable,
+    separando contexto funcional, mapeo, tareas, validaciones y pruebas.
+  recommended_repository_paths:
+    docs:
+      - docs/promociones/contexto_proyecto.yml
+      - docs/promociones/integration_mapping.yml
+      - docs/promociones/change_log_bitacora.yml
+      - docs/promociones/implementation_tasks.yml
+    api:
+      - src/WebApi/Controllers/SapDescuentosController.cs
+      - src/WebApi/Models/SapDiscountConditionDto.cs
+      - src/WebApi/Services/SapDiscountTransformService.cs
+      - src/WebApi/Services/SapDiscountValidationService.cs
+    database:
+      - database/migrations/promociones_combos.sql
+      - database/migrations/promociones_excepciones.sql
+      - database/migrations/clientes_ramo_clasificacion.sql
+    tests:
+      - tests/SapDiscountTransformServiceTests.cs
+      - tests/SapComboTransformServiceTests.cs
+      - tests/SapDiscountPriorityTests.cs
+
+  agent_instructions:
+    - Leer primero docs/promociones/change_log_bitacora.yml para entender decisiones y demoras.
+    - Leer integration_mapping.yml antes de modificar DTO, servicios o base de datos.
+    - Mantener compatibilidad con P_DESCUENTO y P_DESCUENTO_COMBO_DET.
+    - No agregar columnas SAP operativas en P_DESCUENTO si solo son trazabilidad; usar log/staging.
+    - Implementar validacion de vigencia antes de aplicar prioridad.
+    - Implementar prioridad por tipo de condicion: combo, porcentual, escalonado, fijo.
+    - Implementar Ctipo nuevos para combos A909/A910/A911 solo si se confirma en modelo ROAD.
+    - Tratar KLABC, BRAN3, BRAN4 y PROVG como datos maestros requeridos desde SAP.
+    - Aplicar convencion de tagging de codigo y commits definida en code_tagging_conventions.yml.
+
+  environment_assumptions:
+    language_backend: C# / .NET WebAPI
+    database: SQL Server
+    legacy_components:
+      - BOF
+      - HH/PDA
+      - ROAD WebAPI
+    auth:
+      mode: X-API-KEY
+      header: X-API-KEY
+
+  implementation_sequence:
+    - step: 1
+      name: Crear DTO SAP de entrada
+      files:
+        - SapDiscountConditionDto.cs
+      acceptance:
+        - Soporta coddescSap, regCond, promo, orgVent, canDist, sector, indJerarq, escalas y comboItems.
+    - step: 2
+      name: Crear validaciones de payload
+      acceptance:
+        - Rechaza campos obligatorios faltantes segun tipo de condicion.
+        - Valida fechas y vigencia.
+        - Valida escalas ordenadas.
+    - step: 3
+      name: Implementar transformacion no combo
+      acceptance:
+        - ZK94/ZK95/ZK97/ZR94/ZR95/ZR97 generan P_DESCUENTO correcto.
+        - Escalas generan multiples filas con Rangoini/Rangofin correcto.
+    - step: 4
+      name: Implementar transformacion combo
+      acceptance:
+        - ZK96/ZR96 generan cabecera P_DESCUENTO y detalle P_DESCUENTO_COMBO_DET.
+        - Cantidades son minimas.
+        - Grupo de comision se usa como agrupador de combo.
+    - step: 5
+      name: Implementar prioridad de aplicacion
+      acceptance:
+        - Se aplica una sola condicion por material/cliente.
+        - Orden: combo, porcentual, escalonado, fijo, precio base.
+    - step: 6
+      name: Implementar excepciones cliente-material
+      acceptance:
+        - Tabla parametrizable con vigencia y trazabilidad.
+        - Excepciones aplican a combo/escalonado, no a ZK94/ZK95.
+    - step: 7
+      name: Ajustar maestros de clientes/materiales
+      acceptance:
+        - Cliente soporta ramo3, ramo4, clasificacion ABC.
+        - Material soporta grupo de comision PROVG.
+    - step: 8
+      name: Pruebas unitarias e integrales
+      acceptance:
+        - Cubrir cada condicion SAP.
+        - Cubrir A908-A912.
+        - Cubrir notas de credito excluidas excepto error en precio.
+
+  codex_prompt_template: |
+    Implementa el siguiente cambio en el proyecto ROAD tomando como fuente docs/promociones/*.yml.
+    Reglas principales:
+    - No romper compatibilidad con P_DESCUENTO existente.
+    - Usar DTO SAP rico y transformar internamente.
+    - Aplicar una sola condicion por material/cliente segun prioridad y vigencia.
+    - Para combos usar P_DESCUENTO + P_DESCUENTO_COMBO_DET.
+    - Registrar trazabilidad SAP regCond/promo/orgVent/canDist/sector en log o staging.
+    Entrega codigo, migraciones y pruebas unitarias.
+
+  code_tagging_reference:
+    source: code_tagging_conventions.yml
+    required_inline_tag_format: "#EJCYYYYMMDD <tipo>(<area>): <descripcion corta>"
+    required_commit_format: "#EJCYYYYMMDD <tipo>(<area>): <resumen>"
+    warning_rule: "Usar tipo warning cuando solo se deje riesgo taggeado sin aplicar fix en ese commit."

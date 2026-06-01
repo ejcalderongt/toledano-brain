@@ -1,0 +1,112 @@
+bitacora:
+  - date: 2026-04-06
+    type: acceso_seguridad
+    actor: Alicia Rivas / equipo seguridad
+    summary: Se eleva caso a mesa de ayuda por acceso y luego se confirma acceso otorgado para pruebas.
+    impact: Habilita continuidad de validaciones de integracion.
+    status: cerrado
+
+  - date: 2026-04-13
+    type: aclaracion_funcional
+    actor: Erik Calderon -> Alicia Rivas
+    summary: ROAD solicita aclarar si combos son independientes o si existe combo combinado adicional.
+    impact: Se identifica riesgo de interpretacion en logica de combos.
+    status: cerrado
+
+  - date: 2026-04-13
+    type: respuesta_negocio
+    actor: Alicia Rivas
+    summary: Se indica que el combo combinado requiere desarrollo ABAP SOFOS y no es estandar SAP; ejemplo: producto 1 + producto 2 + producto 3 otorga porcentaje.
+    impact: Se confirma participacion de SOFOS en reglas/campos clave.
+    status: cerrado
+
+  - date: 2026-04-23
+    type: definicion_negocio
+    actor: Alicia Rivas
+    summary: Negocio comparte definicion funcional y parametrizacion para combos.
+    impact: ROAD valida posibilidad de integrar con API actual.
+    status: cerrado
+
+  - date: 2026-04-24
+    type: validacion_road
+    actor: Erik Calderon
+    summary: ROAD interpreta inicialmente combo como condicion global, cantidad minima, grupo A y descuento sobre total.
+    impact: Se solicita confirmar alcance del descuento, cantidades y concurrencia.
+    status: corregido_por_respuesta_posterior
+
+  - date: 2026-04-24
+    type: aclaracion_negocio
+    actor: Alicia Rivas
+    summary: Se confirma que las cantidades son minimas y que todos los combos van a productos especificos.
+    impact: Cambia modelo de aplicacion: beneficio no debe tratarse como total global del pedido.
+    status: cerrado
+
+  - date: 2026-04-27
+    type: concurrencia_promociones
+    actor: Erik Calderon / Alicia Rivas
+    summary: Se plantea necesidad de definir regla de concurrencia: acumulativo, exclusivo, prioridad o mixto.
+    impact: Pendiente de decision de negocio en ese momento.
+    status: resuelto_por_prioridad_posterior
+
+  - date: 2026-05-07
+    type: cambio_requerimiento
+    actor: Alicia Rivas
+    summary: Se informa que luego de sesiones con usuarios se requieren ajustes al requerimiento inicial y que el impacto debe evaluarse/aprobarse formalmente.
+    impact: Genera ampliacion de alcance para combos, prioridades, excepciones y campos adicionales.
+    status: requiere_implementacion
+
+  - date: 2026-05-08
+    type: jerarquia_sap_combo
+    actor: Sara Najera
+    summary: SOFOS aclara que SAP valida combinaciones de combo por jerarquia A908, A909, A910, A911, A912 y toma el primer registro aplicable.
+    impact: ROAD debe mapear ctipo/cliente segun combinacion y no asumir igualdad real de prioridad funcional SAP.
+    status: cerrado_para_sap_pendiente_road
+
+  - date: 2026-05-08
+    type: no_repeticion_materiales_combo
+    actor: Alicia Rivas
+    summary: Negocio confirma que los materiales configurados en grupos de imputacion/combo no se van a repetir.
+    impact: Reduce riesgo de conflicto por traslapes entre combos.
+    status: cerrado
+
+  - date: 2026-05-08
+    type: propuesta_mapeo_road
+    actor: Sara Najera / Erik Calderon
+    summary: Se propone enviar todas las combinaciones de combo con Ind.Jerarq=1 y diferenciar con Ctipo y P_DESCUENTO.Cliente.
+    impact: ROAD requiere nuevos Ctipo 4, 5 y 6 para A909, A910 y A911.
+    status: parcialmente_confirmado
+
+  - date: 2026-05-08
+    type: notas_credito
+    actor: Carolina Fuentes -> Alicia Rivas
+    summary: Se consulta si descuentos y recargos de combos aplican en notas de credito.
+    impact: Define alcance de facturacion/notas.
+    status: respondido
+
+  - date: 2026-05-10
+    type: notas_credito_respuesta
+    actor: Alicia Rivas
+    summary: No debe considerarse para notas excepto las que se manejan por error en precio.
+    impact: Excluir combos de notas de credito ordinarias.
+    status: cerrado
+
+  - date: 2026-05-19
+    type: aprobacion_comercial
+    actor: Productos Toledano
+    summary: Se emite orden de compra 4500337393 por Promociones Fase 1.1 por 11,556.00.
+    impact: Respalda ejecucion comercial del alcance aprobado.
+    status: cerrado
+
+  - date: 2026-05-20
+    type: propuesta_economica
+    actor: DTSolutions Panama
+    summary: Propuesta/orden de venta OV11177 por 216 horas de servicios profesionales de desarrollo, total 11,556.00.
+    impact: Base economica para plan de trabajo.
+    status: cerrado
+
+  - date: 2026-06-02_to_2026-07-08
+    type: plan_trabajo
+    actor: DTSolutions / ROAD
+    summary: PDT define plan de trabajo promociones combos, incluyendo BOF, HH, interface, pruebas unitarias e integrales.
+    impact: Roadmap de implementacion y pruebas.
+    status: planificado

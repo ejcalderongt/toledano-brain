@@ -1,0 +1,74 @@
+code_tagging:
+  version: 1
+  updated_at: 2026-05-31
+  purpose: >
+    Estandarizar como etiquetar cambios en codigo y commits para trazabilidad tecnica
+    en ROAD (WebAPI, BOF y HH), y facilitar mapeo a Jira y analisis de regresiones.
+
+  mandatory_rules:
+    - Todo cambio funcional debe llevar tag tecnico en comentario cercano al bloque modificado.
+    - Todo commit debe iniciar con prefijo de autor + fecha + tipo + area.
+    - No mezclar HH y BOF/WebAPI en un mismo commit.
+    - El tag debe mencionar cliente/ambiente si aplica (TOLEDANO, QAS, PRD).
+
+  inline_tag_format:
+    canonical: "#EJCYYYYMMDD <tipo>(<area>): <descripcion corta>"
+    allowed_types:
+      - fix
+      - mejora
+      - feat
+      - refactor
+      - chore
+      - docs
+      - warning
+    examples:
+      csharp: "// #EJC20260531 fix(descuentos-api): valida vigencia antes de prioridad"
+      vbnet: "' #EJC20260531 fix(recepcion-bof): corrige mapeo identity en detalle"
+      java: "// #EJC20260531 fix(packing-hh): evita NPE cuando WS retorna lista vacia"
+      warning_vbnet: "' #EJC20260531 warning(sync-rdc7-descuentos): R1 pendiente por desalineacion de columnas P_DESCUENTO"
+    area_examples:
+      - descuentos-api
+      - combos-api
+      - recepcion-bof
+      - packing-hh
+      - jira-portable
+      - sync-rdc7-descuentos
+
+  warning_usage:
+    when_to_use:
+      - Riesgo tecnico identificado y confirmado, sin implementacion en este commit.
+      - Brecha temporal de compatibilidad entre componentes (ej. RDC7 vs HH).
+    required_suffix:
+      - "Debe incluir id de riesgo si existe (ej. R1)."
+    prohibition:
+      - "No usar warning para ocultar cambios funcionales no documentados."
+
+  commit_format:
+    canonical: "#EJCYYYYMMDD <tipo>(<area>): <resumen>"
+    body_recommended:
+      - "Problema:"
+      - "Causa raiz:"
+      - "Solucion:"
+      - "Impacto:"
+      - "Referencia Jira:"
+    examples:
+      - "#EJC20260531 fix(descuentos-api): corrige prioridad combo vs porcentual"
+      - "#EJC20260531 mejora(jira-portable): agrega update-full y log-work"
+
+  jira_traceability:
+    required_description_blocks:
+      - Problema reportado
+      - Que arruinaba
+      - Causa raiz
+      - Fix aplicado
+      - Archivos tocados
+      - Commits de referencia
+    summary_alignment:
+      rule: >
+        El Summary en Jira debe conservar el mismo tag del commit principal cuando sea posible.
+      example: "#EJC20260531 fix(descuentos-api): corrige prioridad combo vs porcentual"
+
+  anti_patterns:
+    - "Comentarios sin tag en cambios funcionales de alto impacto."
+    - "Commits con mensaje generico: 'fix', 'update', 'cambios varios'."
+    - "Un solo commit mezclando WebAPI + HH + DB sin delimitacion clara."

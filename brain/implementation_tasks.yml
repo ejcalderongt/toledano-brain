@@ -1,0 +1,107 @@
+implementation_tasks:
+  database:
+    - id: DB-001
+      title: Agregar tabla detalle de combos si no existe
+      target: P_DESCUENTO_COMBO_DET
+      priority: alta
+      depends_on: []
+    - id: DB-002
+      title: Agregar campos maestros cliente para ramo3, ramo4 y clasificacion ABC
+      target: P_CLIENTE o tabla auxiliar de segmentacion
+      priority: alta
+      depends_on: [DB-001]
+    - id: DB-003
+      title: Agregar soporte grupo de comision en producto
+      target: P_PRODUCTO o tabla auxiliar material SAP
+      priority: alta
+      depends_on: []
+    - id: DB-005
+      title: Crear staging/log de condiciones SAP
+      target: SAP_CONDICION_LOG
+      priority: media
+      depends_on: []
+
+  api:
+    - id: API-001
+      title: Crear endpoint SAP descuentos recargos
+      route: /api/sap/descuentos
+      method: POST
+      auth: X-API-KEY
+      priority: alta
+    - id: API-002
+      title: Crear respuesta estandar de integracion
+      fields:
+        - success
+        - statusCode
+        - message
+        - traceId
+        - operation
+        - target
+        - recordsAffected
+        - sapReference
+        - warnings
+        - errors
+      priority: alta
+    - id: API-003
+      title: Validar y transformar condiciones no combo
+      condition_types: [ZK94, ZK95, ZK97, ZR94, ZR95, ZR97]
+      priority: alta
+    - id: API-004
+      title: Validar y transformar condiciones combo
+      condition_types: [ZK96, ZR96]
+      access_sequences: [A908, A909, A910, A911, A912]
+      priority: alta
+    - id: API-005
+      title: Implementar codigos de error estandar
+      priority: media
+
+  business_logic:
+    - id: BL-001
+      title: Aplicar prioridad unica por material/cliente
+      order: [combo, porcentual, escalonado, fijo, precio_base]
+      priority: alta
+    - id: BL-002
+      title: Validar vigencia antes de aplicar condicion
+      priority: alta
+    - id: BL-003
+      title: Regla de notas de credito sin tabla de exclusiones
+      exception: notas por error en precio
+      priority: media
+    - id: BL-004
+      title: Visualizar promociones vigentes para preventistas
+      area: HH/PDA
+      priority: media
+
+  tests:
+    - id: T-001
+      title: Payload ZK94 genera descuento monto
+    - id: T-002
+      title: Payload ZK95 genera descuento porcentual
+    - id: T-003
+      title: Payload ZK97 genera multiples escalas
+    - id: T-004
+      title: Payload ZR94/ZR95/ZR97 marca esRecargo true
+    - id: T-005
+      title: Payload ZK96/ZR96 genera cabecera y detalle combo
+    - id: T-006
+      title: Prioridad aplica combo y no evalua otros descuentos
+    - id: T-007
+      title: Si no hay combo aplica porcentual; luego escalonado; luego fijo
+    - id: T-008
+      title: A909 requiere ramo3, clasificacion ABC y centro
+    - id: T-009
+      title: A911 falla o queda pendiente si ramo4 no esta sincronizado
+    - id: T-010
+      title: Nota de credito ordinaria no aplica combo
+
+error_codes:
+  OK: Condicion procesada correctamente.
+  VALIDATION_ERROR: Payload invalido o campos obligatorios faltantes.
+  UNSUPPORTED_CONDITION_TYPE: Clase de condicion SAP no soportada.
+  INVALID_ACCESS_SEQUENCE: Combinacion de acceso no soportada para el tipo de condicion.
+  MISSING_MASTER_DATA: Cliente, producto, ruta, ramo, clasificacion o grupo de comision no existe en ROAD.
+  INVALID_VALIDITY_RANGE: Fechas de vigencia invalidas.
+  INVALID_SCALE_RANGE: Escalas desordenadas o rangos invalidos.
+  INVALID_COMBO_STRUCTURE: Combo sin detalle, sin grupo de comision o sin cantidades validas.
+  DUPLICATE_CONDITION: Condicion duplicada para la misma llave operativa.
+  PROCESSING_ERROR: Error tecnico no controlado.

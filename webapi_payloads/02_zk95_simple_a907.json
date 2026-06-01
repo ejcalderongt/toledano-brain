@@ -1,0 +1,21 @@
+{
+  "regCond": "9101002",
+  "promo": "7101002",
+  "coddescSap": "ZK95",
+  "coddesc": 3101002,
+  "orgVent": "1000",
+  "canDist": "10",
+  "sector": "01",
+  "indJerarq": 2,
+  "accessSequence": "A907",
+  "ruta": "8809-1",
+  "producto": "0686",
+  "fechaini": "2026-06-01T00:00:00",
+  "fechafin": "2026-06-30T23:59:59",
+  "importe": 7.5,
+  "unidadCondicion": "%",
+  "cantidadBase": 1,
+  "unidadMedidaCondicion": "UN",
+  "monedaCondicion": "USD",
+  "mecanica": "Descuento porcentual por ruta"
+}

@@ -1,0 +1,42 @@
+hh_toledano_feature_index:
+  updated_at: 2026-06-01
+  repo: C:/Users/yejc2/source/repos/road_hh_toledano
+  baseline_branch: dev_road_2024_bak3
+  feature_tracks:
+    - feature_id: HH-FEAT-PRICING-CORE
+      goal: Blindar motor central de precio/descuento/recargo.
+      files:
+        - app/src/main/java/com/dts/roadp/Precio.java
+        - app/src/main/java/com/dts/roadp/clsDescuento.java
+      suggested_branch: feature/hh-pricing-core
+    - feature_id: HH-FEAT-SALES-FLOW
+      goal: Ajustes quirúrgicos de venta sin romper T_VENTA/T_VENTA_DESPACHO.
+      files:
+        - app/src/main/java/com/dts/roadp/Venta.java
+      suggested_branch: feature/hh-sales-discount-flow
+    - feature_id: HH-FEAT-NC-FLOW
+      goal: Alinear nota de crédito al mismo criterio de precio/descuento.
+      files:
+        - app/src/main/java/com/dts/roadp/DevCliCant.java
+        - app/src/main/java/com/dts/roadp/DevolCli.java
+      suggested_branch: feature/hh-nc-pricing-flow
+    - feature_id: HH-FEAT-SYNC-FILTER
+      goal: Ajustar staging de descuentos cliente/ruta en T_DESC.
+      files:
+        - app/src/main/java/com/dts/roadp/clsDescFiltro.java
+        - app/src/main/java/com/dts/roadp/ComWS.java
+      suggested_branch: feature/hh-sync-desc-filter
+
+  execution_order_recommended:
+    - HH-FEAT-SYNC-FILTER
+    - HH-FEAT-PRICING-CORE
+    - HH-FEAT-SALES-FLOW
+    - HH-FEAT-NC-FLOW
+
+  merge_strategy:
+    principle: ramas por feature con PR corto y evidencia funcional por flujo.
+    required_evidence:
+      - caso_venta_producto
+      - caso_venta_producto_peso
+      - caso_nota_credito
+      - comparativo_antes_despues_precio_descuento_recargo
