@@ -3,6 +3,7 @@
 > Documento técnico publicable para equipos SAP ABAP/PI y ROAD.
 > Fecha: 2026-06-01
 > Ambiente QAS publicado: `http://172.16.10.12:8084/swagger/index.html`
+> Versión funcional publicada (WebAPI/Swagger): `1.2`
 
 ## Tabla de contenido
 
@@ -90,6 +91,7 @@ Comportamiento esperado:
   "promo": "7101001",
   "coddescSap": "ZK94",
   "coddesc": 7101001,
+  "tipoDescuento": "M",
   "orgVent": "1000",
   "canDist": "10",
   "sector": "00",
@@ -109,6 +111,7 @@ Comportamiento esperado:
 - `coddescSap`: tipo de condición SAP (`ZK94`, `ZR95`, `ZK96`, etc.)
 - `indJerarq`: secuencia/combinación SAP (`A903`, `A906`, `A908`, etc.)
 - `coddesc`: identificador de condición ROAD (debe persistirse cuando venga)
+- `tipoDescuento`: método de cálculo SAP/ROAD (`R`=Rangos, `M`=Múltiplos)
 - `regCond` / `promo`: referencias externas SAP
 
 ---
@@ -148,6 +151,10 @@ Comportamiento esperado:
 - `PRODUCTO = '*'`: aplica a todos los productos
 - `A906/KDGRP` -> `CTIPO = 3` (tipo cliente ROAD)
 - Combos: `PTIPO = 6` + detalle en `P_DESCUENTO_COMBO_DET`
+- `DESCTIPO` en ROAD:
+  - `R` cuando la condición es por rangos/escalas.
+  - `M` cuando la condición es por múltiplos (ej. 10+1) o no-rango.
+- La clasificación combo/no-combo NO depende de `DESCTIPO`; depende de `PTIPO` (`6`=combo).
 - `CODDESC`: usar como identificador funcional ROAD también en simples/escalas si viene en payload
 
 ---
@@ -200,6 +207,7 @@ Backlog:
   "promo": "7101001",
   "coddescSap": "ZK94",
   "coddesc": 7101001,
+  "tipoDescuento": "M",
   "indJerarq": "A903",
   "cliente": "0001000095",
   "producto": "0220",
@@ -219,6 +227,7 @@ Backlog:
   "promo": "7101002",
   "coddescSap": "ZK95",
   "coddesc": 7101002,
+  "tipoDescuento": "M",
   "indJerarq": "A907",
   "cliente": "8809-1",
   "producto": "0686",
@@ -238,6 +247,7 @@ Backlog:
   "promo": "7101003",
   "coddescSap": "ZK97",
   "coddesc": 7101003,
+  "tipoDescuento": "R",
   "indJerarq": "A906",
   "tipoCliente": "05",
   "producto": "0892",
@@ -260,6 +270,7 @@ Backlog:
   "promo": "7101004",
   "coddescSap": "ZR95",
   "coddesc": 7101004,
+  "tipoDescuento": "M",
   "indJerarq": "A903",
   "cliente": "0001000573",
   "producto": "0834",
@@ -279,6 +290,7 @@ Backlog:
   "promo": "7202001",
   "coddescSap": "ZK96",
   "coddesc": 7202001,
+  "tipoDescuento": "M",
   "indJerarq": "A908",
   "cliente": "0001000095",
   "grupoComision": "G01",
