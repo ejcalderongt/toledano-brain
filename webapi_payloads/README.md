@@ -4,6 +4,7 @@
 
 - `POST /api/SapDescuento`
 - `POST /api/sap/descuentos` (ruta contractual)
+- `DELETE /api/sap/descuentos` (borrado seguro por codigo o llave)
 
 ## Headers
 
@@ -14,6 +15,7 @@
 
 - Están preparados con datos reales de QAS para validación funcional.
 - Incluyen `coddesc` para trazabilidad HH/BOF y evitar `CODDESC` nulo.
+- Incluyen `reemplazarExistente=true` para que WebAPI elimine registros ROAD previos del mismo `CODDESC`/llave antes de insertar la nueva versión.
 - En combos no se usa semántica funcional `A/B`; el detalle solo define productos/cantidades.
 
 ## Escenarios
@@ -26,6 +28,8 @@
 - `06_zk96_combo_a909.json`
 - `07_zk96_combo_a910.json`
 - `08_zr96_combo_a912.json`
+- `09_delete_por_coddesc.json`
+- `10_delete_por_llave_a903.json`
 
 ## Guía de lectura
 

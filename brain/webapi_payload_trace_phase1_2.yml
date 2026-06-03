@@ -1,11 +1,21 @@
 webapi_payload_trace_phase1_2:
-  updated_at: 2026-05-31
+  updated_at: 2026-06-03
   branch: devejc-combos-sofos
   objective: >
     Dejar trazabilidad de payloads reales para pruebas de escenarios SAP descuentos/recargos
     en la etapa PDT Promociones Fase 1.2.
-  endpoint: POST /api/SapDescuento
+  endpoint:
+    - POST /api/SapDescuento
+    - POST /api/sap/descuentos
+    - DELETE /api/sap/descuentos
   payload_folder: ROADWedAPI/payloads/sap_descuentos
+  resend_policy:
+    field: reemplazarExistente
+    value_in_qas_payloads: true
+    behavior: >
+      WebAPI elimina registros anteriores por CODDESC/llave antes de insertar la nueva
+      version del descuento/recargo/combo. Para combos tambien elimina detalle previo en
+      P_DESCUENTO_COMBO_DET.
   scenarios:
     - file: 01_zk94_simple_a903.json
       sap_type: ZK94
@@ -39,7 +49,16 @@ webapi_payload_trace_phase1_2:
       sap_type: ZR96
       access_sequence: A912
       behavior: recargo combo ruta + grupo comision
+    - file: 09_delete_por_coddesc.json
+      sap_type: N/A
+      access_sequence: N/A
+      behavior: eliminacion segura por coddesc con confirmacion explicita
+    - file: 10_delete_por_llave_a903.json
+      sap_type: ZK94
+      access_sequence: A903
+      behavior: eliminacion segura por llave operativa cliente+producto+vigencia
   warnings:
     - "#EJC20260531 warning(sync-rdc7-descuentos): R1 pendiente de alinear API key RDC7/WebAPI."
   pending_backlog:
     - access_sequence A911 (ramo4) queda pendiente hasta definir mapeo ROAD.
+    - Implementar metodo DELETE en el repo fuente WebAPI (este repositorio contiene documentacion/payloads).

@@ -27,6 +27,11 @@
 - Controlador principal: `SapDescuentoController`.
 - Alias operativo de endpoint: `/api/sap/descuentos`.
 - Payloads de referencia QAS-ready: `ROADWedAPI/payloads/sap_descuentos/`.
+- Seguimiento 2026-06-03:
+  - Se documenta `DELETE /api/sap/descuentos` para baja segura por `coddesc` o `llave operativa`.
+  - Requiere `confirmacion='ELIMINAR'`.
+  - En combos, borrado transaccional: `P_DESCUENTO_COMBO_DET` -> `P_DESCUENTO`.
+  - Si hay multiples coincidencias sin `forzarMultiples=true`, responder `MULTIPLE_MATCH`.
 
 ## Convenciones
 

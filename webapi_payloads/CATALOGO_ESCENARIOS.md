@@ -2,6 +2,11 @@
 
 Este archivo documenta cada payload para facilitar pruebas, soporte y trazabilidad.
 
+Nota de reenvio: todos los payloads QAS incluyen `reemplazarExistente=true`. Con este flag,
+WebAPI borra primero los registros anteriores asociados al mismo `CODDESC`/llave en
+`P_DESCUENTO` y, para combos, su detalle en `P_DESCUENTO_COMBO_DET`; luego inserta la
+nueva version recibida.
+
 ## 01_zk94_simple_a903.json
 
 - Tipo SAP: `ZK94`
@@ -113,9 +118,43 @@ Este archivo documenta cada payload para facilitar pruebas, soporte y trazabilid
   - `CTIPO=11`, `PTIPO=6`, `ES_RECARGO=1`
   - Cabecera + detalle combo
 
+## 09_delete_por_coddesc.json
+
+- Metodo: `DELETE /api/sap/descuentos`
+- Caso: Eliminacion segura por identificador funcional ROAD
+- Campos clave:
+  - `modoEliminacion`: `POR_CODDESC`
+  - `coddesc`: identificador de cabecera a eliminar
+  - `confirmacion`: debe ser `ELIMINAR`
+- Resultado esperado:
+  - `200 OK`
+  - Elimina cabecera(s) en `P_DESCUENTO`
+  - Si aplica combo, elimina detalle en `P_DESCUENTO_COMBO_DET` antes de cabecera
+
+## 10_delete_por_llave_a903.json
+
+- Metodo: `DELETE /api/sap/descuentos`
+- Caso: Eliminacion segura por llave operativa de condicion A903
+- Campos clave:
+  - `modoEliminacion`: `POR_LLAVE`
+  - `accessSequence`: `A903`
+  - `coddescSap`
+  - `cliente`
+  - `producto`
+  - `fechaIni`
+  - `fechaFin`
+  - `confirmacion`: debe ser `ELIMINAR`
+- Resultado esperado:
+  - `200 OK` si encuentra coincidencia unica
+  - `404 NOT_FOUND` si no hay coincidencias
+  - `409 MULTIPLE_MATCH` si hay mas de un match y no se envio `forzarMultiples=true`
+
 ## Errores esperados comunes
 
 - `400 REQ_INVALID`: faltan campos obligatorios o producto no existe/no vendible.
 - `409 DUP_KEY` o `DUP_COMBO_HEADER`: ya existe una condición con la misma llave.
 - `409 DUP_COMBO_CODDESC`: `coddesc` ya utilizado por otro combo.
 - `401 API_KEY_REQUIRED/API_KEY_INVALID`: falta o no coincide `X-API-KEY`.
+- `400 DELETE_CONFIRMATION_REQUIRED`: falta confirmacion explicita para borrar.
+- `404 NOT_FOUND`: no hay registros para el filtro de eliminacion.
+- `409 MULTIPLE_MATCH`: el filtro de eliminacion devuelve mas de un registro.

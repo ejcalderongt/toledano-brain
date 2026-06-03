@@ -1,4 +1,24 @@
 bitacora:
+  - date: 2026-06-03
+    type: seguimiento_integracion_webapi
+    actor: Codex / Erik Calderon
+    summary: >
+      Se documenta hallazgo de conflicto DUP_KEY al reenviar condiciones y se define
+      estrategia de eliminacion segura via endpoint DELETE por coddesc o llave operativa.
+    impact: >
+      Queda estandar funcional/técnico para baja controlada de condiciones en ROAD sin
+      borrados masivos accidentales; soporte puede resolver reprocesos de SAP con menor riesgo.
+    status: documentado_pendiente_implementacion_codigo
+    evidence:
+      - INTEGRACION_SAP_ROAD_WEBAPI.md (seccion Contrato de eliminacion segura DELETE)
+      - webapi_payloads/09_delete_por_coddesc.json
+      - webapi_payloads/10_delete_por_llave_a903.json
+      - webapi_payloads/CATALOGO_ESCENARIOS.md
+    follow_up:
+      - Implementar metodo DELETE en ROADWedAPI/Controllers/SapDescuentoController.cs
+      - Implementar borrado transaccional cabecera/detalle combo en capa de datos
+      - Exponer codigos NOT_FOUND, MULTIPLE_MATCH y DELETE_CONFIRMATION_REQUIRED en respuesta estandar
+
   - date: 2026-04-06
     type: acceso_seguridad
     actor: Alicia Rivas / equipo seguridad

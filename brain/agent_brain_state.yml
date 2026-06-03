@@ -1,5 +1,5 @@
 brain_state:
-  updated_at: 2026-06-01
+  updated_at: 2026-06-03
   repository:
     path: C:/Users/yejc2/source/repos/ROAD_TOLEDANO
     remote: origin (Azure DevOps)
@@ -45,6 +45,8 @@ brain_state:
     - La rama remota objetivo confirmada y publicada fue dev_2026_ejc.
     - El nombre dev_2026_ejc no existia previamente en local y fue creado/publicado.
     - Se recomienda continuar nuevos ajustes de combos en devejc-combos-sofos.
+    - "2026-06-03: se documento contrato de eliminacion segura (DELETE /api/sap/descuentos) por coddesc o llave operativa."
+    - "2026-06-03: analisis funcional confirma que DUP_KEY persiste si no se usa reemplazarExistente=true o no cambia la llave operativa real."
   knowledge_artifacts:
     - road_toledano_agent_setup/operating_context_road_hh_bof_webapi.yml
     - road_toledano_agent_setup/fine_trace_discounts_combo.yml
@@ -70,6 +72,10 @@ brain_state:
       - No crear sprint en Jira hasta confirmacion explicita del usuario.
       - Confirmado: no mapear exclusiones cliente-producto en integracion SAP de descuentos para fase 1.2.
       - Confirmado: CTIPO es catalogo fijo (0..14) y PTIPO incorpora valor 6 para combos en fase 1.2.
+      - Pendiente agregado 2026-06-02: mantenimiento BOF para configurar descuentos/recargos PDT 1.2.
+      - Pendiente agregado 2026-06-02: parametrizar pantalla/visibilidad de descuentos aplicados para que HH pueda no mostrarlos sin impedir calculo interno.
+      - Pendiente agregado 2026-06-02: descuentos/recargos de combo deben procesarse internamente, sin depender de accion manual en HH.
+      - Pendiente agregado 2026-06-02: definir traza auditable del recargo/descuento aplicado sobre precio, incluyendo si queda como precio especial, descuento transaccional, log o combinacion.
   external_references:
     - name: Mapeo Interface Descuentos
       type: xlsx
@@ -94,6 +100,11 @@ brain_state:
     - "CODDESC debe ser tratado como identificador de referencia de descuento y debe persistirse tambien para escenarios simples/escalas cuando llegue en payload."
     - "Compatibilidad legacy vigente: historicamente CODDESC NULL fue interpretado como simple/escalado y CODDESC con valor + PTIPO=6 como combo con detalle en P_DESCUENTO_COMBO_DET."
     - "WebAPI mantiene controlador de integracion SAP en SapDescuentoController y alias operativo /api/sap/descuentos."
+    - "Eliminacion segura de condiciones debe requerir confirmacion explicita (confirmacion='ELIMINAR') para evitar borrado accidental."
+    - "DELETE por coddesc o por llave operativa debe ser transaccional; en combos primero detalle (P_DESCUENTO_COMBO_DET) y luego cabecera (P_DESCUENTO)."
+    - "Si el filtro de eliminacion retorna multiples cabeceras y no se habilita forzarMultiples, responder conflicto funcional MULTIPLE_MATCH."
+    - "Para PDT 1.2 queda pendiente definir parametro de visualizacion HH: descuentos/recargos pueden aplicarse internamente aunque no se muestren en pantalla HH."
+    - "Para combos, el descuento/recargo debe procesarse internamente y reflejarse en el precio/total segun parametrizacion BOF, manteniendo traza auditable del aplicado."
   local_skill_context:
     skill_name: ejc-skill-toledano
     skill_path: C:/Users/yejc2/.codex/skills/ejc-skill-toledano
@@ -105,3 +116,10 @@ brain_state:
       - road_toledano_agent_setup/project_context.yml
       - road_toledano_agent_setup/integration_mapping.yml
       - road_toledano_agent_setup/fine_trace_discounts_combo.yml
+  current_follow_up:
+    tracked_since: 2026-06-03
+    status: documentado_en_brain_pendiente_repo_webapi
+    items:
+      - "Implementar endpoint DELETE /api/sap/descuentos en repo de codigo fuente ROADWedAPI."
+      - "Agregar pruebas de eliminacion: por coddesc, por llave, sin confirmacion, no encontrado y multiple match."
+      - "Actualizar Swagger QAS al liberar version con endpoint DELETE."

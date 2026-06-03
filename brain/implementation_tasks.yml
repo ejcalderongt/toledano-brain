@@ -54,6 +54,17 @@ implementation_tasks:
     - id: API-005
       title: Implementar codigos de error estandar
       priority: media
+    - id: API-006
+      title: Crear endpoint de eliminacion segura de condiciones
+      route: /api/sap/descuentos
+      method: DELETE
+      auth: X-API-KEY
+      filters_supported: [POR_CODDESC, POR_LLAVE]
+      safety_controls:
+        - confirmacion obligatoria ELIMINAR
+        - transaccion detalle_combo luego cabecera
+        - bloquear borrado multiple sin forzarMultiples=true
+      priority: alta
 
   business_logic:
     - id: BL-001
@@ -93,6 +104,16 @@ implementation_tasks:
       title: A911 falla o queda pendiente si ramo4 no esta sincronizado
     - id: T-010
       title: Nota de credito ordinaria no aplica combo
+    - id: T-011
+      title: DELETE por coddesc elimina cabecera y detalle combo en una transaccion
+    - id: T-012
+      title: DELETE por llave A903 elimina solo una coincidencia valida
+    - id: T-013
+      title: DELETE sin confirmacion retorna DELETE_CONFIRMATION_REQUIRED
+    - id: T-014
+      title: DELETE por filtro sin match retorna NOT_FOUND
+    - id: T-015
+      title: DELETE con multiples matches retorna MULTIPLE_MATCH sin forzar
 
 error_codes:
   OK: Condicion procesada correctamente.
@@ -104,4 +125,7 @@ error_codes:
   INVALID_SCALE_RANGE: Escalas desordenadas o rangos invalidos.
   INVALID_COMBO_STRUCTURE: Combo sin detalle, sin grupo de comision o sin cantidades validas.
   DUPLICATE_CONDITION: Condicion duplicada para la misma llave operativa.
+  NOT_FOUND: No se encontraron registros para la operacion solicitada.
+  MULTIPLE_MATCH: El filtro de eliminacion encontro mas de un registro.
+  DELETE_CONFIRMATION_REQUIRED: Se requiere confirmacion explicita para eliminar.
   PROCESSING_ERROR: Error tecnico no controlado.

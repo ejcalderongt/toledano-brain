@@ -1,7 +1,7 @@
 # Integración SAP -> ROAD WebAPI (Descuentos, Recargos y Combos)
 
 > Documento técnico publicable para equipos SAP ABAP/PI y ROAD.
-> Fecha: 2026-06-01
+> Fecha: 2026-06-03
 > Ambiente QAS publicado: `http://172.16.10.12:8084/swagger/index.html`
 > Versión funcional publicada (WebAPI/Swagger): `1.2`
 
@@ -57,6 +57,7 @@ Fuera de alcance (fase actual):
 ## Endpoint principal
 
 - `POST /api/sap/descuentos`
+- `DELETE /api/sap/descuentos`
 
 ## Swagger (QAS)
 
@@ -78,6 +79,100 @@ Comportamiento esperado:
 - Procesamiento correcto: `200 OK`
 
 > Nota: El nombre exacto del header puede configurarse por entorno. Validar en el despliegue objetivo.
+
+---
+
+## Contrato de eliminación segura (DELETE)
+
+## Objetivo
+
+Eliminar una condición ya creada en ROAD de forma controlada, evitando borrados masivos por error.
+
+## Endpoint
+
+- `DELETE /api/sap/descuentos`
+
+## Reglas de seguridad obligatorias
+
+- Debe enviarse `modoEliminacion` con valor `POR_CODDESC` o `POR_LLAVE`.
+- Debe enviarse `confirmacion` con valor exacto `ELIMINAR`.
+- Si `modoEliminacion=POR_CODDESC`, `coddesc` es obligatorio.
+- Si `modoEliminacion=POR_LLAVE`, se deben enviar:
+  - `accessSequence`
+  - `coddescSap`
+  - `fechaIni`
+  - `fechaFin`
+  - más los campos de segmentación según la secuencia (ej. `cliente` + `producto` para `A903`).
+- Si la condición es combo (`PTIPO=6`), la API elimina primero detalle en `P_DESCUENTO_COMBO_DET` y luego cabecera en `P_DESCUENTO` (misma transacción).
+- Si el filtro resuelve más de 1 cabecera y `forzarMultiples` no es `true`, responder `409 MULTIPLE_MATCH`.
+
+## Request ejemplo por coddesc
+
+```json
+{
+  "modoEliminacion": "POR_CODDESC",
+  "coddesc": 7242123,
+  "motivo": "Baja operativa solicitada por negocio",
+  "confirmacion": "ELIMINAR"
+}
+```
+
+## Request ejemplo por llave operativa
+
+```json
+{
+  "modoEliminacion": "POR_LLAVE",
+  "accessSequence": "A903",
+  "coddescSap": "ZK94",
+  "cliente": "0001000095",
+  "producto": "0220",
+  "fechaIni": "2026-06-03T20:02:37.739Z",
+  "fechaFin": "2026-06-03T20:02:37.740Z",
+  "motivo": "Condicion cargada con valores incorrectos",
+  "confirmacion": "ELIMINAR"
+}
+```
+
+## Response ejemplo exitoso
+
+```json
+{
+  "success": true,
+  "statusCode": "OK",
+  "message": "Condicion eliminada correctamente",
+  "traceId": "ROAD-20260603-000101",
+  "timestamp": "2026-06-03T21:15:00Z",
+  "result": {
+    "modoEliminacion": "POR_CODDESC",
+    "coddesc": 7242123,
+    "recordsDeletedHeader": 1,
+    "recordsDeletedDetail": 0,
+    "targetTables": ["P_DESCUENTO"]
+  },
+  "warnings": [],
+  "errors": []
+}
+```
+
+## Response ejemplo sin coincidencias
+
+```json
+{
+  "success": false,
+  "statusCode": "NOT_FOUND",
+  "message": "No se encontraron registros para eliminar",
+  "traceId": "ROAD-20260603-000102",
+  "timestamp": "2026-06-03T21:16:00Z",
+  "result": null,
+  "warnings": [],
+  "errors": [
+    {
+      "code": "NOT_FOUND",
+      "detail": "No existe una condicion activa con el filtro recibido."
+    }
+  ]
+}
+```
 
 ---
 
@@ -366,6 +461,9 @@ Status de negocio sugeridos:
 - `UNAUTHORIZED`
 - `INTEGRATION_ERROR`
 - `INTERNAL_ERROR`
+- `NOT_FOUND`
+- `MULTIPLE_MATCH`
+- `DELETE_CONFIRMATION_REQUIRED`
 
 HTTP sugerido:
 
@@ -373,6 +471,7 @@ HTTP sugerido:
 - `400`: request inválido
 - `401`: autenticación inválida
 - `409`: conflicto funcional (si aplica)
+- `404`: no encontrado
 - `500`: error no controlado
 
 ---
