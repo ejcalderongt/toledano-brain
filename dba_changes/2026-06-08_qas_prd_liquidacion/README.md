@@ -12,6 +12,7 @@ Este paquete concentra cambios de base de datos orientados a mejorar el rendimie
 - [Diagnostico runtime](#diagnostico-runtime)
 - [Plan N+1 v2](#plan-n1-v2)
 - [Correlacion traza vs SQL health](#correlacion-traza-vs-sql-health)
+- [Evidencia de ejecucion](#evidencia-de-ejecucion)
 - [Impacto esperado en negocio](#impacto-esperado-en-negocio)
 - [Riesgos y consideraciones](#riesgos-y-consideraciones)
 - [Notas](#notas)
@@ -65,6 +66,11 @@ Reducir tiempos de procesamiento en liquidacion sin romper flujos existentes, mo
 - Se confirmo correlacion fuerte entre cuellos `POST_RECALCULA_FACTURAS` y `POST_CALCULA_INVENTARIO_RUTA` con waits de lock/I-O en SQL.
 - El costo dominante persiste en operaciones `UPDATE ... WHERE CODIGOLIQUIDACION` sobre tablas de alto volumen.
 - Ver analisis detallado en [16_correlacion_traza_sqlhealth_2026-06-08.md](./16_correlacion_traza_sqlhealth_2026-06-08.md).
+
+## Evidencia de ejecucion
+- Ejecucion aplicada en `QAS` y `PRD` el `2026-06-08`.
+- Reporte y logs en:
+  - [execution_logs/20260608_155251/EXECUTION_REPORT_2026-06-08.md](./execution_logs/20260608_155251/EXECUTION_REPORT_2026-06-08.md)
 
 ## Validacion post-deploy
 - Confirmar creacion/alter de objetos sin errores.
