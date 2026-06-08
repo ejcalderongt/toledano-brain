@@ -11,6 +11,7 @@ Este paquete concentra cambios de base de datos orientados a mejorar el rendimie
 - [Validacion post-deploy](#validacion-post-deploy)
 - [Diagnostico runtime](#diagnostico-runtime)
 - [Plan N+1 v2](#plan-n1-v2)
+- [Correlacion traza vs SQL health](#correlacion-traza-vs-sql-health)
 - [Impacto esperado en negocio](#impacto-esperado-en-negocio)
 - [Riesgos y consideraciones](#riesgos-y-consideraciones)
 - [Notas](#notas)
@@ -40,6 +41,8 @@ Reducir tiempos de procesamiento en liquidacion sin romper flujos existentes, mo
    Diagnostico de trazas runtime en debug con top cuellos por etapa (`POST_*`).
 6. [15_plan_n1_liquidacion_v2_2026-06-08.md](./15_plan_n1_liquidacion_v2_2026-06-08.md)  
    Plan tecnico V2 para eliminar N+1 en apertura/consulta de liquidacion.
+7. [16_correlacion_traza_sqlhealth_2026-06-08.md](./16_correlacion_traza_sqlhealth_2026-06-08.md)  
+   Correlacion entre trazas nuevas de `frmLiqVend` y health check SQL en PRD.
 
 ## Orden recomendado de ejecucion
 1. Ejecutar [proposal_index_tuning_liquidacion_prd_qas_v1.sql](./proposal_index_tuning_liquidacion_prd_qas_v1.sql) en ventana controlada.
@@ -57,6 +60,11 @@ Reducir tiempos de procesamiento en liquidacion sin romper flujos existentes, mo
 - Quick wins ya aplicados reducen roundtrips repetitivos, pero casos pesados siguen altos.
 - La siguiente etapa es mover calculo a SP batch con TVP y consolidar carga agregada de inventario.
 - Ver plan en [15_plan_n1_liquidacion_v2_2026-06-08.md](./15_plan_n1_liquidacion_v2_2026-06-08.md).
+
+## Correlacion traza vs SQL health
+- Se confirmo correlacion fuerte entre cuellos `POST_RECALCULA_FACTURAS` y `POST_CALCULA_INVENTARIO_RUTA` con waits de lock/I-O en SQL.
+- El costo dominante persiste en operaciones `UPDATE ... WHERE CODIGOLIQUIDACION` sobre tablas de alto volumen.
+- Ver analisis detallado en [16_correlacion_traza_sqlhealth_2026-06-08.md](./16_correlacion_traza_sqlhealth_2026-06-08.md).
 
 ## Validacion post-deploy
 - Confirmar creacion/alter de objetos sin errores.
