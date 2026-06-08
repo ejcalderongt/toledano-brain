@@ -9,6 +9,8 @@ Este paquete concentra cambios de base de datos orientados a mejorar el rendimie
 - [Scripts incluidos](#scripts-incluidos)
 - [Orden recomendado de ejecucion](#orden-recomendado-de-ejecucion)
 - [Validacion post-deploy](#validacion-post-deploy)
+- [Diagnostico runtime](#diagnostico-runtime)
+- [Plan N+1 v2](#plan-n1-v2)
 - [Impacto esperado en negocio](#impacto-esperado-en-negocio)
 - [Riesgos y consideraciones](#riesgos-y-consideraciones)
 - [Notas](#notas)
@@ -34,12 +36,27 @@ Reducir tiempos de procesamiento en liquidacion sin romper flujos existentes, mo
    Ajustes de indices para consultas y updates criticos de liquidacion.
 4. [04_queries_validacion_postdeploy_2026-06-08.sql](./04_queries_validacion_postdeploy_2026-06-08.sql)  
    Queries de validacion funcional y tecnica despues del despliegue.
+5. [14_traza_debug_runtime_liquidacion_20260608.md](./14_traza_debug_runtime_liquidacion_20260608.md)  
+   Diagnostico de trazas runtime en debug con top cuellos por etapa (`POST_*`).
+6. [15_plan_n1_liquidacion_v2_2026-06-08.md](./15_plan_n1_liquidacion_v2_2026-06-08.md)  
+   Plan tecnico V2 para eliminar N+1 en apertura/consulta de liquidacion.
 
 ## Orden recomendado de ejecucion
 1. Ejecutar [proposal_index_tuning_liquidacion_prd_qas_v1.sql](./proposal_index_tuning_liquidacion_prd_qas_v1.sql) en ventana controlada.
 2. Ejecutar [proposal_sp_cola_transacciones_wait_v1.sql](./proposal_sp_cola_transacciones_wait_v1.sql).
 3. Ejecutar [proposal_sp_liquidacion_batch_v1.sql](./proposal_sp_liquidacion_batch_v1.sql).
 4. Ejecutar [04_queries_validacion_postdeploy_2026-06-08.sql](./04_queries_validacion_postdeploy_2026-06-08.sql).
+
+## Diagnostico runtime
+- El mayor costo no esta en encabezado de liquidacion, sino en:
+  - `POST_CALCULA_INVENTARIO_RUTA`
+  - `POST_RECALCULA_FACTURAS`
+- Ver detalle en [14_traza_debug_runtime_liquidacion_20260608.md](./14_traza_debug_runtime_liquidacion_20260608.md).
+
+## Plan N+1 v2
+- Quick wins ya aplicados reducen roundtrips repetitivos, pero casos pesados siguen altos.
+- La siguiente etapa es mover calculo a SP batch con TVP y consolidar carga agregada de inventario.
+- Ver plan en [15_plan_n1_liquidacion_v2_2026-06-08.md](./15_plan_n1_liquidacion_v2_2026-06-08.md).
 
 ## Validacion post-deploy
 - Confirmar creacion/alter de objetos sin errores.
