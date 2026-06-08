@@ -1,24 +1,4 @@
 bitacora:
-  - date: 2026-06-03
-    type: seguimiento_integracion_webapi
-    actor: Codex / Erik Calderon
-    summary: >
-      Se documenta hallazgo de conflicto DUP_KEY al reenviar condiciones y se define
-      estrategia de eliminacion segura via endpoint DELETE por coddesc o llave operativa.
-    impact: >
-      Queda estandar funcional/técnico para baja controlada de condiciones en ROAD sin
-      borrados masivos accidentales; soporte puede resolver reprocesos de SAP con menor riesgo.
-    status: documentado_pendiente_implementacion_codigo
-    evidence:
-      - INTEGRACION_SAP_ROAD_WEBAPI.md (seccion Contrato de eliminacion segura DELETE)
-      - webapi_payloads/09_delete_por_coddesc.json
-      - webapi_payloads/10_delete_por_llave_a903.json
-      - webapi_payloads/CATALOGO_ESCENARIOS.md
-    follow_up:
-      - Implementar metodo DELETE en ROADWedAPI/Controllers/SapDescuentoController.cs
-      - Implementar borrado transaccional cabecera/detalle combo en capa de datos
-      - Exponer codigos NOT_FOUND, MULTIPLE_MATCH y DELETE_CONFIRMATION_REQUIRED en respuesta estandar
-
   - date: 2026-04-06
     type: acceso_seguridad
     actor: Alicia Rivas / equipo seguridad
@@ -130,3 +110,103 @@ bitacora:
     summary: PDT define plan de trabajo promociones combos, incluyendo BOF, HH, interface, pruebas unitarias e integrales.
     impact: Roadmap de implementacion y pruebas.
     status: planificado
+
+  - date: 2026-06-01
+    type: actualizacion_codigo_webapi
+    actor: Erik Calderon / Codex
+    summary: Se actualiza WebAPI para version funcional 1.2 en Swagger y se corrige DESCTIPO para usar solo R (rangos) y M (multiplos), desacoplando la semantica de combo a PTIPO=6.
+    impact: Alinea contrato SAP-ROAD con regla de negocio real de TOLEDANO y evita interpretaciones legacy S/C en P_DESCUENTO.
+    status: implementado_en_devejc-combos-sofos
+    technical_trace:
+      branch: devejc-combos-sofos
+      files:
+        - ROADWedAPI/Program.cs
+        - ROADWedAPI/DTOS/SapDescuentoRequest.cs
+        - ROADWedAPI/SAP/Descuentos/SapDescuentoMapper.cs
+        - ROADWedAPI/Controllers/SapDescuentoController.cs
+        - ROADWedAPI/payloads/sap_descuentos/CATALOGO_ESCENARIOS.md
+
+  - date: 2026-06-08
+    type: optimizacion_rendimiento_liquidacion
+    actor: Erik Calderon / Codex
+    summary: Se realiza traza fina de frmLiqVend y se implementa optimizacion set-based en Guarda_Liquidacion para evitar updates por fila en tablas de documentos e inventario.
+    impact: Reduce roundtrips por liquidacion, disminuye tiempo de cierre y baja probabilidad de deadlock bajo concurrencia de multiples liquidadores.
+    status: implementado_en_devejc-combos-sofos
+    technical_trace:
+      branch: devejc-combos-sofos
+      files:
+        - Formas/Procesos/frmLiqVend.vb
+        - road_toledano_agent_setup/fine_trace_liquidacion_frmLiqVend_2026-06-08.md
+        - road_toledano_agent_setup/sql/proposal_sp_liquidacion_batch_v1.sql
+
+  - date: 2026-06-08
+    type: optimizacion_concurrencia_espera_liquidacion
+    actor: Erik Calderon / Codex
+    summary: Se elimina la espera recursiva en frmLiqVend para los turnos CT de buscar/cargar/guardar, migrando a loop iterativo con logica comun para reducir sobrecosto y riesgo de reentrada.
+    impact: Mejora estabilidad bajo multiples liquidadores concurrentes y reduce latencia de espera activa; deja base para mover control de turnos a SP atomico.
+    status: implementado_en_devejc-combos-sofos
+    technical_trace:
+      branch: devejc-combos-sofos
+      files:
+        - Formas/Procesos/frmLiqVend.vb
+        - road_toledano_agent_setup/sql/proposal_sp_cola_transacciones_wait_v1.sql
+        - road_toledano_agent_setup/fine_trace_liquidacion_frmLiqVend_2026-06-08.md
+
+  - date: 2026-06-08
+    type: despliegue_bd_qas_prd_optimizacion_cola
+    actor: Erik Calderon / Codex
+    summary: Se despliegan en QAS y PRD los SPs/TVP/indice para cola de transacciones y guardado batch; se corrige compatibilidad de bloqueos removiendo READPAST en lectura con HOLDLOCK de TryAcquire.
+    impact: Estructuras de concurrencia y batch quedan alineadas entre ROADSAP_QAS y ROADSAP, listas para integrar desde BOF con menor roundtrip.
+    status: implementado_en_qas_y_prd
+    technical_trace:
+      qas:
+        server: 172.16.10.27
+        db: ROADSAP_QAS
+      prd:
+        server: 172.16.10.9
+        db: ROADSAP
+      scripts:
+        - road_toledano_agent_setup/sql/proposal_sp_liquidacion_batch_v1.sql
+        - road_toledano_agent_setup/sql/proposal_sp_cola_transacciones_wait_v1.sql
+
+  - date: 2026-06-08
+    type: diagnostico_prd_rendimiento_concurrencia
+    actor: Erik Calderon / Codex
+    summary: Se ejecuta diagnostico no invasivo en ROADSAP (PRD) con DMVs y script Python para identificar cuellos de botella, demanda e indices faltantes en procesos de liquidacion.
+    impact: Se confirma cuello principal en updates por CODIGOLIQUIDACION sobre inventario; se deja propuesta de tuning de indices para rollout controlado QAS->PRD.
+    status: analisis_completado_pendiente_ejecucion_indices
+    technical_trace:
+      prd:
+        server: 172.16.10.9
+        db: ROADSAP
+      artifacts:
+        - road_toledano_agent_setup/tools/sql_perf_diagnose.py
+        - road_toledano_agent_setup/sql/diagnostico_prd_roadsap_2026-06-08.md
+        - road_toledano_agent_setup/sql/diagnostico_prd_roadsap_2026-06-08.json
+        - road_toledano_agent_setup/sql/diagnostico_prd_resumen_2026-06-08.md
+        - road_toledano_agent_setup/sql/proposal_index_tuning_liquidacion_prd_qas_v1.sql
+
+  - date: 2026-06-08
+    type: despliegue_indices_qas_prd_liquidacion
+    actor: Erik Calderon / Codex
+    summary: Se aplican en QAS y PRD los indices propuestos para optimizar updates por CODIGOLIQUIDACION y operaciones de cola de transacciones.
+    impact: Mejora base para reducir scans y latencia en limpieza/guardado de liquidacion bajo concurrencia.
+    status: implementado_en_qas_y_prd
+    technical_trace:
+      qas:
+        server: 172.16.10.27
+        db: ROADSAP_QAS
+        elapsed_ms: 2094
+      prd:
+        server: 172.16.10.9
+        db: ROADSAP
+        elapsed_ms: 2831
+      script:
+        - road_toledano_agent_setup/sql/proposal_index_tuning_liquidacion_prd_qas_v1.sql
+      indexes:
+        - IX_P_INVENTARIO_BARRAS_RUTA_CODLIQ_NZ
+        - IX_P_INVENTARIO_RUTA_CODLIQ
+        - IX_D_DEPOS_CODLIQ
+        - IX_P_COLA_TRANSACCIONES_USR_PROC
+      notes:
+        - Se agrego SET QUOTED_IDENTIFIER ON al script para compatibilidad de creacion.
