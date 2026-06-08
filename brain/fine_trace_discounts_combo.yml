@@ -1,5 +1,5 @@
 fine_trace:
-  updated_at: 2026-05-31
+  updated_at: 2026-06-02
   scope: descuentos y recargos (combo/no combo) entre SAP -> WebAPI -> BOF/RDC7 -> HH
 
   evidence:
@@ -163,3 +163,11 @@ fine_trace:
       detail: >
         CTIPO (0..14) y PTIPO (0..5 legado) son valores fijos en BOF/HH. La introduccion de
         PTIPO=6 para combo requiere ajuste coordinado en WebAPI, BOF, RDC7 y HH.
+    - id: R6
+      title: traza y visibilidad de descuento/recargo aplicado no definidas
+      impact: alto
+      detail: >
+        PDT 1.2 requiere parametrizar si el descuento/recargo aplicado se muestra en HH y, al
+        mismo tiempo, conservar procesamiento interno para combos. Falta definir donde queda la
+        evidencia auditable del aplicado: precio especial, descuento transaccional, log de condicion,
+        detalle de factura u otro mecanismo combinado.

@@ -3,6 +3,7 @@
   "promo": "7101005",
   "coddescSap": "ZK96",
   "coddesc": 3101005,
+  "reemplazarExistente": true,
   "orgVent": "1000",
   "canDist": "10",
   "sector": "01",

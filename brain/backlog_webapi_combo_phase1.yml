@@ -1,5 +1,5 @@
 backlog_webapi_combo_phase1:
-  updated_at: 2026-05-31
+  updated_at: 2026-06-02
   planning_context:
     sprint_name: PDT_Promociones_Fase1.2
     jira_deployment: pendiente
@@ -83,7 +83,7 @@ backlog_webapi_combo_phase1:
 
     - id: EPIC-WAPI-03
       name: Compatibilidad operativa HH/BOF/RDC7
-      estimate_hours: 38
+      estimate_hours: 62
       items:
         - id: INT-CAT-008A
           title: Propagar PTIPO=6 (combo) en BOF, RDC7 y HH
@@ -130,6 +130,46 @@ backlog_webapi_combo_phase1:
           estimate_hours: 6
           priority: media
           jira_type: Task
+        - id: BOF-DESC-013
+          title: Mantenimiento BOF para configurar descuentos/recargos PDT 1.2
+          estimate_hours: 8
+          priority: alta
+          jira_type: Story
+          source_note: "Solicitud usuario 2026-06-02: mantenimiento de BOF para configurar descuento."
+          acceptance:
+            - BOF permite configurar/administrar descuentos y recargos requeridos por PDT 1.2.
+            - Respeta catalogos CTIPO/PTIPO, incluyendo PTIPO=6 para combos.
+            - No rompe configuraciones legacy de descuento simple/escalado.
+        - id: BOF-DESC-014
+          title: Parametrizar pantalla de descuentos y visibilidad hacia HH
+          estimate_hours: 6
+          priority: alta
+          jira_type: Story
+          source_note: "Solicitud usuario 2026-06-02: parametrizar pantalla de descuentos (no mostrar en HH) cuando se aplican."
+          acceptance:
+            - Existe parametro para definir si descuentos/recargos aplicados se muestran o no en HH.
+            - Cuando el parametro indique no mostrar, HH no debe exponer la pantalla/etiqueta de descuento aplicado al usuario.
+            - La no visualizacion en HH no debe impedir el calculo interno ni la persistencia de la transaccion.
+        - id: BOF-COMBO-015
+          title: Procesamiento interno de descuento/recargo combo
+          estimate_hours: 6
+          priority: alta
+          jira_type: Story
+          source_note: "Solicitud usuario 2026-06-02: cuando se aplica descuento para combo se debe procesar internamente."
+          acceptance:
+            - Combo se evalua internamente por reglas y detalle P_DESCUENTO_COMBO_DET.
+            - El usuario HH no necesita seleccionar/manualizar el descuento combo para que aplique.
+            - Mantiene consistencia entre precio calculado, impuesto y total de linea/factura.
+        - id: BOF-TRACE-016
+          title: Definir traza del recargo/descuento aplicado sobre precio
+          estimate_hours: 4
+          priority: alta
+          jira_type: Spike
+          source_note: "Solicitud usuario 2026-06-02: parametrizadamente reflejar aplicado sobre precio; confirmar traza de recargo/descuento."
+          acceptance:
+            - Decision documentada sobre donde queda la traza funcional del descuento/recargo aplicado.
+            - Evaluar si debe persistirse como precio especial, campo de descuento, log de condicion, detalle de factura o combinacion.
+            - La traza debe permitir auditar CODDESC, ES_RECARGO, PORPORCENTAJE, PRIORIDAD, PTIPO y origen combo/no combo cuando aplique.
 
     - id: EPIC-WAPI-04
       name: QA y despliegue controlado
@@ -152,12 +192,13 @@ backlog_webapi_combo_phase1:
           jira_type: Task
 
   totals:
-    estimated_hours: 162
+    estimated_hours: 186
     confidence: media
     assumptions:
       - Disponibilidad de equipo SAP/SOFOS para validar mapeos abiertos.
       - Acceso VPN activo para pruebas en ROADSAP_QAS.
       - Sin cambios disruptivos fuera de alcance en HH/BOF durante ejecucion.
+      - Pendientes BOF/HH agregados el 2026-06-02 quedan solo contextualizados en brain; no se ejecutaron cambios de codigo.
 
   jira_management_model:
     status_flow:
