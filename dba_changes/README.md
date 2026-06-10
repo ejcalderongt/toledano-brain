@@ -1,52 +1,85 @@
-# Informe Ejecutivo de Rendimiento (Release)
+# Informe Ejecutivo de Rendimiento (Cliente)
 
-Fecha: 2026-06-09  
-Alcance: proceso de liquidación `frmLiqVend` (consulta/edición y generación automática de DL).
+Fecha de corte: 2026-06-10  
+Alcance: liquidación `frmLiqVend` (consulta/edición y generación automática de DL).
 
-## 1) Cambios aplicados en PRD (impacto directo en rendimiento)
+## Estado Ejecutivo (Semáforo)
 
-### Precheck de generación automática de DL
-- Se aplicó en PRD el SP `dbo.usp_LiqVend_DLAuto_Precheck_v1`.
-- Objetivo: evitar ejecutar etapas completas de DL/DC cuando no hay candidatos.
-- Resultado esperado: menos trabajo innecesario y menor tiempo total del botón de generación automática.
+| Estado | Segmento | Resultado |
+|---|---|---|
+| 🟢 | Aplicado en PRD | Activo y operando |
+| 🔵 | Nueva versión BOF | Listo para siguiente despliegue de app |
+| 🟡 | Monitoreo | Validación continua de tiempos por ruta |
 
-### Batch set-based para inventario de ruta
-- Se aplicó en PRD la versión set-based por lote para inventario (`TVP`).
-- Objetivo: reducir roundtrips y eliminar consultas N+1 en cálculo de inventario.
-- Resultado esperado: menor latencia en `POST_CALCULA_INVENTARIO_RUTA` y menor presión por concurrencia.
+---
 
-### Consolidación transaccional de cabecera merma
-- Se aplicó en PRD `dbo.usp_LiqVend_DL_Merma_Finaliza_v1`.
-- Objetivo: unificar updates repetidos de cabecera (`P_LIQUIDACION` + `TEMP_P_DIFLIQ`) en un paso transaccional.
-- Resultado esperado: menos viajes a BD y menor riesgo de inconsistencias intermedias.
+## 🟢 Aplicado en PRD (Ya ejecutado)
 
-## 2) Mejoras en la aplicación (release actual)
+### 1) Precheck de generación automática de DL
+- SP aplicado: `dbo.usp_LiqVend_DLAuto_Precheck_v1`
+- Impacto: evita ejecutar pasos de DL/DC cuando no hay candidatos.
+- Evidencia y script:
+  - [README precheck](./2026-06-08_dlauto_precheck/README.md)
+  - [01_2026-06-08_dlauto_precheck_v1.sql](./2026-06-08_dlauto_precheck/01_2026-06-08_dlauto_precheck_v1.sql)
 
-### Eliminación de N+1 en merma (DLMP/DLMNP)
-- Se incorporó cache local por proceso para `% merma`, UM y precio por llave de negocio.
-- Beneficio: disminución de consultas repetidas por producto durante generación de DL de merma.
+### 2) Batch set-based para inventario de ruta
+- Script aplicado: versión set-based por lote con TVP.
+- Impacto: reduce roundtrips y latencia en `POST_CALCULA_INVENTARIO_RUTA`.
+- Evidencia y script:
+  - [02_2026-06-08_liqvend_inventario_batch_v2_setbased.sql](./2026-06-08_dlauto_precheck/02_2026-06-08_liqvend_inventario_batch_v2_setbased.sql)
 
-### Inserción masiva de detalle (bulk con fallback)
-- Se migró el detalle de merma a inserción masiva para:
-  - `TEMP_P_DIFLIQ_DET`
-  - `TEMP_P_NOTACDD`
-- En caso de fallo, el sistema vuelve a modo fila-a-fila (fallback seguro).
+### 3) Merma bulk + consolidación transaccional de cabecera
+- SP aplicado: `dbo.usp_LiqVend_DL_Merma_Finaliza_v1`
+- Impacto: menos viajes a BD y menor riesgo de inconsistencias intermedias.
+- Evidencia y scripts:
+  - [README merma bulk](./2026-06-08_merma_bulk_headsp/README.md)
+  - [01_2026-06-08_usp_LiqVend_DL_Merma_Finaliza_v1.sql](./2026-06-08_merma_bulk_headsp/01_2026-06-08_usp_LiqVend_DL_Merma_Finaliza_v1.sql)
+  - [02_execution_qas_prd_2026-06-08.md](./2026-06-08_merma_bulk_headsp/02_execution_qas_prd_2026-06-08.md)
 
-### Estabilidad de UI en procesos largos
-- Se añadió manejo defensivo del splash (`Safe_Splash_*`) para evitar fallos por referencia nula.
+### 4) Regeneración de índices y estadísticas (post-purga)
+- Acción: diagnóstico + rebuild/recompute para recuperar rendimiento.
+- Impacto: mejora del costo promedio en operaciones de limpieza/actualización por liquidación.
+- Evidencia y scripts:
+  - [01_diag_fragmentacion_stats_v1.sql](./2026-06-08_index_rebuild_stats/01_2026-06-08_diag_fragmentacion_stats_v1.sql)
+  - [02_maintenance_rebuild_stats_v1.sql](./2026-06-08_index_rebuild_stats/02_2026-06-08_maintenance_rebuild_stats_v1.sql)
+  - [03_runbook_post_purge_perf.md](./2026-06-08_index_rebuild_stats/03_2026-06-08_runbook_post_purge_perf.md)
+  - [06_diagnostico_prd_resumen_2026-06-08.md](./2026-06-08_index_rebuild_stats/06_diagnostico_prd_resumen_2026-06-08.md)
 
-## 3) Evidencias, scripts y documentación relacionada
+### 5) Índices adicionales por `CODIGOLIQUIDACION` (QAS/PRD)
+- Objetivo: reducir scans/costo en tablas grandes de liquidación.
+- Evidencia y scripts:
+  - [04_proposal_index_tuning_liquidacion_prd_qas_v1.sql](./2026-06-08_index_rebuild_stats/04_proposal_index_tuning_liquidacion_prd_qas_v1.sql)
+  - [05_deployment_report_qas_prd_2026-06-08.md](./2026-06-08_index_rebuild_stats/05_deployment_report_qas_prd_2026-06-08.md)
 
-- [Precheck DL automático](./2026-06-08_dlauto_precheck/README.md)
-- [Script PRD/QAS: `usp_LiqVend_DLAuto_Precheck_v1`](./2026-06-08_dlauto_precheck/01_2026-06-08_dlauto_precheck_v1.sql)
-- [Script batch inventario set-based](./2026-06-08_dlauto_precheck/02_2026-06-08_liqvend_inventario_batch_v2_setbased.sql)
-- [Merma bulk + SP cabecera](./2026-06-08_merma_bulk_headsp/README.md)
-- [Script PRD/QAS: `usp_LiqVend_DL_Merma_Finaliza_v1`](./2026-06-08_merma_bulk_headsp/01_2026-06-08_usp_LiqVend_DL_Merma_Finaliza_v1.sql)
-- [Ejecución QAS/PRD merma bulk](./2026-06-08_merma_bulk_headsp/02_execution_qas_prd_2026-06-08.md)
-- [Fix estabilidad Splash + bulk mapping](./2026-06-09_fix_splash_bulk/README.md)
+---
 
-## Resumen de valor del release
-- Menos roundtrips a SQL Server.
-- Menor costo por ejecución en rutas con alta concurrencia.
-- Mayor resiliencia del flujo de generación automática de DL.
-- Mejor observabilidad para detectar cuellos de botella reales en producción.
+## 🔵 Nueva versión BOF (Siguiente despliegue de aplicación)
+
+### 1) Estabilidad de UI (WaitForm)
+- Cambio: wrappers defensivos `Safe_Splash_*`.
+- Beneficio: elimina fallos por referencia nula durante procesos largos.
+
+### 2) Bulk mapping defensivo
+- Cambio: mapeo dinámico de columnas destino en bulk insert.
+- Beneficio: evita errores por diferencias de esquema entre ambientes.
+
+### 3) Blindaje de FK en merma (`TEMP_P_NOTACDD` vs `TEMP_P_NOTACD`)
+- Cambio: resolución explícita de `CODIGONCD` de cabecera antes de insertar detalle.
+- Beneficio: evita conflicto FK durante generación automática de DL.
+
+### 4) Trazabilidad ampliada por etapa
+- Cambio: trazas operativas para diagnóstico rápido (`PRECHECK_STATUS`, `PASO_*`, `MERMA_*`, `TIEMPO_TOTAL_DL`).
+- Beneficio: identificación de cuellos reales en producción sin adivinar.
+
+- Documento relacionado:
+  - [2026-06-09_fix_splash_bulk/README.md](./2026-06-09_fix_splash_bulk/README.md)
+
+---
+
+## Resumen de impacto para cliente
+
+- Menor tiempo total en generación automática de DL.
+- Menor carga transaccional en SQL Server.
+- Mayor estabilidad operativa en jornadas de alta concurrencia.
+- Mayor capacidad de diagnóstico y control de performance.
+
