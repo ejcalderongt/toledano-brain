@@ -104,26 +104,28 @@ Referencias:
 - [14_traza_debug_runtime_liquidacion_20260608.md](./2026-06-08_qas_prd_liquidacion/14_traza_debug_runtime_liquidacion_20260608.md)
 - [16_correlacion_traza_sqlhealth_2026-06-08.md](./2026-06-08_qas_prd_liquidacion/16_correlacion_traza_sqlhealth_2026-06-08.md)
 
-## Mejoras de aplicacion ya implementadas (orientadas a release)
+## Mejoras de aplicacion identificadas por ingenieria (orientadas a release)
+> Estas lineas reflejan oportunidades priorizadas por analisis tecnico. Algunas ya fueron prototipadas o validadas en pruebas controladas, y su adopcion final depende de la ventana de despliegue.
+
 1. Reduccion de N+1 en merma.
-Que se hizo: cache local de `%merma`, UM y precio por llave de negocio.
-Impacto esperado: menos consultas repetidas por producto en DL de merma.
+Enfoque de software: cache local por llave de negocio (`%merma`, UM y precio) para evitar llamadas repetitivas por producto.
+Impacto esperado: menor roundtrip y menor tiempo por lote en generacion de DL de merma.
 
 2. Insercion masiva de detalle (bulk + fallback).
-Que se hizo: procesamiento masivo de `TEMP_P_DIFLIQ_DET` y `TEMP_P_NOTACDD`.
-Impacto esperado: menos roundtrips en lotes grandes y mejor tiempo de cierre de etapa.
+Enfoque de software: procesamiento masivo para `TEMP_P_DIFLIQ_DET` y `TEMP_P_NOTACDD` con mecanismo de compatibilidad.
+Impacto esperado: menos viajes a BD, menor tiempo de cierre de etapa y mejor comportamiento en alto volumen.
 
 3. Consolidacion transaccional de cabecera merma.
-Que se hizo: unificacion de updates de cabecera en SP transaccional.
-Impacto esperado: menor riesgo de inconsistencias intermedias y menos viajes a BD.
+Enfoque de software: agrupar updates de cabecera en una operacion transaccional controlada.
+Impacto esperado: menos lock churn y menor riesgo de inconsistencia intermedia.
 
 4. Estabilidad UI durante procesos largos.
-Que se hizo: hardening de splash (`Safe_Splash_*`) y control de estado.
-Impacto esperado: elimina fallas por referencia nula y evita bloqueo visual innecesario.
+Enfoque de software: endurecimiento de `SplashScreen` y control de estado para evitar errores visuales/nulos.
+Impacto esperado: mejor continuidad operativa y menos interrupciones de usuario.
 
-5. Observabilidad operativa.
-Que se hizo: trazas por etapa (`PRECHECK_STATUS`, `PASO_*`, `MERMA_BULK_*`, `TIEMPO_TOTAL_DL`) y tiempos visibles (`T.S.`, `T.DL.`).
-Impacto esperado: diagnostico rapido y decisiones basadas en evidencia real.
+5. Observabilidad operativa por etapa.
+Enfoque de software: trazas `PRECHECK_STATUS`, `PASO_*`, `MERMA_BULK_*`, `TIEMPO_TOTAL_DL` e indicadores `T.S.` / `T.DL.`.
+Impacto esperado: diagnostico trazable y decisiones de optimizacion basadas en evidencia.
 
 ## Evidencia y respaldo
 1. Release notes completo (formato epico y arbol de entregables):
@@ -133,6 +135,12 @@ Impacto esperado: diagnostico rapido y decisiones basadas en evidencia real.
 - [execution_logs/20260608_155251/EXECUTION_REPORT_2026-06-08.md](./2026-06-08_qas_prd_liquidacion/execution_logs/20260608_155251/EXECUTION_REPORT_2026-06-08.md)
 - [execution_logs/20260608_160247/EXECUTION_REPORT_2026-06-08_reapply_v2.md](./2026-06-08_qas_prd_liquidacion/execution_logs/20260608_160247/EXECUTION_REPORT_2026-06-08_reapply_v2.md)
 - [execution_logs/20260608_160509/EXECUTION_REPORT_2026-06-08_liqlist_sp.md](./2026-06-08_qas_prd_liquidacion/execution_logs/20260608_160509/EXECUTION_REPORT_2026-06-08_liqlist_sp.md)
+
+### Que refleja esta evidencia y respaldo
+1. Trazabilidad tecnica: que se ejecuto, en que ambiente y con que secuencia.
+2. Sustento de impacto: correlacion entre cambios y comportamiento observado en tiempos/etapas.
+3. Control de riesgo: verificaciones postdeploy y capacidad de rollback/fallback documentada.
+4. Transferencia operativa: material reutilizable para DBA, desarrollo y soporte en futuras ventanas.
 
 ## Orden documental (para evitar duplicidad)
 1. `dba_changes/README.md`: hub ejecutivo unico.
