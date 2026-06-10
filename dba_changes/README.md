@@ -1,63 +1,46 @@
-# Informe Ejecutivo de Rendimiento (Release)
+# ROAD Toledano - Executive DBA Report Hub
+## Optimizacion de Liquidacion (QAS + PRD)
 
-Fecha: 2026-06-09  
-Alcance: proceso de liquidación `frmLiqVend` (consulta/edición y generación automática de DL).
+Este archivo centraliza el contexto ejecutivo del release y evita duplicidad de reportes.
 
-## 1) Cambios Aplicados en PRD (impacto directo en rendimiento)
+## Estado actual
+- Se ejecutaron mejoras de rendimiento en BD y BOF para `frmLiqVend`.
+- Los cambios fueron aplicados de forma incremental con evidencia en QAS y PRD.
+- Se mantuvo estrategia de fallback para no romper flujos operativos.
 
-### Precheck de generación automática de DL
-- Se aplicó en PRD el SP `dbo.usp_LiqVend_DLAuto_Precheck_v1`.
-- Objetivo: evitar ejecutar etapas completas de DL/DC cuando no hay candidatos.
-- Resultado esperado: menos trabajo innecesario y menor tiempo total del botón de generación automática.
+## Fuente oficial por tema
+### Release principal (epico, narrativo y con arbol de entregables)
+- [2026-06-08_qas_prd_liquidacion/README.md](./2026-06-08_qas_prd_liquidacion/README.md)
 
-### Batch set-based para inventario de ruta
-- Se aplicó en PRD `dbo.usp_LiqVend_InventarioRuta_Detalle_v1` (versión set-based con TVP).
-- Objetivo: reducir roundtrips y eliminar consultas N+1 en cálculo de inventario.
-- Resultado esperado: menor latencia en `POST_CALCULA_INVENTARIO_RUTA` y menor presión por concurrencia.
+### Cambios aplicados en PRD (DBA)
+1. Precheck de DL automatico:
+- [2026-06-08_qas_prd_liquidacion/proposal_sp_liquidacion_batch_v1.sql](./2026-06-08_qas_prd_liquidacion/proposal_sp_liquidacion_batch_v1.sql)
+- [2026-06-08_qas_prd_liquidacion/proposal_sp_cola_transacciones_wait_v1.sql](./2026-06-08_qas_prd_liquidacion/proposal_sp_cola_transacciones_wait_v1.sql)
+2. Inventario batch set-based / TVP:
+- [2026-06-08_qas_prd_liquidacion/17_liqvend_sp_migration_v1.sql](./2026-06-08_qas_prd_liquidacion/17_liqvend_sp_migration_v1.sql)
+3. Ajustes de indices:
+- [2026-06-08_qas_prd_liquidacion/18_liqvend_index_tuning_v2.sql](./2026-06-08_qas_prd_liquidacion/18_liqvend_index_tuning_v2.sql)
+4. Lista de liquidaciones:
+- [2026-06-08_qas_prd_liquidacion/19_liqlist_sp_migration_v1.sql](./2026-06-08_qas_prd_liquidacion/19_liqlist_sp_migration_v1.sql)
 
-### Consolidación transaccional de cabecera merma
-- Se aplicó en PRD `dbo.usp_LiqVend_DL_Merma_Finaliza_v1`.
-- Objetivo: unificar updates repetidos de cabecera (`P_LIQUIDACION` + `TEMP_P_DIFLIQ`) en un paso transaccional.
-- Resultado esperado: menos viajes a BD y menor riesgo de inconsistencias intermedias.
+### Mejoras en aplicacion (ya implementadas en release)
+1. Reduccion de N+1 en `Calcula_Inventario_Ruta` y `Generar_DL_Merma`.
+2. Batch/bulk para detalle de notas y diferencias.
+3. Indicadores operativos en UI (`T.S.` / `T.DL.`).
+4. Trazas finas por etapa para correlacion SQL/BOF.
+5. Hardening de estabilidad UI (`SplashScreen` defensivo).
 
-### Referencias de scripts
-- [dba_changes/2026-06-08_dlauto_precheck/README.md](C:/Users/yejc2/source/repos/ROAD_TOLEDANO/dba_changes/2026-06-08_dlauto_precheck/README.md)
-- [dba_changes/2026-06-08_merma_bulk_headsp/README.md](C:/Users/yejc2/source/repos/ROAD_TOLEDANO/dba_changes/2026-06-08_merma_bulk_headsp/README.md)
+## Evidencia de ejecucion
+- [2026-06-08_qas_prd_liquidacion/execution_logs/20260608_155251/EXECUTION_REPORT_2026-06-08.md](./2026-06-08_qas_prd_liquidacion/execution_logs/20260608_155251/EXECUTION_REPORT_2026-06-08.md)
+- [2026-06-08_qas_prd_liquidacion/execution_logs/20260608_160247/EXECUTION_REPORT_2026-06-08_reapply_v2.md](./2026-06-08_qas_prd_liquidacion/execution_logs/20260608_160247/EXECUTION_REPORT_2026-06-08_reapply_v2.md)
+- [2026-06-08_qas_prd_liquidacion/execution_logs/20260608_160509/EXECUTION_REPORT_2026-06-08_liqlist_sp.md](./2026-06-08_qas_prd_liquidacion/execution_logs/20260608_160509/EXECUTION_REPORT_2026-06-08_liqlist_sp.md)
 
-## 2) Mejoras en la Aplicación (ya implementadas para este release)
+## Diagnostico de duplicidad (resumen)
+- El reporte epico se mantuvo en `2026-06-08_qas_prd_liquidacion/README.md`.
+- Se agrego luego un README raiz mas corto (`dba_changes/README.md`) con parte del mismo contexto.
+- Eso dio percepcion de "versiones duplicadas" del mismo estado.
 
-### Eliminación de N+1 en merma (DLMP/DLMNP)
-- Se incorporó cache local por proceso para `% merma`, UM y precio por llave de negocio.
-- Beneficio release: disminución de consultas repetidas por producto durante generación de DL de merma.
-
-### Inserción masiva de detalle (bulk con fallback)
-- Se migró el detalle de merma a inserción masiva para:
-  - `TEMP_P_DIFLIQ_DET`
-  - `TEMP_P_NOTACDD`
-- En caso de fallo, el sistema vuelve a modo fila-a-fila (fallback seguro).
-- Beneficio release: reducción de roundtrips en lotes de detalle altos.
-
-### Estabilidad de UI en procesos largos
-- Se añadió manejo defensivo del splash:
-  - `Safe_Splash_Show`
-  - `Safe_Splash_SetCaption`
-  - `Safe_Splash_SetDescription`
-  - `Safe_Splash_Close`
-- Beneficio release: evita `Object reference` durante actualizaciones de `WaitForm`.
-
-### Indicadores y trazabilidad operativa
-- Indicador visual en `lblRegsV`:
-  - `T.S.` para consulta/abrir liquidación.
-  - `T.DL.` para tiempo total de generación automática de DL.
-- Trazas finas por etapa (`PRECHECK_STATUS`, `PASO_*`, `MERMA_BULK_*`, `TIEMPO_TOTAL_DL`).
-- Beneficio release: diagnóstico más rápido y decisiones basadas en evidencia.
-
-### Optimización de refresh durante cálculo
-- Se reforzó el control de refresco de UI con enfoque orgánico y menor repintado innecesario.
-- Beneficio release: mejora percepción de respuesta sin sacrificar funcionalidad.
-
-## Resumen de valor del release
-- Menos roundtrips a SQL Server.
-- Menor costo por ejecución en rutas con alta concurrencia.
-- Mayor resiliencia del flujo de generación automática de DL.
-- Mejor observabilidad para detectar cuellos de botella reales en producción.
+## Regla de orden documental (aplicada)
+- `dba_changes/README.md`: portal ejecutivo unico (hub).
+- `dba_changes/<release>/README.md`: narrativa completa del release.
+- `execution_logs/*`: evidencia tecnica inmutable.
