@@ -20,8 +20,8 @@ Adicional: reducir riesgo de timeout en productivo eliminando N+1 en merma y ase
 4. Redeploy de SPs batch en QAS y PRD para evitar fallback por objetos no actualizados.
 
 ## Script
-- [01_2026-06-08_dlauto_precheck_v1.sql](C:/Users/yejc2/source/repos/ROAD_TOLEDANO/dba_changes/2026-06-08_dlauto_precheck/01_2026-06-08_dlauto_precheck_v1.sql)
-- [2026-06-08_liqvend_inventario_batch_v2_setbased.sql](C:/Users/yejc2/source/repos/ROAD_TOLEDANO/road_toledano_agent_setup/sql/2026-06-08_liqvend_inventario_batch_v2_setbased.sql)
+- [01_2026-06-08_dlauto_precheck_v1.sql](./01_2026-06-08_dlauto_precheck_v1.sql)
+- [02_2026-06-08_liqvend_inventario_batch_v2_setbased.sql](./02_2026-06-08_liqvend_inventario_batch_v2_setbased.sql)
 
 ## Trazas nuevas en BOF
 - `CLICK_CMD_DL_AUTOMATICO`
@@ -46,10 +46,6 @@ Adicional: reducir riesgo de timeout en productivo eliminando N+1 en merma y ase
 ## Ejecucion en ambientes (2026-06-08)
 - QAS: `ROADSAP_QAS` en `172.16.10.27` ejecutado OK.
 - PRD: `ROADSAP` en `172.16.10.9` ejecutado OK.
-- Evidencia local:
-  - `C:/Users/yejc2/source/repos/ROAD_TOLEDANO/road_toledano_agent_setup/sql/execution_logs/20260608_183121`
-  - `C:/Users/yejc2/source/repos/ROAD_TOLEDANO/road_toledano_agent_setup/sql/execution_logs/20260608_183122`
-  - `C:/Users/yejc2/source/repos/ROAD_TOLEDANO/road_toledano_agent_setup/sql/execution_logs/20260608_183129`
 
 ## Diagnostico narrativo
 - La traza previa de Carol mostro `BATCH_SP_FALLBACK` en inventario y casi 29s en `POST_CALCULA_INVENTARIO_RUTA`.
