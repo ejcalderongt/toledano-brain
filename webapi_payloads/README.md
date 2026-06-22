@@ -1,37 +1,40 @@
-# Payloads de prueba SAP -> ROAD (QAS Ready)
+# WebAPI Payloads - Índice de Pruebas
 
-## Endpoint
+Repositorio documental de payloads JSON para validar el contrato de integración SAP -> ROAD.
 
-- `POST /api/SapDescuento`
-- `POST /api/sap/descuentos` (ruta contractual)
-- `DELETE /api/sap/descuentos` (borrado seguro por codigo o llave)
+## Cómo leer esta carpeta
 
-## Headers
+- `v1/2026-06-01/`: set histórico inicial, conservado como referencia funcional.
+- `v2/2026-06-22/`: set actualizado con trazabilidad, casos válidos e inválidos y notas de cambio.
 
-- `Content-Type: application/json`
-- `X-API-KEY: <valor configurado en Security:ApiKeySap>` (si aplica)
+## Releases
 
-## Convenciones de estos payloads
+### v1 - 2026-06-01
 
-- Están preparados con datos reales de QAS para validación funcional.
-- Incluyen `coddesc` para trazabilidad HH/BOF y evitar `CODDESC` nulo.
-- Incluyen `reemplazarExistente=true` para que WebAPI elimine registros ROAD previos del mismo `CODDESC`/llave antes de insertar la nueva versión.
-- En combos no se usa semántica funcional `A/B`; el detalle solo define productos/cantidades.
+Base documental original de pruebas.
 
-## Escenarios
+- [README del release v1](v1/2026-06-01/README.md)
+- [Catálogo técnico v1](v1/2026-06-01/CATALOGO_ESCENARIOS.md)
 
-- `01_zk94_simple_a903.json`
-- `02_zk95_simple_a907.json`
-- `03_zk97_escalas_a906.json`
-- `04_zr95_recargo_a903.json`
-- `05_zk96_combo_a908.json`
-- `06_zk96_combo_a909.json`
-- `07_zk96_combo_a910.json`
-- `08_zr96_combo_a912.json`
-- `09_delete_por_coddesc.json`
-- `10_delete_por_llave_a903.json`
+### v2 - 2026-06-22
 
-## Guía de lectura
+Release documental actualizado con:
 
-- Ver catálogo funcional y técnico en `CATALOGO_ESCENARIOS.md`.
-- Si se re-ejecutan payloads con misma llave, pueden devolver `409` por duplicidad (esperado).
+- Nombres de archivo más descriptivos.
+- Separación explícita entre casos válidos e inválidos.
+- Trazabilidad del contrato SAP/ROAD.
+- Estructura lista para agregar futuras iteraciones sin sobrescribir la anterior.
+
+- [README del release v2](v2/2026-06-22/README.md)
+
+## Convención de versionado
+
+- `v1`: referencia histórica, no se sobrescribe.
+- `v2`: nueva generación de payloads con fecha de creación.
+- Releases futuros deben seguir el patrón `vN/AAAA-MM-DD/`.
+
+## Reglas de uso
+
+- No mezclar payloads de distintas versiones en la misma carpeta.
+- Si cambia el contrato o la validación, crear un nuevo folder de release.
+- Si un caso queda obsoleto, conservarlo en su versión original y documentar la sustitución en el README del release nuevo.

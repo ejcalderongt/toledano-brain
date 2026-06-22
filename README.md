@@ -8,7 +8,7 @@ Repositorio de recuperación de contexto operativo del proyecto ROAD Toledano.
 - `CONTEXT_ROAD_WEBAPI.md`: endpoint QAS actual.
 - `brain/`: contexto, backlog, mapeos, playbooks y trazabilidad del proyecto.
 - `skills/ejc-skill-toledano/`: skill local del agente con referencias y configuración.
-- `webapi_payloads/`: payloads JSON por escenario para pruebas de descuentos/recargos/combos.
+- `webapi_payloads/`: índice versionado de payloads JSON por release para pruebas de descuentos/recargos/combos.
 
 ## Fuente
 

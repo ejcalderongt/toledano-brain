@@ -1,0 +1,21 @@
+{
+  "regCond": "9102001",
+  "promo": "7102001",
+  "coddescSap": "ZR94",
+  "reemplazarExistente": true,
+  "orgVent": "1000",
+  "canDist": "10",
+  "sector": "01",
+  "indJerarq": 1,
+  "accessSequence": "A903",
+  "cliente": "0001000095",
+  "producto": "0220",
+  "fechaini": "2026-06-01T00:00:00",
+  "fechafin": "2026-06-30T23:59:59",
+  "importe": 2.5,
+  "unidadCondicion": "PAB",
+  "cantidadBase": 1,
+  "unidadMedidaCondicion": "UN",
+  "monedaCondicion": "USD",
+  "mecanica": "Recargo simple por producto sin CODDESC"
+}

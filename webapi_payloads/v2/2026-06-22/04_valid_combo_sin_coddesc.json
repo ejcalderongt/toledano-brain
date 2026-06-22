@@ -1,0 +1,37 @@
+{
+  "regCond": "9102005",
+  "promo": "7102005",
+  "coddescSap": "ZK96",
+  "reemplazarExistente": true,
+  "orgVent": "1000",
+  "canDist": "10",
+  "sector": "01",
+  "indJerarq": 1,
+  "accessSequence": "A908",
+  "cliente": "0001000001",
+  "producto": "*",
+  "fechaini": "2026-06-01T00:00:00",
+  "fechafin": "2026-06-30T23:59:59",
+  "importe": 10,
+  "unidadCondicion": "%",
+  "cantidadBase": 1,
+  "unidadMedidaCondicion": "UN",
+  "monedaCondicion": "USD",
+  "grupoCombo": "COMBO-A908-NUEVO",
+  "descuentoCombo": 10,
+  "comboItems": [
+    {
+      "producto": "0220",
+      "cantidad": 2,
+      "umventa": "UN",
+      "umstock": "UN"
+    },
+    {
+      "producto": "0686",
+      "cantidad": 1,
+      "umventa": "UN",
+      "umstock": "UN"
+    }
+  ],
+  "mecanica": "Combo cliente+grupo comision sin CODDESC"
+}
