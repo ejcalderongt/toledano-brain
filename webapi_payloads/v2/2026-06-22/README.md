@@ -17,6 +17,8 @@ Documentar un set más claro de payloads para pruebas repetibles, con separació
 - [02_valid_simple_sin_coddesc.json](02_valid_simple_sin_coddesc.json)
 - [03_valid_combo_con_coddesc.json](03_valid_combo_con_coddesc.json)
 - [04_valid_combo_sin_coddesc.json](04_valid_combo_sin_coddesc.json)
+- [09_documentado_descuento_a903.json](09_documentado_descuento_a903.json)
+- [09_documentado_descuento_a903.md](09_documentado_descuento_a903.md)
 
 ## Casos inválidos
 
@@ -41,3 +43,5 @@ Documentar un set más claro de payloads para pruebas repetibles, con separació
 
 - Si un payload se reutiliza para otro escenario, no sobrescribir el archivo original.
 - Para cambios de contrato o criterios de validación, crear una nueva carpeta `vN/AAAA-MM-DD/`.
+- Para clasificación de trazas por hostname y tipo funcional, usar:
+  - [Test Toledano - Analisis 2026-06-22](../../test_toledano_analisis_20260622/README.md)

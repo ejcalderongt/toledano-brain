@@ -1,0 +1,23 @@
+{
+  "regCond": "0001583303",
+  "promo": "NO APLICA",
+  "coddescSap": "ZK94",
+  "coddesc": 1111111,
+  "reemplazarExistente": true,
+  "orgVent": "3000",
+  "canDist": "10",
+  "sector": "10",
+  "indJerarq": 1,
+  "cliente": "000100265",
+  "accessSequence": "A903",
+  "producto": "0484",
+  "fechaini": "2026-06-19T00:00:00Z",
+  "fechafin": "9999-12-31T00:00:00Z",
+  "importe": 5.0,
+  "unidadCondition": "PAB",
+  "cantidadBase": 1.0,
+  "unidadMedidaCondicion": "UN",
+  "monedaCondicion": "PAB",
+  "escalas": [],
+  "comboItems": []
+}

@@ -27,6 +27,12 @@ Release documental actualizado con:
 
 - [README del release v2](v2/2026-06-22/README.md)
 
+### Analisis por fecha - 2026-06-22
+
+Carpeta de trabajo para clasificar trazas y payloads de validacion por tipo funcional.
+
+- [Indice de analisis 2026-06-22](test_toledano_analisis_20260622/README.md)
+
 ## Convención de versionado
 
 - `v1`: referencia histórica, no se sobrescribe.
