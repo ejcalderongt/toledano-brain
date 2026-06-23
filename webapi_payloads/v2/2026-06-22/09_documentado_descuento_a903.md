@@ -1,38 +1,137 @@
 # Ejemplo documentado - descuento simple A903
 
-## Payload
+## 1) JSON enviado
 
-- Archivo: `09_documentado_descuento_a903.json`
-- Escenario: descuento simple por `A903`
+```json
+{
+  "regCond": "0001583303",
+  "promo": "NO APLICA",
+  "coddescSap": "ZK94",
+  "coddesc": 1111111,
+  "reemplazarExistente": true,
+  "orgVent": "3000",
+  "canDist": "10",
+  "sector": "10",
+  "indJerarq": 1,
+  "cliente": "000100265",
+  "accessSequence": "A903",
+  "producto": "0484",
+  "fechaini": "2026-06-19T00:00:00Z",
+  "fechafin": "9999-12-31T00:00:00Z",
+  "importe": 5.0,
+  "unidadCondition": "PAB",
+  "cantidadBase": 1.0,
+  "unidadMedidaCondicion": "UN",
+  "monedaCondicion": "PAB",
+  "escalas": [],
+  "comboItems": []
+}
+```
 
-## Lectura funcional
+## 2) Descripción narrativa del escenario
 
-Este payload representa una condición simple con estas claves principales:
+Este caso representa un descuento simple por cliente y producto.
 
-- `accessSequence = A903`
-- `cliente = 000100265`
-- `producto = 0484`
-- `coddescSap = ZK94`
+La secuencia `A903` indica que la llave comercial se resuelve con `Cliente + Producto`.
+El tipo SAP `ZK94` se interpreta como condición simple de descuento, no como combo.
 
-## Cómo lo interpreta el WebAPI
+El payload ya trae `coddesc`, por lo que ROAD puede conservar ese identificador funcional.
+La marca `reemplazarExistente=true` indica que, si existe una condición previa con la misma llave o `CODDESC`, el servicio puede reemplazarla antes de guardar la nueva versión.
 
-1. `A903` indica que la clave comercial es `Cliente + Producto`.
-2. `ZK94` lo clasifica como condición de descuento simple, no combo.
-3. `coddesc = 1111111` se usa como identificador funcional ROAD si viene informado.
-4. `reemplazarExistente = true` indica que el servicio puede borrar primero la condición previa de la misma llave antes de insertar la nueva versión.
-5. Como `escalas` está vacío, el mapeo no entra a escenario por rangos.
-6. El tipo de cálculo `DESCTIPO` se resuelve por prioridad del mapper:
-   - `TipoDescuento`, si viene en el payload
-   - `IndEscala`, si viene informado
-   - fallback por contenido de `escalas`
+No hay escalas ni detalle de combo, así que el flujo debe terminar en una sola fila de `P_DESCUENTO`.
 
-## Resultado esperado
+## 3) Resultado del procesamiento
 
-- Se persiste una condición simple en `P_DESCUENTO`.
-- La respuesta debe devolver el `TraceId` y el estado de persistencia.
-- Si el payload es válido y no hay conflicto de llave, la respuesta debe ser `200`.
+Resultado esperado funcional:
 
-## Referencia técnica
+- `HTTP 200` si el guardado fue correcto.
+- `TraceId` devuelto en la respuesta.
+- `PersistenceAction` indicando `CREATED`, `UPDATED` o `REPLACED` según corresponda.
+- `CODDESC` persistido en la tabla de trazas y en la condición ROAD.
+
+Interpretación esperada del mapeo:
+
+- `DESCTIPO` se resuelve con prioridad:
+  - `TipoDescuento` si existe
+  - `IndEscala` si viene informado
+  - fallback por `Escalas`
+- En este caso, al no venir escalas, normalmente queda como descuento simple.
+
+## 4) Tablas afectadas en ROAD
+
+Tablas principales:
+
+- `P_DESCUENTO`
+- `P_TRAZA_INTEGRACION_SAP`
+
+## 5) Queries de validación
+
+### Validar traza del caso
+
+```sql
+SELECT TOP (20)
+    TRACEID,
+    OPERACION,
+    ENDPOINT,
+    HTTP_STATUS,
+    SUCCESS,
+    ESTADO,
+    PERSISTENCE_ACTION,
+    CODDESC,
+    ACCESS_SEQUENCE,
+    FEC_AGR,
+    HOSTNAME,
+    USUARIO_APP
+FROM P_TRAZA_INTEGRACION_SAP
+WHERE HOSTNAME = 'PTSVR2012'
+ORDER BY FEC_AGR DESC;
+```
+
+### Validar condición persistida
+
+```sql
+SELECT TOP (20)
+    CODDESC,
+    CLIENTE,
+    CTIPO,
+    PRODUCTO,
+    PTIPO,
+    TIPORUTA,
+    RANGOINI,
+    RANGOFIN,
+    DESCTIPO,
+    VALOR,
+    GLOBDESC,
+    FECHAINI,
+    FECHAFIN,
+    NOMBRE
+FROM P_DESCUENTO
+WHERE CODDESC = 1111111
+ORDER BY FECHAINI DESC;
+```
+
+### Validar por llave comercial
+
+```sql
+SELECT TOP (20)
+    CODDESC,
+    CLIENTE,
+    CTIPO,
+    PRODUCTO,
+    PTIPO,
+    TIPORUTA,
+    RANGOINI,
+    RANGOFIN,
+    DESCTIPO,
+    VALOR
+FROM P_DESCUENTO
+WHERE CLIENTE = '000100265'
+  AND PRODUCTO = '0484'
+  AND TIPORUTA = 0
+ORDER BY FECHAINI DESC;
+```
+
+## 6) Referencia técnica
 
 - Mapper de descuentos: `ROADWedAPI/SAP/Descuentos/SapDescuentoMapper.cs`
 - Controller de integración: `ROADWedAPI/Controllers/SapDescuentoController.cs`

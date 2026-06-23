@@ -1,6 +1,11 @@
 # Test Toledano - Analisis 2026-06-22
 
-Carpeta de análisis para clasificar registros y payloads relacionados con `P_TRAZA_INTEGRACION_SAP`.
+Carpeta de análisis para documentar cada validación con esta secuencia:
+
+1. JSON enviado.
+2. Descripción narrativa del escenario.
+3. Resultado del procesamiento.
+4. Tablas afectadas en ROAD y queries de validación.
 
 ## Filtro base sugerido
 
@@ -13,9 +18,10 @@ ORDER BY fec_agr DESC;
 
 ## Objetivo
 
-- Agrupar trazas por tipo funcional.
-- Facilitar lectura por patrón de condición SAP.
-- Dejar un orden estable para soporte, diagnóstico y release notes.
+- Mostrar exactamente qué se envió.
+- Explicar cómo lo interpreta ROAD.
+- Mostrar qué se guardó o falló.
+- Dejar validación SQL repetible para soporte y DBA.
 
 ## Convención de carpetas
 
@@ -44,9 +50,10 @@ Reglas:
 
 ## Cómo usar esta carpeta
 
-1. Colocar aquí el análisis de cada traza con fecha.
-2. Usar un nombre corto por caso.
-3. Si el caso cambia de release, conservar el histórico y crear una nueva subcarpeta por fecha.
+1. Crear una subcarpeta por fecha de análisis.
+2. Guardar allí el JSON original y el README narrativo del caso.
+3. Usar un nombre corto por caso.
+4. Si el caso cambia de release, conservar el histórico y crear una nueva subcarpeta por fecha.
 
 ## Subcarpetas sugeridas
 
@@ -56,3 +63,7 @@ Reglas:
 - [zr-combo](zr-combo/README.md)
 - [invalidos](invalidos/README.md)
 - [otros](otros/README.md)
+
+## Caso documentado de ejemplo
+
+- [Descuento simple A903](../v2/2026-06-22/09_documentado_descuento_a903.md)
