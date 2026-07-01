@@ -5,7 +5,7 @@ project:
   integrators:
     road: DTSolutions / ROAD
     sap: SOFOS / SAP ABAP
-  current_phase: Analisis, diseno tecnico e implementacion de cambios para combos y prioridades
+  current_phase: Analisis, diseno tecnico e implementacion de cambios para combos, prioridades y trazabilidad RegCond
   business_goal: >
     Recibir desde SAP condiciones de descuentos y recargos, transformarlas al modelo operativo ROAD
     y aplicar una unica condicion vigente por material/cliente segun prioridad comercial.
@@ -160,3 +160,7 @@ key_open_points:
     topic: CODDESC en escenarios no combo
     status: en_ejecucion
     detail: Ajustar y validar insercion/actualizacion para persistir CODDESC tambien en simples/escalas por compatibilidad BOF/HH.
+  - id: OP-006
+    topic: TDS001/TDS002
+    status: en_ejecucion
+    detail: RegCond debe actuar como ancla de trazabilidad para evitar colapsar descuentos distintos cuando SAP repite CODDESC; la respuesta API debe distinguir alta, actualizacion y reemplazo.

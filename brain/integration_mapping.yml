@@ -179,3 +179,14 @@ combo_transformation:
     - Todos los materiales requeridos del grupo deben estar en el pedido.
     - Todas las cantidades minimas deben cumplirse.
     - Si falta un material requerido, no aplica el combo.
+  special_cases:
+    A909:
+      road_fields:
+        - Priorizacion
+        - Centro
+      response_semantics: "PersistenceDecision debe diferenciar alta nueva, reemplazo explicito y reemplazo por llave de negocio."
+    A910:
+      road_fields:
+        - Tipologia
+      confirmed_mapping: "Ramo 3 -> ROAD.Tipologia"
+      trace_hint: "Persistir RegCond en P_DESCUENTO y en P_TRAZA_INTEGRACION_SAP para correlacionar envios repetidos."

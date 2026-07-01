@@ -10,7 +10,7 @@ La idea es reutilizar exactamente la misma estructura en otros proyectos, cambia
 ## Contexto funcional existente
 
 - `project_context.yml`: contexto funcional, alcance, reglas confirmadas y puntos abiertos.
-- `integration_mapping.yml`: mapeo SAP -> ROAD, tipos de condicion, combinaciones A903/A907/A906 y A908-A912.
+- `integration_mapping.yml`: mapeo SAP -> ROAD, tipos de condicion, combinaciones A903/A907/A906 y A908-A912, con notas A909/A910 y trazabilidad RegCond.
 - `change_log_bitacora.yml`: bitacora cronologica de correos, acuerdos, demoras, cambios y trazabilidad.
 - `codex_setup.yml`: setup recomendado para Codex, rutas sugeridas, secuencia de implementacion y prompt base.
 - `implementation_tasks.yml`: backlog tecnico por base de datos, API, logica de negocio, pruebas y codigos de error.
@@ -41,3 +41,10 @@ Ruta: `jira_portable/`
 ## Nota de contexto (ROBO / ROAD)
 
 Se incorporo el contexto que compartiste en `pasted-text.txt` (board ROAD, tipos/estados, sprint activo y epica principal) como base de esta instrumentacion, pero en formato parametrizable para no quedar amarrado a un solo proyecto.
+
+## Actualizacion 2026-07-01
+
+- Se agrego la semantica de persistencia para descuentos: `PersistenceAction` + `PersistenceDecision`.
+- Se incorporo `RegCond` como llave de trazabilidad para distinguir solicitudes SAP repetidas.
+- Se ratifico `A910 -> Tipologia = Ramo 3`.
+- Se dejo documentado el fix TDS001/TDS002 para evitar colision de condiciones por `CODDESC` repetido.
