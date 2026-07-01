@@ -13,11 +13,15 @@ Esta carpeta agrega una primera capa de recuperacion semantica sobre el brain ex
 
 ## Enfoque actual
 
-No se usa un vector store externo todavia.
-La capa actual funciona en puro Python con:
+La capa funciona en modo dual:
 
-- tokenizacion simple
-- vectorizacion tipo bolsa de palabras
+- `embeddings` si esta disponible `sentence-transformers`
+- `local` como fallback si no hay dependencias o modelo
+
+Tecnicas usadas:
+
+- tokenizacion simple para fallback local
+- embeddings reales cuando la libreria esta instalada
 - similitud coseno
 - indice local en JSON
 
@@ -26,6 +30,7 @@ Esto es suficiente para:
 - buscar rapidamente documentos afines
 - preparar el brain para embeddings reales despues
 - evitar dependencia de librerias pesadas
+- no bloquear uso en PCs sin paquetes instalados
 
 ## Archivos
 
@@ -49,11 +54,26 @@ Construir indice:
 python brain/vector_search/build_index.py
 ```
 
+Forzar embeddings:
+
+```powershell
+python brain/vector_search/build_index.py --mode embeddings
+```
+
+Forzar fallback local:
+
+```powershell
+python brain/vector_search/build_index.py --mode local
+```
+
 Consultar:
 
 ```powershell
 python brain/vector_search/query_index.py "TDS001 CODDESC repetido"
 ```
+
+Si el indice fue generado con embeddings, la consulta intenta usar el mismo modo.
+Si no existe la dependencia en la PC, el build sugiere instalarla y cae a fallback local.
 
 ## Evolucion futura
 
@@ -62,3 +82,13 @@ Cuando haya mas contexto o una libreria disponible, esta capa puede migrar a:
 - embeddings reales
 - hybrid search (texto + vector)
 - re-ranking por tipo de documento
+
+## Recomendacion de instalacion
+
+Para activar embeddings reales en otra PC:
+
+```powershell
+pip install sentence-transformers
+```
+
+Si no se instala, el brain sigue funcionando con fallback local.

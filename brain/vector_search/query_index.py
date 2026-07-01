@@ -35,18 +35,37 @@ def vectorize(tokens: list[str], vocab_index: dict[str, int]) -> list[float]:
     return vec
 
 
+def try_import_embeddings():
+    try:
+        from sentence_transformers import SentenceTransformer  # type: ignore
+        return SentenceTransformer
+    except Exception:
+        return None
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Consulta indice vectorial local del brain.")
     parser.add_argument("query", help="Texto de busqueda.")
     parser.add_argument("--index", default=str(Path(__file__).resolve().parent / "indexes" / "brain_semantic_index.json"))
     parser.add_argument("--top", type=int, default=5)
+    parser.add_argument("--model", default="sentence-transformers/all-MiniLM-L6-v2", help="Modelo para embeddings si el indice esta en modo embeddings.")
     args = parser.parse_args()
 
     index_path = Path(args.index)
     data = json.loads(index_path.read_text(encoding="utf-8"))
-    vocab = data["vocabulary"]
-    vocab_index = {token: idx for idx, token in enumerate(vocab)}
-    qvec = vectorize(normalize(args.query), vocab_index)
+    mode = data.get("mode", "local")
+
+    if mode == "embeddings":
+        SentenceTransformer = try_import_embeddings()
+        if SentenceTransformer is None:
+            raise SystemExit("El indice esta en modo embeddings pero faltan dependencias. Instala sentence-transformers o reconstruye con --mode local.")
+        model_name = data.get("model") or args.model
+        model = SentenceTransformer(model_name)
+        qvec = model.encode([args.query], normalize_embeddings=True)[0].tolist()
+    else:
+        vocab = data["vocabulary"]
+        vocab_index = {token: idx for idx, token in enumerate(vocab)}
+        qvec = vectorize(normalize(args.query), vocab_index)
 
     scored = []
     for doc in data["vectors"]:
@@ -55,6 +74,10 @@ def main() -> None:
             scored.append((score, doc))
 
     scored.sort(key=lambda item: item[0], reverse=True)
+
+    if not scored:
+        print("Sin coincidencias fuertes.")
+        return
 
     for score, doc in scored[: args.top]:
         print(f"{score:.3f} | {doc['path']} | {doc['title']} ({doc['kind']})")

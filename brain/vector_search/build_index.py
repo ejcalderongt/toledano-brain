@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import json
 import math
-import os
 import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass, asdict
@@ -21,6 +20,14 @@ class DocRecord:
     kind: str
     text: str
     tokens: list[str]
+
+
+def try_import_embeddings():
+    try:
+        from sentence_transformers import SentenceTransformer  # type: ignore
+        return SentenceTransformer
+    except Exception:
+        return None
 
 
 def normalize(text: str) -> list[str]:
@@ -94,38 +101,76 @@ def cosine(a: list[float], b: list[float]) -> float:
     return dot / (na * nb)
 
 
+def embed_documents_with_transformer(model_name: str, docs: list[DocRecord]):
+    SentenceTransformer = try_import_embeddings()
+    if SentenceTransformer is None:
+        return None, "sentence-transformers no esta instalado"
+
+    model = SentenceTransformer(model_name)
+    texts = [f"{d.title}\n{d.text}" for d in docs]
+    vectors = model.encode(texts, normalize_embeddings=True).tolist()
+    return vectors, None
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Construye indice vectorial local del brain.")
     parser.add_argument("--root", default=str(Path(__file__).resolve().parents[2]), help="Ruta raiz del repo.")
     parser.add_argument("--output", default=str(Path(__file__).resolve().parent / "indexes" / "brain_semantic_index.json"), help="Archivo de salida.")
+    parser.add_argument("--mode", choices=["auto", "embeddings", "local"], default="auto", help="Modo de vectorizacion.")
+    parser.add_argument("--model", default="sentence-transformers/all-MiniLM-L6-v2", help="Modelo para embeddings si esta disponible.")
     args = parser.parse_args()
 
     root = Path(args.root)
     docs = build_docs(root)
-    vocab = build_vocabulary(docs, min_df=2)
-    vocab_index = {token: idx for idx, token in enumerate(vocab)}
-
-    vectors = []
-    for doc in docs:
-        vectors.append({
-            "path": doc.path,
-            "title": doc.title,
-            "kind": doc.kind,
-            "vector": vectorize(doc.tokens, vocab_index),
-        })
+    mode = args.mode
+    vectors = None
+    vocabulary = []
+    vocabulary_size = 0
+    suggestion = None
+    if mode in {"auto", "embeddings"}:
+        vectors, suggestion = embed_documents_with_transformer(args.model, docs)
+        if vectors is not None:
+            mode = "embeddings"
+    if vectors is None:
+        if mode == "embeddings":
+            raise SystemExit(
+                "No se pudieron crear embeddings. Instala sentence-transformers o usa --mode local."
+            )
+        vocabulary = build_vocabulary(docs, min_df=2)
+        vocab_index = {token: idx for idx, token in enumerate(vocabulary)}
+        vectors = [
+            {
+                "path": doc.path,
+                "title": doc.title,
+                "kind": doc.kind,
+                "vector": vectorize(doc.tokens, vocab_index),
+            }
+            for doc in docs
+        ]
+        vocabulary_size = len(vocabulary)
+        suggestion = suggestion or "fallback local activado"
+        mode = "local"
+    else:
+        vocabulary = []
+        vocabulary_size = 0
 
     payload = {
         "root": str(root),
+        "mode": mode,
+        "model": args.model if mode == "embeddings" else None,
         "documents": len(docs),
-        "vocabulary_size": len(vocab),
-        "vocabulary": vocab,
+        "vocabulary_size": vocabulary_size,
+        "vocabulary": vocabulary,
         "vectors": vectors,
+        "note": suggestion,
     }
 
     out_path = Path(args.output)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"Indexado: {len(docs)} documentos -> {out_path}")
+    print(f"Indexado: {len(docs)} documentos en modo {mode} -> {out_path}")
+    if suggestion and mode == "local":
+        print("Sugerencia: instala 'sentence-transformers' para activar embeddings reales.")
 
 
 if __name__ == "__main__":
