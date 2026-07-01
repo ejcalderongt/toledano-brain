@@ -1,6 +1,6 @@
 # WebAPI Payloads v1 - 2026-06-01
 
-Release inicial de payloads de validación para SAP Descuentos/Recargos.
+Release inicial de payloads de validacion para SAP Descuentos/Recargos.
 
 ## Propósito
 
@@ -23,3 +23,8 @@ Conservar el set base que se utilizó como arranque documental del contrato WebA
 ## Nota de release
 
 Este set queda como línea base histórica. Si se necesita reproducir el comportamiento original del contrato, este es el punto de partida.
+
+## Aclaracion funcional
+
+- `A909` requiere `Priorizacion` y `Tipologia`.
+- `A910` requiere `Tipologia`.

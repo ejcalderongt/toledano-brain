@@ -84,12 +84,14 @@ nueva version recibida.
 - Caso: Combo por priorizacion (ABC)
 - Campos clave:
   - `priorizacion`: clasificacion ABC
+  - `tipologia`: ramo 3, requerido por la regla de validacion
   - `centro`: informativo de integración
   - `comboItems[]`
 - Resultado esperado:
   - `200 OK`
   - `CTIPO=13`
   - Cabecera + detalle combo
+  - La validacion rechaza el payload si no viene `tipologia`
 
 ## 07_zk96_combo_a910.json
 

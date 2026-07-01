@@ -10,6 +10,7 @@
   "indJerarq": 1,
   "accessSequence": "A909",
   "priorizacion": "CC",
+  "tipologia": "3",
   "centro": "C001",
   "producto": "*",
   "fechaini": "2026-06-01T00:00:00",
@@ -25,5 +26,5 @@
     { "producto": "0892", "cantidad": 3, "umventa": "UN", "umstock": "UN" },
     { "producto": "0834", "cantidad": 1, "umventa": "UN", "umstock": "UN" }
   ],
-  "mecanica": "Combo ramo3/ABC/centro"
+  "mecanica": "Combo priorizacion ABC + tipologia ramo 3 + centro"
 }
