@@ -1,0 +1,29 @@
+UPDATE P_EMPRESA
+SET URL_EMISION_FACTURA_B2C = 'https://labpa.guru-soft.com/EdocPanama/4.0/Emision/Api/FacturaFirmadaEnte',
+URL_EMISION_NC_B2C = 'https://labpa.guru-soft.com/EdocPanama/4.0/Emision/Api/NotaCreditoFirmadaEnte',
+URL_EMISION_ND_B2C = 'https://labpa.guru-soft.com/EdocPanama/4.0/Emision/Api/NotaDebitoFirmadaEnte',
+URL_CONSULTA_DOCUMENTOS_POR_CRITERIO = 'https://labpa.guru-soft.com/EdocPanama/4.0/Emision/Consulta/Api/EstadoDocumentoPorCriterios',
+USUARIO_API	= 'edocTOLEDANO_8945',
+CLAVE_API = 'wsTOLEDANO_8945',
+URL_ANULACION ='https://labpa.guru-soft.com/eDocPanama/4.0/Emision/Eventos/API/Anulacion',
+URL_AUTENTICACION = 'https://labpa.guru-soft.com/EdocPanama/4.0/Autenticacion/Api/ServicioEDOC?Id=',
+URL_BASE = 'https://labpa.guru-soft.com/EdocPanama/4.0/',
+URL_TOKEN = 'https://labpa.guru-soft.com/EdocPanama/4.0/Autenticacion/Api/ServicioEDOC?Id=1',
+QR_API = '5B4D134FFAE367FD0BE91E37F958883E2C01A36A02FED9E1F41C1E53F1D59ED2D8DD481C0ED9024F348D14CCF55A9A6D5CAC14E42BCCB7F41D64E90A33B5624C',
+ARCHIVO_P12 = 'F-8-740-190-OrielAntonioBarriaCaraballo.p12',
+QR_CLAVE = 'yb90o#0F',
+URL_B2C_HH	= 'https://dgi-fep-test.mef.gob.pa:40001/Consultas/FacturasPorQR?',
+URL_DOC ='https://labpa.guru-soft.com/EdocPanama/4.0/Emision/Api/FacturaEnte',
+URL_EMISION_NC_B2B_HH = 'https://labpa.guru-soft.com/EdocPanama/4.0/Emision/Api/NotaCreditoEnte',
+URL_EMISION_ND_B2B_HH = 'https://labpa.guru-soft.com/EdocPanama/4.0/Emision/Api/NotaDebitoEnte',
+UNIDAD_MEDIDA_DEFECTO ='UND',
+URL_CONSULTAR_DOCUMENTO_POR_RUTA = 'https://labpa.guru-soft.com/EdocPanama/4.0/Emision/api/Consulta/ConsultarDocumentoRuta',
+AMBIENTE = 2
+WHERE EMPRESA = '03'
+
+UPDATE P_SUCURSAL SET NOMBRE = 'FE generada en ambiente de pruebas - sin valor comercial ni fiscal'
+
+UPDATE P_RUTA SET WLFOLD = REPLACE(WLFOLD,'RDC7_SAP_PRD_ANDR','RDC7_SAP_QAS_ANDR'), 
+FTPFOLD = REPLACE(FTPFOLD,'RDC7_SAP_PRD_ANDR','RDC7_SAP_QAS_ANDR')
+
+

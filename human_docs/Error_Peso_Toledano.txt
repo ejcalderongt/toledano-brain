@@ -1,0 +1,12 @@
+--update D_NOTACREDD set peso = cant * 0.413
+--where corel in (select corel from D_NOTACRED where ruta = '8046-1' and fecha = '20240330')
+--and PRODUCTO in ('0834') and peso > 7000
+
+update D_CXCD set peso = cant * 0.413
+where corel in (select corel from D_CXC where ruta = '8046-1' and fecha = '20240330')
+and CODIGO in ('0834') and peso > 7000
+
+ALTER TABLE P_RUTA ADD CONTROL_CANASTA BIT NOT NULL DEFAULT 0;
+ALTER TABLE D_FACTURA ADD ORDEN_COMPRA NVARCHAR(50);
+ALTER TABLE DS_PEDIDO ADD ORDEN_COMPRA NVARCHAR(50);
+

@@ -1,0 +1,20 @@
+Evaluar monto mínimo uno a uno,
+No debe permitir guarda el pedido si es que no cumple el Drop Mínimo
+
+El pedido que no cumpla no se guarda
+
+Permitirá guardar el pedido
+
+Cumple la venta línea base, ya no le valide
+
+Ya no debería validar el monto mínimo
+
+
+Kilometraje en Extrarruta, 50 KM de distancia, no quiero obligarlo a moverse con el cliente
+
+No me aplica el control de georreferencia
+
+Por requerimiento
+
+No cumple monto mínimo
+Monto del pedido, Monto minimo y Diferencia

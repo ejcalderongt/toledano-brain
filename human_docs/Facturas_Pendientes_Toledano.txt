@@ -1,0 +1,67 @@
+Proceso Iniciado: 13/03/2025 22:31:59
+
+6 facturas y NC con referencia pendientes de certificar.
+
+Certificando factura: 145 - 4980 Liquidación: 344625 Fecha: 12/03/2025
+
+Error_202303211637: Devuelta por el ente tributario => 1602:RUC inexistente en los registros de la DIRECCIÓN GENERAL DE INGRESOS
+
+ Factura: 145-4980 Cliente: 0001006924-MINISUPER ACUARIO RUC: 9-9-9  02  TipoRuc: 1 TipoRec: 02
+Se generó XML para: 0000004980
+
+Error al certificar Factura 145 - 8040-1_250312150846 Estado: 6 Devuelta por el ente tributario => 1602:RUC inexistente en los registros de la DIRECCIÓN GENERAL DE INGRESOS
+
+Certificando factura: 189 - 5701 Liquidación: 344550 Fecha: 10/03/2025
+
+Estado: 6
+Mensaje: Devuelta por el ente tributario => 0100:Fallo de schema XML del área de datos: The 'http://dgi-fep.mef.gob.pa:dCodUbi' element is invalid - The value '5-1-16' is invalid according to its datatype 'http://dgi-fep.mef.gob.pa:ubicaciones' - The Enumeration constraint failed.
+Se generó XML para: 0000005701
+
+
+ Factura: 189-5701 Cliente: 0001017455
+Devuelta por el ente tributario => 0100:Fallo de schema XML del área de datos: The 'http://dgi-fep.mef.gob.pa:dCodUbi' element is invalid - The value '5-1-16' is invalid according to its datatype 'http://dgi-fep.mef.gob.pa:ubicaciones' - The Enumeration constraint failed.
+
+Error al certificar Factura 189 - 8088-1_250310170521 Estado: 6 Devuelta por el ente tributario => 0100:Fallo de schema XML del área de datos: The 'http://dgi-fep.mef.gob.pa:dCodUbi' element is invalid - The value '5-1-16' is invalid according to its datatype 'http://dgi-fep.mef.gob.pa:ubicaciones' - The Enumeration constraint failed.
+
+Certificando factura: 106 - 12521 Liquidación: 344570 Fecha: 12/03/2025
+
+Error_202303211637: Devuelta por el ente tributario => 1602:RUC inexistente en los registros de la DIRECCIÓN GENERAL DE INGRESOS
+
+ Factura: 106-12521 Cliente: 0001004159-ABARROTERIA LA LOMA RUC: 9-9-9  02  TipoRuc: 1 TipoRec: 02
+Se generó XML para: 0000012521
+
+Error al certificar Factura 106 - 8065-1_250312082800 Estado: 6 Devuelta por el ente tributario => 1602:RUC inexistente en los registros de la DIRECCIÓN GENERAL DE INGRESOS
+
+Certificando factura: 189 - 5643 Liquidación: 343865 Fecha: 3/03/2025
+
+Estado: 6
+Mensaje: Devuelta por el ente tributario => 0100:Fallo de schema XML del área de datos: The 'http://dgi-fep.mef.gob.pa:dCodUbi' element is invalid - The value '5-1-16' is invalid according to its datatype 'http://dgi-fep.mef.gob.pa:ubicaciones' - The Enumeration constraint failed.
+Se generó XML para: 0000005643
+
+
+ Factura: 189-5643 Cliente: 0001017455
+Devuelta por el ente tributario => 0100:Fallo de schema XML del área de datos: The 'http://dgi-fep.mef.gob.pa:dCodUbi' element is invalid - The value '5-1-16' is invalid according to its datatype 'http://dgi-fep.mef.gob.pa:ubicaciones' - The Enumeration constraint failed.
+
+Error al certificar Factura 189 - 8088-1_250304153908 Estado: 6 Devuelta por el ente tributario => 0100:Fallo de schema XML del área de datos: The 'http://dgi-fep.mef.gob.pa:dCodUbi' element is invalid - The value '5-1-16' is invalid according to its datatype 'http://dgi-fep.mef.gob.pa:ubicaciones' - The Enumeration constraint failed.
+
+Certificando factura: 106 - 12524 Liquidación: 344570 Fecha: 12/03/2025
+
+Error_202303211637: Devuelta por el ente tributario => 1602:RUC inexistente en los registros de la DIRECCIÓN GENERAL DE INGRESOS
+
+ Factura: 106-12524 Cliente: 0001001496-MINISUPER ESCORPION RUC: 9-9-9  02  TipoRuc: 1 TipoRec: 02
+Se generó XML para: 0000012524
+
+Error al certificar Factura 106 - 8065-1_250312090408 Estado: 6 Devuelta por el ente tributario => 1602:RUC inexistente en los registros de la DIRECCIÓN GENERAL DE INGRESOS
+
+Certificando factura: 189 - 5705 Liquidación: 344550 Fecha: 10/03/2025
+
+Estado: 6
+Mensaje: Devuelta por el ente tributario => 0100:Fallo de schema XML del área de datos: The 'http://dgi-fep.mef.gob.pa:dCodUbi' element is invalid - The value '5-1-16' is invalid according to its datatype 'http://dgi-fep.mef.gob.pa:ubicaciones' - The Enumeration constraint failed.
+Se generó XML para: 0000005705
+
+
+ Factura: 189-5705 Cliente: 0001017455
+Devuelta por el ente tributario => 0100:Fallo de schema XML del área de datos: The 'http://dgi-fep.mef.gob.pa:dCodUbi' element is invalid - The value '5-1-16' is invalid according to its datatype 'http://dgi-fep.mef.gob.pa:ubicaciones' - The Enumeration constraint failed.
+
+Error al certificar Factura 189 - 8088-1_250310175136 Estado: 6 Devuelta por el ente tributario => 0100:Fallo de schema XML del área de datos: The 'http://dgi-fep.mef.gob.pa:dCodUbi' element is invalid - The value '5-1-16' is invalid according to its datatype 'http://dgi-fep.mef.gob.pa:ubicaciones' - The Enumeration constraint failed.
+Proceso finalizado: 13/03/2025 22:32:29

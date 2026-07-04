@@ -1,0 +1,18 @@
+select * from p_stock where ruta = '6044-5' and fecha = '20240325' and codigo in ('0371','0638','0833')
+and status = 'A'
+
+
+--select * from VENDEDORES WHERE RUTA = '6044-5' AND NIVEL = 3
+
+select * from d_movd where corel = '6044-5_240325121433'
+
+select PRODUCTO, sum(cant) cant from D_FACTURAD where corel in 
+(select corel from d_factura where ruta = '6044-5' and fecha = '20240325' and ANULADO ='N')
+and producto in ('0371','0638','0833') 
+group by PRODUCTO
+
+select PRODUCTO,LOTE, sum(CANTIDAD) cant from D_FACTURAD_LOTES where corel in 
+(select corel from d_factura where ruta = '6044-5' and fecha = '20240325' and ANULADO ='N')
+and producto in ('0371','0638','0833') 
+group by PRODUCTO,LOTE
+

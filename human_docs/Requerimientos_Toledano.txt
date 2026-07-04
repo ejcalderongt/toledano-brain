@@ -1,0 +1,8 @@
+Reporte que me liste los productos no entregados por cliente en un período de fechas
+
+Cliente, Ruta, Vendedor, Producto, Monto, Cantidad, Razon de no entrega, Solicitado Oferta, Cantidad Priorizado, Entregado
+
+Período de fechas enero a septiembre
+
+
+
