@@ -1,5 +1,5 @@
 webapi_payload_trace_phase1_2:
-  updated_at: 2026-05-31
+  updated_at: 2026-07-10
   branch: devejc-combos-sofos
   objective: >
     Dejar trazabilidad de payloads reales para pruebas de escenarios SAP descuentos/recargos
@@ -41,5 +41,16 @@ webapi_payload_trace_phase1_2:
       behavior: recargo combo ruta + grupo comision
   warnings:
     - "#EJC20260531 warning(sync-rdc7-descuentos): R1 pendiente de alinear API key RDC7/WebAPI."
+  validated_cases:
+    - case: TWA002
+      result: fixed
+      evidence: DESCTIPO M genera RANGOFIN igual a RANGOINI en simples y en cada umbral; DESCTIPO R no cambia.
+      file: ROADWedAPI/SAP/Descuentos/SapDescuentoMapper.cs
+    - case: TWA003
+      payload: ZK96_A912_ruta
+      before: HTTP 400 incorrecto exigiendo Tipologia de A910 aunque el request llevaba AccessSequence A912 y Ruta.
+      after: A912 supera la validacion de secuencia y se resuelve por Ruta con CTIPO=11.
+      remaining_payload_validation: UMVENTA KI no homologada; el payload se rechazo antes de persistir la condicion.
+      file: ROADWedAPI/Controllers/SapDescuentoController.cs
   pending_backlog:
     - access_sequence A911 (ramo4) queda pendiente hasta definir mapeo ROAD.

@@ -110,6 +110,16 @@ functional_rules:
   combo_quantity_rule:
     type: minimum
     description: Las cantidades del combo se tratan como cantidades minimas.
+  multiple_discount_range:
+    case: TWA002
+    confirmed: true
+    rule: Cuando DESCTIPO='M', RANGOFIN debe ser igual a RANGOINI para que ROAD aplique el descuento por multiplo.
+    compatibility: DESCTIPO='R' conserva el calculo de intervalos entre umbrales.
+  combo_access_sequence_a912:
+    case: TWA003
+    confirmed: true
+    rule: A912 resuelve la condicion comercial por Ruta y mapea a CTIPO=11; no debe exigir Tipologia.
+    validation_boundary: Tipologia es obligatoria para combos solamente cuando AccessSequence='A910'.
   combo_application_target:
     latest_confirmed: Productos especificos del combo, no total del pedido.
     historical_note: Existio interpretacion inicial de descuento global; fue corregida por negocio.
@@ -147,7 +157,7 @@ key_open_points:
   - id: OP-002
     topic: Mapeo A910
     status: cerrado
-    detail: Confirmado: Ramo3 = ROAD.Tipologia.
+    detail: "Confirmado: Ramo3 = ROAD.Tipologia."
   - id: OP-003
     topic: Mapeo A911
     status: backlog_fase_posterior
@@ -155,7 +165,7 @@ key_open_points:
   - id: OP-004
     topic: Maestro cliente KNVV.KLABC
     status: cerrado
-    detail: Confirmado: Priorizacion SAP = ROAD.Priorizacion (Clasificacion ABC).
+    detail: "Confirmado: Priorizacion SAP = ROAD.Priorizacion (Clasificacion ABC)."
   - id: OP-005
     topic: CODDESC en escenarios no combo
     status: en_ejecucion

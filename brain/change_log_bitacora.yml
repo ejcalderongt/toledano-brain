@@ -16,7 +16,7 @@ bitacora:
   - date: 2026-04-13
     type: respuesta_negocio
     actor: Alicia Rivas
-    summary: Se indica que el combo combinado requiere desarrollo ABAP SOFOS y no es estandar SAP; ejemplo: producto 1 + producto 2 + producto 3 otorga porcentaje.
+    summary: "Se indica que el combo combinado requiere desarrollo ABAP SOFOS y no es estandar SAP; ejemplo: producto 1 + producto 2 + producto 3 otorga porcentaje."
     impact: Se confirma participacion de SOFOS en reglas/campos clave.
     status: cerrado
 
@@ -38,13 +38,13 @@ bitacora:
     type: aclaracion_negocio
     actor: Alicia Rivas
     summary: Se confirma que las cantidades son minimas y que todos los combos van a productos especificos.
-    impact: Cambia modelo de aplicacion: beneficio no debe tratarse como total global del pedido.
+    impact: "Cambia modelo de aplicacion: beneficio no debe tratarse como total global del pedido."
     status: cerrado
 
   - date: 2026-04-27
     type: concurrencia_promociones
     actor: Erik Calderon / Alicia Rivas
-    summary: Se plantea necesidad de definir regla de concurrencia: acumulativo, exclusivo, prioridad o mixto.
+    summary: "Se plantea necesidad de definir regla de concurrencia: acumulativo, exclusivo, prioridad o mixto."
     impact: Pendiente de decision de negocio en ese momento.
     status: resuelto_por_prioridad_posterior
 
@@ -210,3 +210,23 @@ bitacora:
         - IX_P_COLA_TRANSACCIONES_USR_PROC
       notes:
         - Se agrego SET QUOTED_IDENTIFIER ON al script para compatibilidad de creacion.
+
+  - date: 2026-07-10
+    type: correccion_descuentos_webapi
+    actor: Erik Calderon / Codex
+    summary: Se implementan TWA002 para rangos de descuentos por multiplo y TWA003 para validar combos A912 por Ruta sin exigir Tipologia de A910.
+    impact: Los multiplos quedan aplicables en ROAD y los combos A912 respetan su llave comercial por Ruta sin alterar los flujos A910 ni los descuentos por rango.
+    status: implementado_y_validado_localmente
+    technical_trace:
+      branch: devejc-combos-sofos
+      cases:
+        - TWA002
+        - TWA003
+      files:
+        - ROADWedAPI/SAP/Descuentos/SapDescuentoMapper.cs
+        - ROADWedAPI/Controllers/SapDescuentoController.cs
+      validation:
+        - Build WebAPI correcto con 0 errores.
+        - TWA003 reproducido antes del fix con HTTP 400 incorrecto de A910.
+        - Despues del fix A912 avanzo por Ruta hasta la validacion independiente de UMVENTA KI no homologada.
+        - No se persistio la condicion del payload TWA003; se registraron trazas de integracion.
