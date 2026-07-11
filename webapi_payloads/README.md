@@ -6,6 +6,7 @@ Repositorio documental de payloads JSON para validar el contrato de integración
 
 - `v1/2026-06-01/`: set histórico inicial, conservado como referencia funcional.
 - `v2/2026-06-22/`: set actualizado con trazabilidad, casos válidos e inválidos y notas de cambio.
+- `sap_capturados/`: payloads reales recibidos desde SAP, preservados para regresión y comparación.
 
 ## Releases
 
@@ -33,11 +34,16 @@ Carpeta de trabajo para clasificar trazas y payloads de validacion por tipo func
 
 - [Indice de analisis 2026-06-22](test_toledano_analisis_20260622/README.md)
 
+### Payloads reales capturados desde SAP
+
+- [TWA003 — ZK96/A912 por ruta](sap_capturados/2026-07-10/TWA003/README.md)
+
 ## Convención de versionado
 
 - `v1`: referencia histórica, no se sobrescribe.
 - `v2`: nueva generación de payloads con fecha de creación.
 - Releases futuros deben seguir el patrón `vN/AAAA-MM-DD/`.
+- Los payloads reales de SAP deben conservarse bajo `sap_capturados/AAAA-MM-DD/CASO/` sin sobrescribir el original.
 
 ## Reglas de uso
 

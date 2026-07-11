@@ -1,0 +1,50 @@
+{
+  "regCond": "1583401   ",
+  "promo": "NO APLICA",
+  "coddescSap": "ZK96",
+  "coddesc": "1111111",
+  "reemplazarExistente": true,
+  "orgVent": "3000",
+  "canDist": "10",
+  "sector": "10",
+  "indJerarq": 3,
+  "cliente": null,
+  "ruta": "P601-5",
+  "grClientes": null,
+  "tipologia": null,
+  "priorizacion": null,
+  "ramo4": null,
+  "centro": null,
+  "accessSequence": "A912",
+  "producto": null,
+  "fechaini": "2026-07-10T00:00:00Z",
+  "fechafin": "9999-12-31T00:00:00Z",
+  "importe": -26.0,
+  "unidadCondicion": "%",
+  "cantidadBase": 1.0,
+  "unidadMedidaCondicion": "UN",
+  "monedaCondicion": "PAB",
+  "grupoCombo": "COMBO-A912",
+  "descuentoCombo": "24",
+  "escalas": [],
+  "comboItems": [
+    {
+      "producto": "0023",
+      "cantidad": 11,
+      "umventa": "KI",
+      "umstock": "UN"
+    },
+    {
+      "producto": "0025",
+      "cantidad": 11,
+      "umventa": "KI",
+      "umstock": "UN"
+    },
+    {
+      "producto": "0028",
+      "cantidad": 11,
+      "umventa": "KI",
+      "umstock": "UN"
+    }
+  ]
+}

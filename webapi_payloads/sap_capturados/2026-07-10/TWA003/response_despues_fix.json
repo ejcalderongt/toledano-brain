@@ -1,0 +1,8 @@
+{
+  "statusCode": 400,
+  "success": false,
+  "message": "UMVENTA 'KI' no homologada en ROAD para secuencia 1. No se permite KI, DZ ni BAG.",
+  "errorCode": "COMBO_DETAIL_INVALID",
+  "accessSequenceEvaluada": "A912",
+  "diagnostico": "A912 supero la validacion de secuencia por Ruta; el rechazo posterior corresponde a una regla independiente de unidad de medida."
+}

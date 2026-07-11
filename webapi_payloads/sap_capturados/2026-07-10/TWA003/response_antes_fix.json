@@ -1,0 +1,8 @@
+{
+  "statusCode": 400,
+  "success": false,
+  "message": "Para ZK96/ZR96 con AccessSequence A910 debe enviar Tipologia (Ramo 3).",
+  "errorCode": "REQ_INVALID",
+  "accessSequenceEvaluada": "A912",
+  "diagnostico": "La validacion general de combos exigia Tipologia sin limitarse a A910."
+}
