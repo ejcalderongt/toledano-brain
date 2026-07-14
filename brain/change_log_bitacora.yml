@@ -265,3 +265,18 @@
         tests_passed: 24
         tests_failed: 0
       knowledge: brain/domains/descuentos_desctipo_pk.yml
+
+  - date: 2026-07-14
+    type: nueva_integracion_exclusiones_cliente_producto
+    actor: Erik Calderon / Codex
+    summary: Se implementa y valida el endpoint SAP que replica la pareja exacta cliente-producto excluida en P_CLIENTE_PROD_EXCLUIDOS.
+    impact: Evita asociar exclusiones globales a CODDESC y evita el producto cartesiano de las tablas legacy.
+    status: validado_end_to_end_qas
+    technical_trace:
+      endpoint: POST /api/sap/exclusiones-descuento
+      source_commit: 658ada5f
+      qas_actions: [CREATED, NO_CHANGE, DEACTIVATED]
+      test_row: {id: 1, cliente: '0001000265', producto: '0220', activo_final: false}
+      trace_ids: [1335, 1336, 1337]
+      tests: {passed: 51, failed: 0}
+      knowledge: brain/domains/exclusiones_cliente_producto_sap.yml

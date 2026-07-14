@@ -71,6 +71,7 @@ brain_state:
     - brain/sql/2026-07-20_liquidacion_graph_path_readonly.sql
     - brain/fm_verbose_trace_2026-07-20.md
     - brain/pdt_promociones_changes_and_fm_case_2026-07-20.yml
+    - brain/domains/exclusiones_cliente_producto_sap.yml
     - brain/domains/descuentos_desctipo_pk.yml
     - road_toledano_agent_setup/operating_context_road_hh_bof_webapi.yml
     - road_toledano_agent_setup/fine_trace_discounts_combo.yml
@@ -103,7 +104,7 @@ brain_state:
     notes:
       - Solo contextualizado en brain.
       - No crear sprint en Jira hasta confirmacion explicita del usuario.
-      - Confirmado: no mapear exclusiones cliente-producto en integracion SAP de descuentos para fase 1.2.
+      - "Actualizado 2026-07-14: exclusiones cliente-producto se sincronizan en P_CLIENTE_PROD_EXCLUIDOS sin relación a CODDESC ni proyección legacy."
       - Confirmado: CTIPO es catalogo fijo (0..14) y PTIPO incorpora valor 6 para combos en fase 1.2.
   external_references:
     - name: Mapeo Interface Descuentos

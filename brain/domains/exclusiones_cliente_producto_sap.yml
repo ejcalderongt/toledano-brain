@@ -1,0 +1,44 @@
+﻿# Conocimiento validado end-to-end en QAS el 2026-07-14.
+exclusiones_cliente_producto_sap:
+  status: implementado_codigo_validado_qas
+  source_branch: devejc-combos-sofos
+  source_commit: 658ada5f
+  endpoint: POST /api/sap/exclusiones-descuento
+  table: dbo.P_CLIENTE_PROD_EXCLUIDOS
+  purpose: Preservar la pareja exacta cliente-producto excluida sin asociarla a CODDESC.
+  natural_key: [CLIENTE, PRODUCTO]
+  database_guard:
+    index: UX_P_CLIENTE_PROD_EXCLUIDOS_CLIENTE_PRODUCTO
+    unique: true
+  contract:
+    sales_area: {orgVent: '3000', canDist: '10', sector: '10'}
+    required: [cliente, producto, fechaini, fechafin]
+    state_rule: Activo e IndicadorBorrado deben ser complementarios cuando ambos vienen informados.
+    replace_rule: Un cambio sobre una pareja existente requiere reemplazarExistente=true.
+  validations:
+    - Cliente debe existir en P_CLIENTE.
+    - Producto debe existir en P_PRODUCTO.
+    - Fechafin debe ser mayor o igual a Fechaini.
+    - Errores de negocio se transportan como HTTP 200 con success=false.
+    - Fallos de conexión se responden como JSON 503 DB_UNAVAILABLE.
+  persistence_actions: [CREATED, NO_CHANGE, UPDATED, DEACTIVATED]
+  trace:
+    table: dbo.P_TRAZA_INTEGRACION_SAP
+    operation: UPSERT_EXCLUSION
+    row_link: P_CLIENTE_PROD_EXCLUIDOS.ID_TRAZA_INTEGRACION_SAP
+  qas_evidence:
+    test_pair: {cliente: '0001000265', producto: '0220'}
+    row_id: 1
+    created_trace_id: 1335
+    no_change_trace_id: 1336
+    deactivated_trace_id: 1337
+    outcomes:
+      - {call: 1, http: 200, action: CREATED}
+      - {call: 2, http: 200, action: NO_CHANGE}
+      - {call: 3, http: 200, action: DEACTIVATED}
+    cleanup_state: ACTIVO=0
+  regression_guardrails:
+    - No proyectar esta pareja a P_CLIENTES_EXCLUIDOS/P_PROD_EXCLUIDOS; esas tablas dependen de CODIGO_DoB.
+    - No elegir arbitrariamente entre duplicados; devolver DUPLICATE_NATURAL_KEY.
+    - Validar maestros antes de persistir.
+    - Mantener payload y respuesta en traza sin exponer API keys.

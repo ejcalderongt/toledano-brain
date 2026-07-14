@@ -159,6 +159,13 @@ functional_rules:
     confirmed: true
     values: [KI, DZ, BAG, KONMS]
     rule: WebAPI rechaza estas UM mediante validación de negocio antes de persistir.
+  sap_customer_product_exclusions:
+    confirmed: true
+    endpoint: POST /api/sap/exclusiones-descuento
+    table: P_CLIENTE_PROD_EXCLUIDOS
+    rule: La exclusión conserva la pareja exacta CLIENTE+PRODUCTO y no se relaciona con CODDESC.
+    legacy_boundary: No dividir en P_CLIENTES_EXCLUIDOS/P_PROD_EXCLUIDOS porque ampliaría la exclusión y esas tablas dependen de CODIGO_DoB.
+    qas_validation: CREATED, NO_CHANGE y DEACTIVATED confirmados con HTTP 200.
   combo_application_target:
     latest_confirmed: Productos especificos del combo, no total del pedido.
     historical_note: Existio interpretacion inicial de descuento global; fue corregida por negocio.
