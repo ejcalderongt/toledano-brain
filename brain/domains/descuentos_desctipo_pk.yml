@@ -1,0 +1,50 @@
+﻿# Identidad de descuentos ROAD validada en QAS el 2026-07-14.
+descuentos_desctipo_pk:
+  status: implementado_qas
+  source_commit: 4b9071a5
+  source_branch: devejc-combos-sofos
+  table: dbo.P_DESCUENTO
+  invariant: >
+    DESCTIPO forma parte de la identidad. R (rango), M (múltiplo) y C (combo)
+    pueden coexistir aunque coincidan las demás columnas de la llave.
+  primary_key_order:
+    - CLIENTE
+    - CTIPO
+    - PRODUCTO
+    - PTIPO
+    - TIPORUTA
+    - RANGOINI
+    - ES_RECARGO
+    - PORCANT
+    - PORPORCENTAJE
+    - CODCOMBO
+    - DESCTIPO
+  implementation_guardrails:
+    - Buscar existentes y validar duplicados incluyendo DESCTIPO.
+    - Reemplazar solamente la variante con el mismo DESCTIPO; nunca borrar R al reemplazar M, ni viceversa.
+    - Mantener DESCTIPO como nvarchar(1) NOT NULL en SQL y requerido en EF.
+    - Mantener CODCOMBO y DESCTIPO en cualquier reconstrucción futura de la PK.
+  qas_evidence:
+    database: ROADSAP_QAS
+    script: road_toledano_agent_setup/sql/2026-07-14_p_descuento_pk_desctipo.sql
+    rows_before_after: 37
+    distribution:
+      M: 19
+      R: 18
+    duplicates_for_new_key: 0
+    referencing_foreign_keys: 0
+  validation:
+    command: dotnet test ROADWedAPI.Tests/ROADWedAPI.Tests.csproj --no-restore
+    passed: 24
+    failed: 0
+
+unidad_medida_policy:
+  status: implementado_codigo_pendiente_despliegue
+  non_homologated:
+    - KI
+    - DZ
+    - BAG
+    - KONMS
+  rule: >
+    UnidadMedidaCondicion, UMVENTA y UMSTOCK se validan contra un único catálogo;
+    KONMS debe producir validación de negocio y no llegar a persistencia.

@@ -1,4 +1,4 @@
-project:
+﻿project:
   id: ROAD_TOLEDANO_DESCUENTOS_RECARGOS
   name: Integracion SAP -> ROAD para descuentos, recargos y promociones tipo combo
   client: Productos Toledano, S.A.
@@ -150,6 +150,15 @@ functional_rules:
     confirmed: true
     rule: A912 resuelve la condicion comercial por Ruta y mapea a CTIPO=11; no debe exigir Tipologia.
     validation_boundary: Tipologia es obligatoria para combos solamente cuando AccessSequence='A910'.
+  descuento_identity_desctipo:
+    confirmed: true
+    source_commit: 4b9071a5
+    rule: DESCTIPO forma parte de la PK de P_DESCUENTO y permite coexistencia de variantes R, M y C con el resto de la llave igual.
+    replacement_rule: Las búsquedas, duplicidad y reemplazos deben incluir DESCTIPO para no eliminar otra mecánica.
+  non_homologated_units:
+    confirmed: true
+    values: [KI, DZ, BAG, KONMS]
+    rule: WebAPI rechaza estas UM mediante validación de negocio antes de persistir.
   combo_application_target:
     latest_confirmed: Productos especificos del combo, no total del pedido.
     historical_note: Existio interpretacion inicial de descuento global; fue corregida por negocio.

@@ -23,6 +23,14 @@ brain_state:
       hash: 247929a2
       message: "Merge branch 'dev_2026_ejc' into devejc-combos-sofos"
   key_commits_integrated:
+    - hash: 4b9071a5
+      topic: DESCTIPO en PK de descuentos y rechazo de KONMS
+      scope:
+        - ROADWedAPI/Controllers/SapDescuentoController.cs
+        - ROADWedAPI/Data/RoadDbContext.cs
+        - ROADWedAPI/Models/PDescuento.cs
+        - ROADWedAPI/SAP/Descuentos/SapUnidadMedidaPolicy.cs
+        - road_toledano_agent_setup/sql/2026-07-14_p_descuento_pk_desctipo.sql
     - hash: 9f258b62
       original_hash: 867514e9
       topic: WebAPI integracion descuentos SAP/SOFOS
@@ -63,6 +71,7 @@ brain_state:
     - brain/sql/2026-07-20_liquidacion_graph_path_readonly.sql
     - brain/fm_verbose_trace_2026-07-20.md
     - brain/pdt_promociones_changes_and_fm_case_2026-07-20.yml
+    - brain/domains/descuentos_desctipo_pk.yml
     - road_toledano_agent_setup/operating_context_road_hh_bof_webapi.yml
     - road_toledano_agent_setup/fine_trace_discounts_combo.yml
     - road_toledano_agent_setup/fine_trace_liquidacion_frmLiqVend_2026-06-08.md
@@ -126,6 +135,8 @@ brain_state:
     - "PDT 2026-07-20: combos por ruta deben validar cliente asignado y dia de visita."
     - "PDT 2026-07-20 ROAD: mostrar precio base, descuento aplicado y precio unitario final al preventista; el ticket permanece sin precios."
     - "PDT 2026-07-20 ROAD: no implementar control de stock en preventa porque el inventario se opera como stock abierto."
+    - "DESCTIPO forma parte de la identidad de P_DESCUENTO; R, M y C pueden coexistir con las demás columnas de llave iguales."
+    - "KONMS es una UM no homologada en WebAPI, junto con KI, DZ y BAG."
     - "GLOBDESC='S' aplica al total de factura (totalizacion)."
     - "GLOBDESC='N' aplica por producto (linea individual)."
     - "PRODUCTO='*' representa aplicacion para todos los productos."

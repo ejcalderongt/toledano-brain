@@ -1,4 +1,4 @@
-webapi_payload_trace_phase1_2:
+﻿webapi_payload_trace_phase1_2:
   updated_at: 2026-07-10
   branch: devejc-combos-sofos
   objective: >
@@ -52,5 +52,14 @@ webapi_payload_trace_phase1_2:
       after: A912 supera la validacion de secuencia y se resuelve por Ruta con CTIPO=11.
       remaining_payload_validation: UMVENTA KI no homologada; el payload se rechazo antes de persistir la condicion.
       file: ROADWedAPI/Controllers/SapDescuentoController.cs
+    - case: DESCTIPO_PK_20260714
+      result: fixed_and_applied_qas
+      evidence: La PK SQL y EF incluye DESCTIPO; QAS conserva 37 registros sin duplicados bajo la nueva llave.
+      behavior: Un descuento R puede coexistir con uno M cuando coinciden cliente, producto, rango y demás componentes.
+      source_commit: 4b9071a5
+    - case: KONMS_20260714
+      result: fixed_in_source
+      evidence: KONMS se agregó al catálogo central junto con KI, DZ y BAG y tiene pruebas unitarias.
+      source_commit: 4b9071a5
   pending_backlog:
     - access_sequence A911 (ramo4) queda pendiente hasta definir mapeo ROAD.

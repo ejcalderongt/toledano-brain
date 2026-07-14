@@ -1,4 +1,4 @@
-bitacora:
+﻿bitacora:
   - date: 2026-04-06
     type: acceso_seguridad
     actor: Alicia Rivas / equipo seguridad
@@ -247,3 +247,21 @@ bitacora:
       notes:
         - El DELETE usa Confirmacion=ELIMINAR y desactiva por cliente+producto.
         - La prueba local quedo bloqueada por timeout en validacion SQL, pero la respuesta se devolvio en contrato estandar con success=false y código 503.
+
+  - date: 2026-07-14
+    type: correccion_identidad_descuentos_webapi_sql
+    actor: Erik Calderon / Codex
+    summary: Se incorpora DESCTIPO a la PK EF y SQL de P_DESCUENTO y se centraliza el rechazo de KONMS como UM no homologada.
+    impact: Permite coexistir descuentos por rango y múltiplo con las demás llaves iguales, evita reemplazos cruzados entre R/M/C y detiene KONMS antes de persistencia.
+    status: sql_aplicado_qas_codigo_publicado
+    technical_trace:
+      branch: devejc-combos-sofos
+      commit: 4b9071a5
+      qas:
+        database: ROADSAP_QAS
+        rows_preserved: 37
+        desctipo_distribution: {M: 19, R: 18}
+      validation:
+        tests_passed: 24
+        tests_failed: 0
+      knowledge: brain/domains/descuentos_desctipo_pk.yml
