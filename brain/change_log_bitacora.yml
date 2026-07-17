@@ -230,3 +230,20 @@ bitacora:
         - TWA003 reproducido antes del fix con HTTP 400 incorrecto de A910.
         - Despues del fix A912 avanzo por Ruta hasta la validacion independiente de UMVENTA KI no homologada.
         - No se persistio la condicion del payload TWA003; se registraron trazas de integracion.
+
+  - date: 2026-07-17
+    type: exclusiones_cliente_producto_webapi
+    actor: Erik Calderon / Codex
+    summary: Se agrega al WebAPI de ROAD el flujo de desactivacion logica para exclusiones cliente-producto con endpoint DELETE y traza SAP estandar.
+    impact: La pareja cliente-producto excluida puede darse de baja sin borrar fisicamente la fila y manteniendo el mismo sobre de respuesta SAP/ROAD.
+    status: implementado_en_devejc-combos-sofos
+    technical_trace:
+      branch: devejc-combos-sofos
+      files:
+        - ROADWedAPI/Controllers/SapExclusionDescuentoController.cs
+        - ROADWedAPI/DTOS/SapExclusionDescuentoDtos.cs
+        - ROADWedAPI/Models/PClienteProdExcluido.cs
+        - ROADWedAPI/Models/SapIntegrationTrace.cs
+      notes:
+        - El DELETE usa Confirmacion=ELIMINAR y desactiva por cliente+producto.
+        - La prueba local quedo bloqueada por timeout en validacion SQL, pero la respuesta se devolvio en contrato estandar con success=false y código 503.
