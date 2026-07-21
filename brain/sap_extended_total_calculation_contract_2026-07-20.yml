@@ -1,0 +1,159 @@
+sap_extended_total_calculation_contract:
+  version: 1
+  confirmed_at: 2026-07-20
+  status: regla_general_confirmada_para_homologacion
+  owner_system: SAP
+  applies_to:
+    - BOF_Facturacion_Manual
+    - HH_Android_ventas
+    - WebAPI_descuentos_si_calcula_importes
+    - validaciones_y_reconciliaciones_con_SAP
+
+  source_evidence:
+    workbook: C:/Users/yejc2/Downloads/Descuento_Cálculo_SAP.xlsx
+    bof_commit:
+      hash: 962ea5710fb0e98d421a54f7258b4262d0d05a70
+      author: Anderly Teleguario
+      message: Obtener por peso el descuento cuando aplique
+      integration_tip: 3441c4d70773601bcc2f67aaee8583e40a50e29d
+      decision: >
+        Revierte la evaluacion forzada por cantidad introducida en dc2bff54. Cuando
+        MultiplicarPorPeso=true, la condicion se selecciona/evalua usando peso; en caso
+        contrario usa cantidad.
+    examples:
+      - condition: ZK95
+        type: porcentual
+        finding: El redondeo sobre precio unitario puede diferir del calculo SAP sobre total extendido.
+      - condition: ZK94
+        type: monto_fijo_por_base
+        finding: El precio unitario promocional a dos decimales no reconstruye siempre el total SAP.
+
+  canonical_rule: >
+    Para coincidir con SAP, descuentos y recargos deben calcularse sobre el importe
+    extendido de la linea. El total final de linea es el valor autoritativo. El precio
+    unitario promocional es un valor derivado e informativo y nunca debe reutilizarse,
+    redondeado a dos decimales, como fuente para reconstruir el total.
+
+  calculation_sequence:
+    - step: resolve_billing_basis
+      rule: >
+        Usar peso total cuando la UM factura por peso; usar cantidad cuando factura por
+        unidades. Si el peso ya representa el total de la linea, no multiplicarlo de
+        nuevo por cantidad.
+      bof_expression: If(MultiplicarPorPeso, vPeso, vCantidad)
+      confirmed_by: Anderly commit 962ea571
+    - step: calculate_extended_base
+      formula: total_base = ROUND(precio_base_unitario * base_facturacion, 2)
+    - step: calculate_percentage_adjustment
+      formula: ajuste_porcentual = total_base * porcentaje / 100
+      sap_condition: ZK95
+      rounding: No redondear el ajuste porcentual intermedio.
+      authoritative_example: descuento_total = total_linea * porcentaje / 100
+    - step: calculate_fixed_adjustment
+      formula: ajuste_fijo = ROUND(valor_fijo * base_facturacion, 2)
+      sap_condition: ZK94
+      rounding: Redondear a dos decimales el cargo fijo extendido despues de multiplicarlo por el peso/base de facturacion.
+      authoritative_example: descuento_total = ROUND(0.07 * peso, 2)
+      guardrail: No convertir primero el precio unitario final a dos decimales.
+    - step: calculate_final_total
+      formula: total_final = ROUND(total_base - descuento_total + recargo_total, 2)
+    - step: derive_effective_unit_price
+      formula: precio_unitario_efectivo = total_final / base_facturacion
+      rule: Mantener precision suficiente; es informativo y no autoritativo.
+
+  canonical_values_to_preserve:
+    - precio_base_unitario
+    - base_facturacion_tipo
+    - base_facturacion_valor
+    - total_base_extendido
+    - descuento_total_linea
+    - recargo_total_linea
+    - total_final_linea
+    - precio_unitario_efectivo
+    - coddesc
+    - tipo_condicion
+    - regla_redondeo_aplicada
+
+  persistence_policy:
+    authoritative: total_final_linea
+    existing_bof_candidates:
+      - TotalFactura
+      - TOTAL_ROAD
+    unit_price_fields:
+      - PRECIODOC
+      - PRECIO_ROAD
+    guardrail: >
+      Antes de cambiar esquema, verificar si procesos BOF, HH, WebService o SAP reconstruyen
+      el total multiplicando PRECIODOC/PRECIO_ROAD. Si lo hacen, persistir ajuste extendido
+      o precio efectivo con mayor precision y versionar el contrato.
+    decision_2026_07_20:
+      add_database_fields: false
+      rule: Documentar la opcion y agregar campos solo si la auditoria demuestra que el contrato actual no puede conservar el total autoritativo.
+    consumer_audit:
+      finding: >
+        La interfaz de ventas SAP selecciona PRECIODOC y TOTAL como valores separados;
+        no necesita reconstruir TOTAL desde PRECIODOC. Pantallas y reportes que muestran
+        PRECIODOC deben tratarlo como derivado y no como fuente contractual del total.
+      evidence:
+        - DAL/Liquidador/Interface_SAP/I_SAP/VENTAS/I_SAP_VENTAS.vb
+        - clases/Liquidador/Interface_SAP/I_SAP/VENTAS/clsBeI_SAP_VENTAS.vb
+
+  confirmed_phase1_decisions:
+    validity_date: Usar fecha del documento/factura, no GETDATE del servidor.
+    bonified_combo_participation: Una linea bonificada no cuenta para completar un combo.
+    bonified_adjustments: Una linea bonificada no recibe descuento ni recargo.
+    total_mismatch: Implementado inicialmente como traza WARN; decision de bloqueo pendiente.
+    credit_debit_notes: Usan el mismo motor extendido y estrategia de redondeo SAP que FM.
+    error_price_note_reference:
+      ticket: T0002-20260720
+      rule: >
+        La nota de credito/debito por error de precio compara el precio digitado contra
+        el precio promocional unitario derivado del total extendido, normalizado a la
+        precision visible de factura. Nunca compara contra el precio base de lista cuando
+        existe un ajuste promocional calculado.
+      audit: >
+        El precio base no se pierde: permanece separado para trazabilidad y recalculo.
+        Si no existe estado promocional valido, se permite el precio base como fallback.
+      example: "producto=0220; precio_base=5.84; peso=9.320; descuento=1.5%; total_final=53.61; precio_sistema_nota=5.75; precio_manual=5.75; nota_error_precio=no"
+    multiple_discount_precedence:
+      ticket: T0003-20260720
+      rule: >
+        Una condicion DESCTIPO=M que cumple RANGOINI se evalua antes que una condicion
+        DESCTIPO=R aplicable. Dentro del mismo DESCTIPO se respetan PRIORIDAD_DESCUENTO
+        y PRIORIDAD configuradas.
+      calculation_basis: >
+        Para precio por peso, base_facturacion = peso_unitario * cantidad. Para los
+        demas precios, base_facturacion = cantidad.
+      derived_unit_price: >
+        precio_promocional = ROUND(total_final_redondeado / base_facturacion, 6).
+      example: "precio_base=5.84; peso=9.207; cantidad=3; base=27.621; descuento_M=1%; total_base=161.31; descuento=1.6131; total_final=159.70; precio_promocional=5.781833"
+    simultaneous_discount_surcharge: pendiente_decision
+    multiple_candidate_tie_break: pendiente_decision
+    handheld_rollout: pendiente_fase_posterior
+
+  cross_component_acceptance:
+    - ZK94 redondea el descuento extendido valor_fijo por peso/base antes de restarlo del total.
+    - ZK95 no redondea el descuento porcentual intermedio; solo se redondea el total final conforme SAP.
+    - BOF y HH producen el mismo total final para iguales precio base, UM, peso/cantidad y condicion.
+    - El total enviado o validado contra SAP coincide al centavo.
+    - Reintentos parten del precio base y del total base, sin reaplicar ajustes.
+    - La traza permite reconstruir cada valor intermedio y su redondeo.
+    - Las reglas ZK94/ZK95/ZK97/ZK96 y equivalentes ZR se prueban con cantidades y pesos que provoquen diferencias de redondeo.
+
+  implementation_status:
+    bof_fm: implementado_en_devejc_2026_pendiente_validacion_runtime
+    hh_android: pendiente_fase_posterior
+    webapi: evaluar_solo_si_calcula_o_valida_importes
+    database_contract: pendiente_auditoria_consumidores
+    bof_validation:
+      build: exitoso
+      artifact: C:/Users/yejc2/source/repos/ROAD_TOLEDANO/bin/Debug/ROAD_BOF_QAS.exe
+      numeric_cases:
+        ZK95: "base=161.31; descuento_sin_redondeo=1.6131; total_final=159.70"
+        ZK94: "base=15.68; descuento_fijo_redondeado=0.41; total_final=15.27"
+      runtime_scenario: pendiente
+      automated_tests: "FM_PROMOTION_TESTS_OK cases=6"
+      shared_engine: Clases/Promociones/clsCalculoPromocionSAP.vb
+      notes_path: Formas/Procesos/frmNotaCDDevol.vb
+
+  code_tag_for_future_changes: "#EJC20260720 fix(descuentos-total-extendido): homologa calculo y redondeo con SAP"
