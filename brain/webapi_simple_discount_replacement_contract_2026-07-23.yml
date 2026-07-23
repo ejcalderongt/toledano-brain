@@ -1,0 +1,33 @@
+webapi_simple_discount_replacement:
+  updated_at: 2026-07-23
+  scope: SapDescuentoController condiciones simples ZK94/ZK95/ZR94/ZR95
+  incident:
+    regcond: "0001583458"
+    coddesc_payload: 1111111
+    cliente: "0001002150"
+    producto: "0220"
+    symptom: HTTP 500 al reenviar ZK95 con reemplazarExistente=true
+    root_cause: >
+      REGCOND, ACTIVO y CODDESC no forman parte de la PK de P_DESCUENTO.
+      La búsqueda exigía el mismo REGCOND y no encontraba la fila anterior inactiva;
+      luego intentaba insertar la misma llave operativa y SQL Server rechazaba el alta.
+  rules:
+    - Cuando reemplazarExistente=true, localizar también por la PK operativa ROAD,
+      aunque cambie REGCOND o la fila anterior esté inactiva.
+    - Actualizar la fila encontrada en lugar de insertar una PK duplicada.
+    - CODDESC explícito del payload tiene prioridad sobre CODDESC existente.
+    - Si el payload omite CODDESC, conservar el existente; solo usar la secuencia para altas nuevas.
+    - Un duplicado residual debe responder como error controlado y dejar traza; no debe escapar como 500 genérico.
+  evidence_qas:
+    database: ROADSAP_QAS
+    existing_row:
+      coddesc: 238
+      regcond: "0001583134"
+      activo: false
+      desctipo: M
+      porporcentaje: S
+      valor: 1.0
+    sequence:
+      name: SEQ_P_DESCUENTO_CODDESC
+      exists: true
+      observed_current_value: 320
