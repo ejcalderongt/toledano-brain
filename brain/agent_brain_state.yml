@@ -61,6 +61,7 @@ brain_state:
     - Se recomienda continuar nuevos ajustes de combos en devejc-combos-sofos.
   knowledge_artifacts:
     - brain/knowledge_manifest_2026-07-24.yml
+    - brain/tc0013_fm_scale_quantity_weight_edit_contract_2026-07-24.yml
     - brain/codex_carol_restore_2026-07-24.md
     - brain/bof_combo_priority_fm_ncnd_hh_contract_2026-07-23.yml
     - brain/hh_android_discounts_deep_scan_and_fix_proposal_2026-07-21.md
@@ -120,6 +121,8 @@ brain_state:
       path: C:/Users/yejc2/Downloads/Tipos de descuentos por Alicia.msg
       usage: Evidencia funcional para clasificacion cliente KNVV.KLABC en la interfaz.
   confirmed_business_rules:
+    - "TC0013 BOF local sobre deca3105: al editar peso en FM, la seleccion de una escala UMVENTA=CA conserva Cantidad=cajas; el peso editado se usa solo como base monetaria extendida."
+    - "TC0013 fixture CODDESC 376: cantidad 3 selecciona recargo 3.7%; con precio base 1.44 y peso total 41.399, total final SAP=61.82 y precio derivado=1.493273."
     - "TC0011 HH b3ebe72: precio especial y promociones son excluyentes; TMP_PRECESPEC vacia conserva P_PRODPRECIO y nunca limpia el total calculado."
     - "TC0012 BOF a3d52989: al completar combo con cantidad comprada mayor o igual a la requerida, el combo reemplaza el ajuste individual del mismo lado."
     - "BOF a3d52989 reevalua promociones al agregar, editar, eliminar y antes de guardar; validado con 31 casos y build Debug x86."

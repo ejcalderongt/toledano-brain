@@ -1,0 +1,140 @@
+contract:
+  id: TC0013_20260724
+  title: Factura Manual conserva escala por cajas al editar peso
+  status: implemented_and_validated_locally_pending_source_commit
+  verified_at: 2026-07-24
+  component: BOF_Factura_Manual
+
+source_repository:
+  remote: https://dev.azure.com/ejcalderon0892/ROAD_TOLEDANO/_git/ROAD_TOLEDANO
+  local_path_carol: C:/Users/carol/Documents/Proyectos_DTS/Proyectos_2023/TOLEDANO/ROADBOF_VS2019_23
+  branch: devejc_2026
+  base_commit: deca3105d48d3ec27b173a3a9fe74e116c039ae1
+  source_change_status: working_tree_not_committed
+  handheld_reference:
+    path: C:/Users/carol/StudioProjects/road
+    branch: dev_road_2026
+    observed_commit: 6ea9e41695e89e3c200a7728e64f59aa08905fac
+    changed_for_tc0013: false
+
+qas_fixture:
+  database: ROADSAP_QAS
+  product: '0774'
+  client_confirmed_by_ui_and_database: '0001000178'
+  client_text_variant_not_found: '00010000178'
+  coddesc: 376
+  condition:
+    es_recargo: true
+    desctipo: R
+    porcentaje: true
+    umventa: CA
+    umstock: UN
+    ptipo: 0
+    tiporuta: 2
+  ranges:
+    - quantity_boxes: 2
+      percent: 3.5
+    - quantity_boxes: 3
+      percent: 3.7
+    - quantity_boxes: 4
+      percent: 3.8
+    - quantity_boxes_minimum: 5
+      quantity_boxes_maximum: 999999
+      percent: 3.9
+
+problem:
+  event: user_edits_line_weight
+  quantity_boxes: 3
+  edited_total_weight: 41.399
+  observed_wrong_selection:
+    range_basis: 41.399
+    selected_percent: 3.9
+    total_final: 61.93
+    derived_unit_price: 1.495930
+  impact: >
+    El peso editado era enviado en el parametro Cantidad de Get_Descuento_Recargo.
+    Como la condicion usa UMVENTA=CA, el DAL evaluaba 41.399 contra las escalas de
+    cajas y seleccionaba el rango 5..999999 en lugar del rango exacto de 3 cajas.
+
+confirmed_rule:
+  selection_basis: >
+    La base para seleccionar una escala se resuelve por la UM de la condicion.
+    Para CODDESC 376 con UMVENTA=CA, Cantidad debe conservar el numero de cajas.
+  calculation_basis: >
+    Si la linea ROAD se factura por peso, el peso editado representa el peso total
+    extendido y se usa como base monetaria. No se multiplica nuevamente por cantidad.
+  authoritative_value: total_final_extended_line
+  derived_value: promotional_unit_price_at_6_decimals
+  forbidden:
+    - usar_peso_editado_como_parametro_Cantidad
+    - reconstruir_total_desde_precio_unitario_redondeado_a_2_decimales
+
+implementation:
+  file: Formas/Procesos/frmFM.vb
+  event_path: dgvDetalleFactura_CellValidating_weight_edit
+  tag: "#EJC20260724 fix(TC0013-fm-escalas-cajas)"
+  change:
+    discount_lookup:
+      Cantidad: vCantidad
+      Peso: vPesoEditado
+    surcharge_lookup:
+      Cantidad: vCantidad
+      Peso: vPesoEditado
+    monetary_calculation:
+      base_facturacion: vPesoEditado
+
+acceptance:
+  inputs:
+    price_base: 1.44
+    quantity_boxes: 3
+    edited_total_weight: 41.399
+    surcharge_percent: 3.7
+    round_range_percentage_adjustment_to_decimals: 2
+  expected:
+    total_base: 59.61
+    surcharge_extended: 2.21
+    total_final: 61.82
+    promotional_unit_price_6_decimals: 1.493273
+    selected_coddesc: 376
+    selected_range: 3_to_3_boxes
+
+reusable_test:
+  file: tools/tests/Test-FmPromotionCalculation.ps1
+  command: >
+    powershell -NoProfile -ExecutionPolicy Bypass
+    -File .\tools\tests\Test-FmPromotionCalculation.ps1
+    -AssemblyPath .\bin\x86\Debug\ROAD_BOF_QAS.exe
+  coverage:
+    - numeric_total_and_rounding_fixture
+    - derived_unit_price_precision
+    - source_guard_quantity_parameter_for_discount
+    - source_guard_quantity_parameter_for_surcharge
+    - source_guard_edited_weight_parameter
+  observed_result: FM_PROMOTION_TESTS_OK_cases_26
+
+validation:
+  sql_read_only:
+    wrong_basis_41_399_selects_percent: 3.9
+    correct_basis_3_selects_percent: 3.7
+  build:
+    solution: BOF_ROAD.sln
+    configuration: Debug
+    platform: x86
+    result: success
+    warnings: >
+      Persisten advertencias preexistentes de arquitectura Crystal Reports,
+      System.ValueTuple y referencias MSIL/x86; no bloquearon el build.
+  runtime_ui_retest:
+    status: pending
+    steps:
+      - abrir Factura Manual para cliente 0001000178
+      - agregar producto 0774 con cantidad 3
+      - confirmar escala 3.7 por ciento
+      - cambiar peso total a 41.399
+      - confirmar que la escala permanece en 3.7 por ciento
+      - confirmar total 61.82 y precio derivado 1.493273
+
+security:
+  database_credential_storage: external_to_git_user_environment_variable_CST
+  credentials_in_brain: false
+

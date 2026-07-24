@@ -13,6 +13,7 @@ knowledge_manifest:
     - brain/hh_android_discounts_deep_scan_and_fix_proposal_2026-07-21.md
     - brain/fine_trace_discounts_combo.yml
     - brain/integration_mapping.yml
+    - brain/tc0013_fm_scale_quantity_weight_edit_contract_2026-07-24.yml
 
   source_repositories:
     bof_webapi:
@@ -63,10 +64,24 @@ knowledge_manifest:
       validation:
         - BOF_COMBO_PRIORITY_TESTS_OK_cases_31
         - BOF_ROAD_sln_Debug_x86_build_success
+    bof_weight_edit_scale_basis:
+      incident: TC0013_20260724
+      base_commit: deca3105
+      source_change_status: implemented_local_pending_commit
+      evidence:
+        - coddesc_376_umventa_CA_uses_quantity_3_for_scale_3_7_percent
+        - edited_weight_41_399_remains_extended_monetary_basis
+        - wrong_weight_as_quantity_would_select_3_9_percent
+        - expected_total_61_82_and_derived_price_1_493273
+      validation:
+        - FM_PROMOTION_TESTS_OK_cases_26
+        - BOF_ROAD_sln_Debug_x86_build_success
+        - QAS_readonly_scale_comparison_confirmed
 
   retrieval_tags:
     - TC0011
     - TC0012
+    - TC0013
     - Factura_Manual
     - frmFM
     - Precio.java
@@ -80,6 +95,10 @@ knowledge_manifest:
     - productos_0108_0826
     - total_extendido
     - NC_ND_error_precio
+    - CODDESC_376
+    - producto_0774
+    - escala_por_cajas
+    - edicion_peso
 
   restore:
     guide: brain/codex_carol_restore_2026-07-24.md
