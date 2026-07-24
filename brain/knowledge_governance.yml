@@ -18,7 +18,7 @@ knowledge_governance:
           use_brain: true
           update_brain: true
       - name: Carolina Fuentes
-        dpi_sha256: 6f139507e64c7771650a4898e6a60661c7038b27e975b1e36d50d80dd47470e6
+        dpi_sha256: bd0ce0e564bd7d4a41d921037128e09a2aa6074126fc88b6bf69b7355a7ab264
         permissions:
           use_brain: true
           update_brain: false
