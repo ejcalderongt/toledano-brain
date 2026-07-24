@@ -1,5 +1,5 @@
 webapi_simple_discount_replacement:
-  updated_at: 2026-07-23
+  updated_at: 2026-07-24
   scope: SapDescuentoController condiciones simples ZK94/ZK95/ZR94/ZR95
   incident:
     regcond: "0001583458"
@@ -15,8 +15,9 @@ webapi_simple_discount_replacement:
     - Cuando reemplazarExistente=true, localizar también por la PK operativa ROAD,
       aunque cambie REGCOND o la fila anterior esté inactiva.
     - Actualizar la fila encontrada en lugar de insertar una PK duplicada.
-    - CODDESC explícito del payload tiene prioridad sobre CODDESC existente.
-    - Si el payload omite CODDESC, conservar el existente; solo usar la secuencia para altas nuevas.
+    - ROAD es la autoridad de CODDESC; el valor recibido en el payload SAP se ignora, incluido 1111111.
+    - Una condicion existente conserva su CODDESC y una alta nueva obtiene siempre el siguiente valor de SEQ_P_DESCUENTO_CODDESC.
+    - Las filas de una misma escala comparten CODDESC y cada condicion REGCOND distinta obtiene una identidad ROAD independiente.
     - Un duplicado residual debe responder como error controlado y dejar traza; no debe escapar como 500 genérico.
   evidence_qas:
     database: ROADSAP_QAS
@@ -31,3 +32,14 @@ webapi_simple_discount_replacement:
       name: SEQ_P_DESCUENTO_CODDESC
       exists: true
       observed_current_value: 320
+  tc0014_diagnostic_2026_07_24:
+    database: ROADSAP_QAS
+    affected_coddesc: 1111111
+    affected_rows: 71
+    logical_regcond_groups: 69
+    simple_or_scale_rows: 52
+    combo_headers: 19
+    active_rows: 69
+    inactive_rows: 2
+    regularization_status: diagnosticada_no_ejecutada
+    correction_rule: Un nuevo CODDESC por REGCOND; replicar detalle combo por nuevo CODDESC y conservar la traza historica.

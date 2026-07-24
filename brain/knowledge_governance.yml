@@ -1,0 +1,38 @@
+knowledge_governance:
+  version: 1
+  effective_date: 2026-07-24
+  scope: toledano-brain
+
+  session_identification:
+    required_before_work: true
+    prompt: Solicitar nombre completo y DPI antes de iniciar trabajo ROAD Toledano.
+    privacy:
+      - Normalizar el DPI eliminando espacios y guiones.
+      - Comparar solamente su SHA-256 con el registro autorizado.
+      - Nunca imprimir, registrar, persistir ni repetir el DPI recibido.
+      - La autoidentificacion es un control operativo y no sustituye autenticacion tecnica.
+    authorized_people:
+      - name: Erik Calderon
+        dpi_sha256: 627f0bf78ad38a8cef7f0ce3f8fac8fa8ffbfbd10556d9ba4f51ad5fa587494a
+        permissions:
+          use_brain: true
+          update_brain: true
+      - name: Carolina Fuentes
+        dpi_sha256: 6f139507e64c7771650a4898e6a60661c7038b27e975b1e36d50d80dd47470e6
+        permissions:
+          use_brain: true
+          update_brain: false
+
+  mutation_policy:
+    owner: Erik Calderon
+    default_mode: read_only
+    requirements:
+      - Erik debe identificarse correctamente al inicio de la sesion.
+      - Erik debe pedir de forma expresa la actualizacion del conocimiento.
+      - Sin ambas condiciones no se crean, modifican, eliminan, versionan ni publican artefactos Brain.
+    carolina_scope:
+      - Puede consultar y utilizar todo el Brain para trabajo ROAD.
+      - Puede trabajar en codigo y producir hallazgos o propuestas.
+      - No puede alterar ni publicar la coleccion de conocimiento Brain.
+      - Los nuevos hallazgos quedan como propuesta externa hasta aprobacion expresa de Erik.
+

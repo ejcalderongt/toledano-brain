@@ -133,7 +133,7 @@ brain_state:
     - "Priorizacion SAP (Clasificacion ABC) se mapea a ROAD.PRIORIZACION."
     - "Ramo 4 aun no existe en ROAD; queda en backlog de definicion."
     - "Gr.Cliente (A906/KDGRP) se interpreta como Tipo cliente ROAD (P_TIPOCLI) y usa CTIPO=3."
-    - "CODDESC debe ser tratado como identificador de referencia de descuento y debe persistirse tambien para escenarios simples/escalas cuando llegue en payload."
+    - "TC0014 2026-07-24: ROAD es autoridad de CODDESC; una condicion existente conserva su CODDESC y una condicion nueva obtiene NEXT VALUE FOR dbo.SEQ_P_DESCUENTO_CODDESC. El CODDESC recibido en payload SAP se ignora, incluido 1111111."
     - "Compatibilidad legacy vigente: historicamente CODDESC NULL fue interpretado como simple/escalado y CODDESC con valor + PTIPO=6 como combo con detalle en P_DESCUENTO_COMBO_DET."
     - "WebAPI mantiene controlador de integracion SAP en SapDescuentoController y alias operativo /api/sap/descuentos."
   local_skill_context:

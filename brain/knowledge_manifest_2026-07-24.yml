@@ -4,6 +4,7 @@ knowledge_manifest:
   purpose: recuperacion_operativa_para_codex_en_bof_webapi_hh
 
   canonical_entrypoints:
+    - brain/knowledge_governance.yml
     - brain/agent_brain_state.yml
     - brain/project_context.yml
     - brain/sap_extended_total_calculation_contract_2026-07-20.yml
@@ -27,6 +28,8 @@ knowledge_manifest:
       branch: main
 
   confirmed_contracts:
+    - brain_read_requires_identification_and_brain_mutation_requires_explicit_erik_authorization
+    - road_is_authority_for_coddesc_existing_preserves_and_new_uses_sequence
     - total_extendido_de_linea_es_autoritativo
     - precio_promocional_unitario_es_derivado_a_6_decimales
     - peso_road_es_peso_total_y_no_se_multiplica_nuevamente_por_cantidad

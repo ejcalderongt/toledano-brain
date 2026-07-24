@@ -10,7 +10,8 @@
 - `CTIPO` es catálogo fijo hardcoded en BOF/HH (0..14).
 - `PTIPO` es catálogo fijo; en fase 1.2 se incorpora `6=combo`.
 - `A906/KDGRP` se interpreta como tipo cliente ROAD (`P_TIPOCLI`) y mapea a `CTIPO=3`.
-- `CODDESC` debe persistirse cuando venga en payload SAP, incluyendo simples/escalas.
+- ROAD es autoridad de `CODDESC`: una condición existente conserva el suyo y una alta nueva usa `SEQ_P_DESCUENTO_CODDESC`; se ignora el valor del payload SAP.
+- Antes de trabajar, aplicar `brain/knowledge_governance.yml`; solo Erik identificado puede autorizar cambios al Brain.
 - `GLOBDESC='S'` aplica a total factura; `GLOBDESC='N'` por línea producto.
 - `CLIENTE='*'` aplica a todos según `CTIPO`.
 - `PRODUCTO='*'` aplica a todos los productos.
