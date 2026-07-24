@@ -1,0 +1,254 @@
+hh_android_fm_ncnd_port_contract:
+  version: 1
+  documented_at: 2026-07-21
+  purpose: >
+    Contrato de portabilidad para reproducir en ROAD HH Android/Java las reglas ya
+    establecidas en BOF Facturacion Manual y en la evaluacion de NC/ND por diferencia
+    de precio. Evita copiar literalmente estado mutable de WinForms o formulas antiguas.
+
+  repositories:
+    brain:
+      path: C:/Users/yejc2/OneDrive/Documents/Toledano_WebAPI
+      remote: https://github.com/ejcalderongt/toledano-brain.git
+      branch: main
+      role: conocimiento_canonico_separado_del_codigo
+    bof:
+      path: C:/Users/yejc2/source/repos/ROAD_TOLEDANO
+      branch: devejc_2026
+      head_observed: b3ebe72
+      warning: >
+        Los ajustes finos NC/ND, guardas y pruebas de 25 casos estaban en el working
+        tree al documentar este contrato; verificar commit exacto antes de portar.
+    hh:
+      path: C:/Users/yejc2/StudioProjects/road_2023
+      branch_expected: dev_road_2026
+      role: destino_futuro_android_java
+      rule: Verificar remote, branch y worktree limpio antes de modificar.
+
+  source_of_truth:
+    calculation_contract: brain/sap_extended_total_calculation_contract_2026-07-20.yml
+    fm_baseline: brain/fm_stabilization_approved_baseline_2026-07-20.yml
+    pdt_context: brain/pdt_promociones_changes_and_fm_case_2026-07-20.yml
+    rule: >
+      SAP define el resultado monetario. El total final extendido de la linea es
+      autoritativo; el precio promocional unitario es derivado.
+
+  mandatory_domain_model_per_line:
+    inputs:
+      - product_code
+      - billing_um
+      - quantity
+      - total_weight
+      - multiply_by_weight
+      - invoice_date
+      - customer_and_commercial_keys
+      - is_bonus
+      - immutable_base_unit_price
+    calculation_state:
+      - billing_basis_type
+      - billing_basis_value
+      - extended_base_total
+      - selected_discount_coddesc
+      - selected_surcharge_coddesc
+      - discount_total
+      - surcharge_total
+      - authoritative_final_total
+      - derived_effective_unit_price_6_decimals
+      - rounding_policy
+    guardrail: >
+      El precio mostrado o promocional nunca reemplaza immutable_base_unit_price y nunca
+      se usa como entrada de un recalculo o reintento.
+
+  canonical_algorithm:
+    - order: 1
+      action: resolve_basis
+      rule: >
+        Si multiply_by_weight=true, usar total_weight tal como lo entrega ROAD porque ya
+        incluye la cantidad. Si es false, usar quantity. No multiplicar peso por cantidad.
+    - order: 2
+      action: extended_base
+      formula: extended_base_total = ROUND_AWAY_FROM_ZERO(base_unit_price * billing_basis, 2)
+    - order: 3
+      action: select_condition
+      rules:
+        - Usar fecha de factura/documento para vigencia.
+        - Las bonificaciones ROAD no completan combos, permanecen gratuitas y no reciben descuentos ni recargos.
+        - Evaluar DESCTIPO M si base >= RANGOINI; no exigir UMVENTA de peso a M.
+        - Evaluar DESCTIPO R dentro de RANGOINI/RANGOFIN y exigir UM compatible cuando aplique.
+        - Ordenar M antes de R; despues PRIORIDAD_DESCUENTO y PRIORIDAD.
+        - Aplicar exactamente una condicion de descuento por cliente/material conforme prioridad funcional.
+    - order: 4
+      action: calculate_adjustment
+      rules:
+        - ZK94/ZR94 fijo: ROUND_AWAY_FROM_ZERO(valor_fijo * billing_basis, 2).
+        - ZK95/ZR95 DESCTIPO M porcentual: extended_base_total * porcentaje / 100 sin redondeo intermedio.
+        - ZK97/ZR97 DESCTIPO R porcentual: redondear ajuste extendido a 2 decimales antes del total conforme evidencia FM aprobada.
+        - Aplicar equivalentes de recargo sumando en vez de restando.
+    - order: 5
+      action: final_total
+      formula: authoritative_final_total = ROUND_AWAY_FROM_ZERO(extended_base_total - discount_total + surcharge_total, 2)
+    - order: 6
+      action: derive_unit_price
+      formula: derived_effective_unit_price = ROUND_AWAY_FROM_ZERO(authoritative_final_total / billing_basis, 6)
+      guardrail: No reconstruir authoritative_final_total desde el precio derivado.
+
+  idempotency_and_combo_rules:
+    - Todo recalculo, edicion o reintento parte del precio base inmutable.
+    - Una linea bonificada permanece gratuita; no se recalcula como linea cobrada.
+    - La cantidad bonificada ROAD si completa requisitos de combo segun resolucion del equipo 2026-07-21.
+    - Agregar lineas repetidas por producto y UM compatible al evaluar requisitos.
+    - OBLIGATORIO=true ausente o insuficiente invalida el combo.
+    - OBLIGATORIO=false ausente se omite sin invalidar el combo.
+    - Distribuir o aplicar el beneficio una sola vez.
+
+  nc_nd_price_difference_contract:
+    trigger: Solo existe diferencia de precio cuando el precio manual difiere realmente de la referencia promocional vigente.
+    system_reference: >
+      Usar derived_effective_unit_price asociado al authoritative_final_total cuando hay
+      promocion valida. Usar el precio base solamente como fallback sin promocion.
+    comparison: >
+      Comparar con precision monetaria/visible coherente y con tolerancia de centavo;
+      evitar disparar nota por diferencias internas menores a 0.005.
+    amount: >
+      El monto de la nota debe derivarse del total extendido autoritativo y redondearse
+      a dos decimales AwayFromZero. No generar ni persistir una nota con diferencia o
+      total absoluto menor a 0.005.
+    state_safety:
+      - Reinicializar el objeto/estado mutable de nota antes de cada evaluacion.
+      - Limpiar importe, signo, beneficiario, UM, lote y referencias de una evaluacion anterior.
+      - No reutilizar una NC/ND previa al cambiar producto, peso, cantidad o precio.
+    direction:
+      - precio_manual_menor_que_sistema: NC_por_diferencia_de_precio
+      - precio_manual_mayor_que_sistema: ND_por_diferencia_de_precio
+      - iguales_dentro_de_tolerancia: no_nota
+    pending_controlled_decisions:
+      - Definir si el ajuste de nota se calcula exclusivamente por diferencia de totales autoritativos en todos los flujos HH.
+      - Definir politica de reemplazo cuando ya existe nota por factura/producto/lote/razon.
+      - Separar consultar, eliminar y reemplazar nota; evitar metodos de consulta con efectos destructivos.
+      - Parametrizar SQL y reemplazar MAX(CODIGONCD)+1 por generacion atomica en BOF/servicio.
+
+  hh_trace_minimum:
+    correlation:
+      - session_or_sale_id
+      - invoice
+      - customer
+      - route
+      - seller
+      - product
+      - line_id
+    events:
+      - PROMO_CANDIDATES
+      - PROMO_SELECTED
+      - PROMO_CALCULATION
+      - LINE_TOTAL_FINAL
+      - PRICE_NOTE_DECISION
+      - PRICE_NOTE_PREPARED
+      - PRICE_NOTE_PERSISTED_OR_SKIPPED
+      - SALE_COMMIT_RESULT
+    values: >
+      Registrar precio base, base/tipo, peso total, cantidad, condicion/CODDESC,
+      politica de redondeo, ajuste sin y con redondeo, total base, total final,
+      precio derivado a 6 decimales, precio digitado, diferencia y razon de NC/ND.
+    safety: La falla de traza no debe bloquear la venta y la traza no debe contener credenciales.
+
+  android_implementation_guidance:
+    strategy:
+      - Crear un calculador Java puro sin UI, SQLite ni SOAP.
+      - Usar BigDecimal construido desde String, nunca double para importes contractuales.
+      - Declarar escalas y RoundingMode.HALF_UP de forma explicita en cada pivote SAP.
+      - Mantener total autoritativo y precio derivado como valores distintos en memoria.
+      - Adaptar la UI/impresion para mostrar el precio derivado sin cambiar el total persistido.
+      - Revisar primero sincronizacion P_DESCUENTO, motor Precio/clsDescuento, Venta y Commit/CommitEnvio.
+    do_not_copy:
+      - Estado global mutable de frmFM o clsNotasContables.
+      - Comparaciones monetarias con Double exacto.
+      - Formulas peso por cantidad cuando peso ya es total ROAD.
+      - Totales reconstruidos desde precio visual de dos decimales.
+      - SQL concatenado o generacion MAX+1.
+    code_tag: "#EJC20260721 fix(hh-sap-extended-total): homologa FM y NC/ND con SAP"
+
+  acceptance_matrix:
+    - id: HH-SAP-01
+      case: ZK94_fijo_por_peso
+      expected: ajuste fijo extendido redondeado a 2 antes del total
+    - id: HH-SAP-02
+      case: ZK95_M_porcentual
+      expected: porcentaje sin redondeo intermedio; total final a 2
+    - id: HH-SAP-03
+      case: ZK97_R_porcentual
+      expected: ajuste porcentual a 2 antes del total segun regla FM
+    - id: HH-SAP-04
+      case: peso_total_con_cantidad_mayor_a_uno
+      expected: peso no se multiplica nuevamente por cantidad
+    - id: HH-SAP-05
+      case: reintento_o_edicion
+      expected: mismo resultado; ajuste aplicado una sola vez
+    - id: HH-SAP-06
+      case: linea_bonificada
+      expected: no ajusta y no completa combo
+    - id: HH-SAP-07
+      case: M_y_R_simultaneos
+      expected: selecciona M aplicable antes de R y respeta prioridades
+    - id: HH-SAP-08
+      case: precio_manual_igual_al_promocional
+      expected: no genera NC/ND aunque difiera del precio base
+    - id: HH-SAP-09
+      case: diferencia_menor_a_medio_centavo
+      expected: no persiste nota cero
+    - id: HH-SAP-10
+      case: impresion_o_UI_a_dos_decimales
+      expected: total sigue siendo autoritativo y cuadra con SAP
+
+  rollout_gate:
+    - Confirmar commit BOF que contiene fixes NC/ND antes de usarlo como referencia definitiva.
+    - Mapear columnas SQLite y payload SOAP sin cambiar contratos legacy accidentalmente.
+    - Ejecutar casos espejo con las mismas entradas en BOF y HH y comparar cada pivote.
+    - No activar en produccion hasta obtener igualdad al centavo con SAP y evidencia de reintento.
+
+  implementation_scope_2026_07_21:
+    active:
+      - HH-SAP-F01..HH-SAP-F15
+      - HH-SAP-F17
+      - HH-SAP-F18
+    bof_only:
+      - HH-SAP-F16_nc_nd_automatica_por_precio
+    rule: >
+      HH persiste genealogia monetaria local, admite descuento y recargo sobre la misma
+      base y muestra precio efectivo hasta seis decimales. No genera NC/ND automatica
+      por diferencia de precio; esa responsabilidad permanece en BOF.
+
+  implementation_evidence_2026_07_24:
+    repository: road_2023
+    branch: dev_road_2026
+    commit: b3ebe72
+    incident: TC0011_20260723
+    build: assembleDebug_success
+    implemented:
+      - total_extendido_persistido_sin_reconstruccion_desde_precio_visual
+      - precio_especial_excluyente_de_descuento_recargo_combo
+      - fallback_a_P_PRODPRECIO_si_TMP_PRECESPEC_no_tiene_filas
+      - rechazo_de_linea_ordinaria_con_precio_o_total_cero
+      - validacion_de_cursor_de_pago_antes_de_leer
+
+  special_price_exclusivity_2026_07_24:
+    decision: precio_especial_y_promociones_son_mutuamente_excluyentes
+    precedence:
+      - Buscar precio especial aplicable en TMP_PRECESPEC.
+      - Si existe y es mayor que cero, usarlo como unica fuente de precio de la linea.
+      - Si no existe, conservar precio base de P_PRODPRECIO y evaluar descuentos/recargos/combos.
+    special_price_mode:
+      discount: 0
+      surcharge: 0
+      coddesc_aplicado: 0
+      codrecargo_aplicado: 0
+      combo_eligibility: false
+      authoritative_total: precio_especial_por_base_facturacion_redondeado_a_2
+    standard_promotion_mode:
+      source: P_PRODPRECIO
+      condition: precio_base_mayor_que_0
+      authoritative_total: total_base_menos_descuento_mas_recargo
+    safety:
+      - Consultar TMP_PRECESPEC nunca puede limpiar ni reemplazar por cero un calculo valido.
+      - Una linea ordinaria con precio fuente o total menor o igual a cero no se persiste.
+      - El fallback por tabla TMP_PRECESPEC vacia es siempre P_PRODPRECIO.
+    code_tag: "#EJC20260724 fix(hh-special-price-exclusive)"

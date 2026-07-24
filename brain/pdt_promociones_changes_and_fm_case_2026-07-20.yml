@@ -1,0 +1,208 @@
+pdt_promociones_changes_and_fm_case:
+  version: 1
+  captured_at: 2026-07-20
+  status: source_reviewed_and_code_mapped
+  scope: SAP WebAPI -> SQL ROAD -> BOF Facturacion Manual -> notas credito/debito
+
+  sources:
+    pdt:
+      title: Cambios en Requerimiento Proyecto Promociones
+      path: C:/Users/yejc2/Downloads/Cambios en Requerimiento Proyecto Promociones 1.pdf
+      pages: 5
+      review: text_extracted_and_all_pages_visually_verified
+    sql_evidence:
+      image: C:/Users/yejc2/AppData/Local/Temp/codex-clipboard-adcc5af5-e774-4fcd-839b-9dbc05c60d44.png
+      database_visible: ROADSAP_QAS
+      server_visible: 172.16.10.27
+      query_scope:
+        cliente: "0001002150"
+        producto: "0220"
+      evidence_kind: screenshot_only_not_live_requeried
+    prior_analysis:
+      - fine_architecture_sales_discounts_2026-07-20.yml
+      - field_mapping_sap_to_road_phase1_2.md
+      - integration_mapping.yml
+      - frmFM.vb and clsLnP_DESCUENTO.vb current code on devejc-combos-sofos
+
+  pdt_confirmed_rules:
+    condition_class_priority:
+      discounts:
+        1: ZK96_combo
+        2: ZK95_percentage
+        3: ZK97_scale
+        4: ZK94_fixed
+      surcharges:
+        1: ZR96_combo
+        2: ZR95_percentage
+        3: ZR97_scale
+        4: ZR94_fixed
+      invariant: Apply exactly one condition per customer/material, subject to validity.
+      fallback: Base price by sales channel if no valid condition applies.
+    base_price_channels:
+      "01": CADENAS
+      "02": GENERALES
+      "03": FOOD_SERVICE
+      "04": PRICESMART
+      "90": PRECIO_BASE_INTERNO_VENDEDORES
+    non_combo_access_priority:
+      1: sales_org/distribution_channel/sector/customer/material
+      2: sales_org/distribution_channel/sector/transport_route/material
+      3: sales_org/distribution_channel/sector/customer_group/material
+    combo_access_equal_priority:
+      - sales_org/distribution_channel/sector/ramo3/commission_group
+      - sales_org/distribution_channel/sector/ramo4/commission_group
+      - sales_org/distribution_channel/sector/ramo3/ABC/center/group
+      - sales_org/distribution_channel/sector/customer/commission_group
+      - sales_org/distribution_channel/sector/preventa_route/commission_group
+    route_combo_extra_rule: Validate customers assigned to the route and their visit day.
+    commission_group: Material sales-master field used to construct and group combo materials.
+    exclusions:
+      applies_to:
+        - ZK96_combo
+        - ZR96_combo
+        - ZK97_scale
+        - ZR97_scale
+        - other promotion mechanics except ZK94/ZK95 as explicitly exempted by PDT
+      does_not_block:
+        - ZK94_fixed_discount
+        - ZK95_percentage_discount
+      fallback_for_excluded_customer_material:
+        - ZK95 when applicable and valid
+        - ZK94 when applicable and valid after higher priorities fail
+      required_management: [parameterized, auditable, validity_controlled]
+      supersedes_previous_assumption: Exclusion does not blanket-block every P_DESCUENTO row.
+    road_only_requirements:
+      - Fast filter or tab for preventistas to see applicable active promotions.
+      - Show base price, applied discounts, and final unit price.
+      - Keep customer ticket format unchanged and without prices.
+      - Do not add preventive-sales stock validation; commercial policy uses 100 percent open stock.
+
+  current_webapi_mapping:
+    ZK94_ZR94: fixed amount, PTIPO=0, PORPORCENTAJE=N, priority_class=4
+    ZK95_ZR95: percentage, PTIPO=0, PORPORCENTAJE=S, priority_class=2
+    ZK97_ZR97: scale rows, PTIPO=0, ranges, priority_class=3
+    ZK96_ZR96: combo header PTIPO=6 DESCTIPO=C plus P_DESCUENTO_COMBO_DET, priority_class=1
+    access_sequences:
+      A903: CTIPO=1 customer
+      A906: CTIPO=3 customer_group
+      A907: CTIPO=11 route
+      A908: CTIPO=1 customer_combo
+      A909: CTIPO=13 ABC plus tipologia and center
+      A910: CTIPO=12 ramo3_tipologia
+      A911: CTIPO=14 ramo4_pending_in_ROAD
+      A912: CTIPO=11 route_combo
+
+  current_fm_mapping_and_gaps:
+    line_engine:
+      selector: clsLnP_DESCUENTO.Get_Descuento_Recargo
+      accepts: CTIPO 0,1,3; PTIPO below 4; exact product; DESCTIPO R; GLOBDESC N
+      consequence:
+        - A903 and A906 ranges can apply.
+        - A907 route is ignored.
+        - DESCTIPO M fixed/percentage rows are ignored.
+        - PRODUCTO asterisk is ignored.
+    combo_engine:
+      selector: clsLnP_DESCUENTO.Get_Descuento_Recargo_Aplicable_Cliente
+      consequence:
+        - A909/A910/A912 may apply.
+        - A908 customer combo lacks direct D.CLIENTE=C.CODIGO predicate.
+        - A911 has no ROAD customer-field predicate.
+      defects:
+        - discount and surcharge objects are cross-applied to both combo details
+        - calculation is not idempotent
+        - update FM does not evaluate combos
+        - duplicate product lines are not aggregated
+        - detail UM/group/participation semantics are not enforced
+    priority_gap: Line and combo conditions are selected separately, so exactly-one-condition is not guaranteed.
+    exclusion_gap: Current line DAL blocks all types, including ZK94/ZK95, contrary to PDT fallback rule.
+    lifecycle_gaps:
+      - ACTIVO is not filtered by FM selectors.
+      - EMP is not filtered by FM selectors/detail loader.
+      - GETDATE is used instead of invoice effective date.
+
+  selected_case_0001002150_0220:
+    as_of: 2026-07-20
+    rows_from_screenshot:
+      - class: ZK97
+        coddesc: 285
+        regcond: "0001583137"
+        ctipo: 1
+        product: "0220"
+        desctipo: R
+        range: [1, 1]
+        percentage: 0.5
+        validity: [2026-06-01, 2099-12-31]
+      - class: ZK97
+        coddesc: 285
+        regcond: "0001583137"
+        ctipo: 1
+        product: "0220"
+        desctipo: R
+        range: [2, 2]
+        percentage: 1.0
+        validity: [2026-06-01, 2099-12-31]
+      - class: ZK97
+        coddesc: 285
+        regcond: "0001583137"
+        ctipo: 1
+        product: "0220"
+        desctipo: R
+        range: [3, 999999]
+        percentage: 1.5
+        validity: [2026-06-01, 2099-12-31]
+      - class: ZK94
+        coddesc: 233
+        regcond: "0001356822"
+        ctipo: 1
+        product: "0220"
+        desctipo: M
+        range: [1, 1]
+        value: 0.5
+        validity: [2026-08-01, 2099-12-31]
+      - class: ZK95
+        coddesc: 238
+        regcond: "0001583134"
+        ctipo: 1
+        product: "0220"
+        desctipo: M
+        range: [1, 1]
+        percentage: 1.0
+        validity: [2026-05-25, 2099-12-31]
+    expected_by_pdt_on_2026_07_20:
+      winner: ZK95 coddesc 238
+      reason: Valid percentage priority 2 wins over valid scale priority 3; ZK94 is not yet valid.
+      expected_effect: 1 percent discount for the customer/material, assuming no higher-priority valid combo.
+    expected_by_pdt_from_2026_08_01:
+      winner: ZK95 coddesc 238
+      reason: ZK95 remains higher priority than newly valid ZK94.
+    current_fm_effect:
+      winner: ZK97 coddesc 285
+      reason: FM hard-filters DESCTIPO R, excluding both ZK95 and ZK94 rows stored as M.
+      by_quantity:
+        "1": 0.5_percent
+        "2": 1.0_percent
+        "3_or_more": 1.5_percent
+      verdict: noncompliant_with_PDT_priority
+    exclusion_effect_required:
+      if_customer_product_is_excluded: Skip ZK97 and combo, but retain evaluation of ZK95 then ZK94.
+      current_fm_behavior: Would also suppress ZK95/ZK94 if they were admitted to the same line selector.
+
+  credit_debit_note_interaction:
+    simple_adjustment: Discounted/recarged price becomes PrecioSistema; manual price divergence can generate Z03 or Z08.
+    combo_adjustment: Applied during save after cell validation; existing notes are not recalculated against combo price.
+    pdt_boundary: PDT promotion priority does not redefine NC/ND reasons; stabilization must prevent promotional recalculation from fabricating price/extension differences.
+
+  implementation_gates:
+    - Build one evaluator across combo, percentage, scale, fixed and base price.
+    - Select one winning discount and one winning surcharge only if business confirms discount/recargo are independent tracks; PDT wording is ambiguous as written.
+    - Encode exclusions as eligibility/fallback, not blanket NOT EXISTS.
+    - Support DESCTIPO M or decouple condition class from calculation mechanic.
+    - Support CTIPO 1,3,11,12,13,14 consistently and validate A912 visit day.
+    - Filter ACTIVO, EMP, invoice effective date and UM.
+    - Reconcile promotion recalculation with temporary NC/ND before payment and persistence.
+
+  open_questions:
+    - Does exactly one condition mean one discount and one surcharge independently, or one condition total across both families?
+    - For DESCTIPO M in ZK95/ZK94, is range 1..1 an eligibility marker or true multiple-only behavior?
+    - What ROAD source determines route visit day for A912 during FM/liquidation?
+    - Should exclusions also exempt ZR94/ZR95 symmetrically? PDT explicitly names only ZK94/ZK95.

@@ -10,6 +10,8 @@ Repositorio de recuperación de contexto operativo del proyecto ROAD Toledano.
 - `skills/ejc-skill-toledano/`: skill local del agente con referencias y configuración.
 - `webapi_payloads/`: índice versionado de payloads JSON por release para pruebas de descuentos/recargos/combos.
 - `brain/sql/`: diagnósticos, scripts de alter y notas de traza/persistencia para el flujo SAP -> ROAD.
+- `brain/knowledge_manifest_2026-07-24.yml`: entrada canónica para recuperar el estado BOF/HH vigente.
+- `brain/codex_carol_restore_2026-07-24.md`: instalación reproducible del brain en otra PC con Codex.
 
 ## Fuente
 

@@ -1,0 +1,84 @@
+knowledge_manifest:
+  project: ROAD_TOLEDANO_PROMOCIONES
+  version: 2026-07-24
+  purpose: recuperacion_operativa_para_codex_en_bof_webapi_hh
+
+  canonical_entrypoints:
+    - brain/agent_brain_state.yml
+    - brain/project_context.yml
+    - brain/sap_extended_total_calculation_contract_2026-07-20.yml
+    - brain/bof_combo_priority_fm_ncnd_hh_contract_2026-07-23.yml
+    - brain/hh_android_fm_ncnd_port_contract_2026-07-21.yml
+    - brain/hh_android_discounts_deep_scan_and_fix_proposal_2026-07-21.md
+    - brain/fine_trace_discounts_combo.yml
+    - brain/integration_mapping.yml
+
+  source_repositories:
+    bof_webapi:
+      remote: https://dev.azure.com/ejcalderon0892/ROAD_TOLEDANO/_git/ROAD_TOLEDANO
+      branch: devejc_2026
+      verified_commit: a3d52989
+    handheld_android:
+      remote: https://github.com/carolinakfk/road_2023.git
+      branch: dev_road_2026
+      verified_commit: b3ebe72
+    brain:
+      remote: https://github.com/ejcalderongt/toledano-brain.git
+      branch: main
+
+  confirmed_contracts:
+    - total_extendido_de_linea_es_autoritativo
+    - precio_promocional_unitario_es_derivado_a_6_decimales
+    - peso_road_es_peso_total_y_no_se_multiplica_nuevamente_por_cantidad
+    - descuento_y_recargo_se_calculan_sobre_la_misma_base_inmutable
+    - precio_especial_y_promociones_son_mutuamente_excluyentes
+    - sin_precio_especial_se_usa_P_PRODPRECIO_y_el_precio_no_puede_ser_cero
+    - combo_completo_reemplaza_el_ajuste_individual_del_mismo_lado
+    - cantidad_combo_comprada_debe_ser_mayor_o_igual_a_la_requerida
+    - lineas_repetidas_se_agregan_por_producto_y_unidad
+    - bonificacion_gratuita_no_recibe_ajuste_y_no_completa_combo
+    - empate_de_combos_en_mejor_prioridad_aplica_solo_individual_y_notifica
+    - nc_nd_automatica_por_error_de_precio_pertenece_a_bof_no_a_hh
+
+  validated_changes:
+    handheld_total_and_special_price:
+      incident: TC0011_20260723
+      commit: b3ebe72
+      evidence:
+        - total_calculado_no_se_pierde_al_consultar_TMP_PRECESPEC_vacia
+        - precio_especial_no_acumula_descuento_recargo_combo
+        - linea_ordinaria_con_precio_o_total_cero_es_rechazada
+        - cursor_de_pago_vacio_genera_error_controlado
+      validation: gradle_assembleDebug_success
+    bof_combo_priority:
+      incident: TC0012_20260723
+      commit: a3d52989
+      evidence:
+        - reevaluacion_al_agregar_editar_eliminar_y_antes_de_guardar
+        - combo_304_0108_0826_requiere_2_por_codigo_y_aplica_2_por_ciento
+        - descuento_individual_1_por_ciento_es_fallback_provisional
+      validation:
+        - BOF_COMBO_PRIORITY_TESTS_OK_cases_31
+        - BOF_ROAD_sln_Debug_x86_build_success
+
+  retrieval_tags:
+    - TC0011
+    - TC0012
+    - Factura_Manual
+    - frmFM
+    - Precio.java
+    - PrecioTran.java
+    - P_PRODPRECIO
+    - TMP_PRECESPEC
+    - P_DESCUENTO
+    - P_DESCUENTO_COMBO_DET
+    - PTIPO_6
+    - combo_304
+    - productos_0108_0826
+    - total_extendido
+    - NC_ND_error_precio
+
+  restore:
+    guide: brain/codex_carol_restore_2026-07-24.md
+    installer: brain/tools/install_codex_toledano_brain.ps1
+    semantic_index: brain/vector_search/indexes/brain_semantic_index.json

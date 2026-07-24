@@ -1,10 +1,13 @@
 # Federated Brain Bootstrap (toledano-brain)
 
-Global core:
-- C:\Users\yejc2\source\repos\wms-brain\federated-brain-core
+## Bootstrap portable
 
-Local overlay:
-- C:\Users\yejc2\source\repos\toledano-brain\brain\project-overlay.yml
+Defina `TOLEDANO_BRAIN_ROOT` con la ruta del clon local. Para instalar el skill y
+reconstruir el índice semántico use:
 
-Quick resolve:
-- C:\Users\yejc2\source\repos\wms-brain\federated-brain-core\\tools\\resolve-context.ps1 -RepoPath C:\Users\yejc2\source\repos\toledano-brain -Trigger jira
+```powershell
+powershell -ExecutionPolicy Bypass -File "$env:TOLEDANO_BRAIN_ROOT\brain\tools\install_codex_toledano_brain.ps1" -BrainRoot $env:TOLEDANO_BRAIN_ROOT
+```
+
+Entrada canónica: `brain/knowledge_manifest_2026-07-24.yml`.
+Guía para otra PC: `brain/codex_carol_restore_2026-07-24.md`.

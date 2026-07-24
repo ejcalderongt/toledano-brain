@@ -1,5 +1,5 @@
 sap_extended_total_calculation_contract:
-  version: 1
+  version: 2
   confirmed_at: 2026-07-20
   status: regla_general_confirmada_para_homologacion
   owner_system: SAP
@@ -122,14 +122,24 @@ sap_extended_total_calculation_contract:
         DESCTIPO=R aplicable. Dentro del mismo DESCTIPO se respetan PRIORIDAD_DESCUENTO
         y PRIORIDAD configuradas.
       calculation_basis: >
-        Para precio por peso, base_facturacion = peso_unitario * cantidad. Para los
-        demas precios, base_facturacion = cantidad.
+        En ROAD, para precio por peso, el campo peso de la linea ya representa el peso
+        total y base_facturacion = peso_total; no volver a multiplicarlo por cantidad.
+        Para precios por unidad, base_facturacion = cantidad.
       derived_unit_price: >
         precio_promocional = ROUND(total_final_redondeado / base_facturacion, 6).
-      example: "precio_base=5.84; peso=9.207; cantidad=3; base=27.621; descuento_M=1%; total_base=161.31; descuento=1.6131; total_final=159.70; precio_promocional=5.781833"
-    simultaneous_discount_surcharge: pendiente_decision
-    multiple_candidate_tie_break: pendiente_decision
-    handheld_rollout: pendiente_fase_posterior
+      weight_um_filter_confirmed_by_carol_2026_07_21: >
+        Cuando PorPeso=true, UMVENTA=KG restringe solamente las condiciones
+        DESCTIPO=R. Las condiciones DESCTIPO=M se mantienen candidatas aunque su
+        UMVENTA sea diferente o no esté informada. Expresión canónica:
+        ((DESCTIPO='R' AND UMVENTA=@UM_PESO) OR DESCTIPO='M').
+      example_legacy_sap: "precio_base=5.84; peso_unitario=9.207; cantidad=3; base=27.621; descuento_M=1%; total_base=161.31; descuento=1.6131; total_final=159.70; precio_promocional=5.781833"
+      road_interpretation: >
+        El ejemplo SAP anterior solo es valido si 9.207 es peso unitario. Cuando ROAD
+        entrega 27.621 como peso de la linea, usar directamente 27.621. Nunca calcular
+        27.621 * 3.
+    simultaneous_discount_surcharge: ambos_sobre_la_misma_base_inmutable
+    multiple_candidate_tie_break: empate_mejor_prioridad_no_aplica_combo_y_conserva_individual
+    handheld_rollout: implementado_en_dev_road_2026_b3ebe72
 
   cross_component_acceptance:
     - ZK94 redondea el descuento extendido valor_fijo por peso/base antes de restarlo del total.
@@ -138,11 +148,12 @@ sap_extended_total_calculation_contract:
     - El total enviado o validado contra SAP coincide al centavo.
     - Reintentos parten del precio base y del total base, sin reaplicar ajustes.
     - La traza permite reconstruir cada valor intermedio y su redondeo.
+    - En combos, el precio promocional derivado se conserva a seis decimales y la base por peso es peso unitario por cantidad; el total final extendido permanece autoritativo.
     - Las reglas ZK94/ZK95/ZK97/ZK96 y equivalentes ZR se prueban con cantidades y pesos que provoquen diferencias de redondeo.
 
   implementation_status:
-    bof_fm: implementado_en_devejc_2026_pendiente_validacion_runtime
-    hh_android: pendiente_fase_posterior
+    bof_fm: implementado_y_publicado_en_devejc_2026_a3d52989
+    hh_android: implementado_y_publicado_en_dev_road_2026_b3ebe72
     webapi: evaluar_solo_si_calcula_o_valida_importes
     database_contract: pendiente_auditoria_consumidores
     bof_validation:
@@ -152,8 +163,10 @@ sap_extended_total_calculation_contract:
         ZK95: "base=161.31; descuento_sin_redondeo=1.6131; total_final=159.70"
         ZK94: "base=15.68; descuento_fijo_redondeado=0.41; total_final=15.27"
       runtime_scenario: pendiente
-      automated_tests: "FM_PROMOTION_TESTS_OK cases=6"
+      automated_tests: "BOF_COMBO_PRIORITY_TESTS_OK cases=31; BOF_ROAD Debug x86 build exitoso 2026-07-24"
       shared_engine: Clases/Promociones/clsCalculoPromocionSAP.vb
       notes_path: Formas/Procesos/frmNotaCDDevol.vb
+
+  hh_handoff_contract: brain/hh_android_fm_ncnd_port_contract_2026-07-21.yml
 
   code_tag_for_future_changes: "#EJC20260720 fix(descuentos-total-extendido): homologa calculo y redondeo con SAP"

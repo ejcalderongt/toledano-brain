@@ -1,17 +1,23 @@
 brain_state:
-  updated_at: 2026-06-08
+  updated_at: 2026-07-24
   repository:
     path: C:/Users/yejc2/source/repos/ROAD_TOLEDANO
     remote: origin (Azure DevOps)
   hh_repository:
-    path: C:/Users/yejc2/source/repos/road_hh_toledano
+    path: C:/Users/yejc2/StudioProjects/road_2023
     remote: https://github.com/carolinakfk/road_2023.git
-    active_branch: dev_road_2024_bak3
+    active_branch: dev_road_2026
+    head_observed: b3ebe72
     notes:
-      - Repositorio HH clonado fuera del repo principal para trabajo paralelo.
-      - Rama funcional confirmada por usuario: dev_road_2024_bak3.
+      - Checkout HH verificado el 2026-07-21; tiene cambios Gradle locales ajenos que deben preservarse.
+      - Rama objetivo vigente para portar FM/NC/ND: dev_road_2026.
+  current_bof_context:
+    path: C:/Users/yejc2/source/repos/ROAD_TOLEDANO
+    branch: devejc_2026
+    head_observed: a3d52989
+    status: combo_priority_TC0012_publicado_y_validado
   active_strategy:
-    primary_branch_for_integration: devejc-combos-sofos
+    primary_branch_for_integration: devejc_2026
     supporting_branch_merged: dev_2026_ejc
     merge_commit:
       hash: 247929a2
@@ -46,6 +52,17 @@ brain_state:
     - El nombre dev_2026_ejc no existia previamente en local y fue creado/publicado.
     - Se recomienda continuar nuevos ajustes de combos en devejc-combos-sofos.
   knowledge_artifacts:
+    - brain/knowledge_manifest_2026-07-24.yml
+    - brain/codex_carol_restore_2026-07-24.md
+    - brain/bof_combo_priority_fm_ncnd_hh_contract_2026-07-23.yml
+    - brain/hh_android_discounts_deep_scan_and_fix_proposal_2026-07-21.md
+    - brain/hh_android_fm_ncnd_port_contract_2026-07-21.yml
+    - brain/sap_extended_total_calculation_contract_2026-07-20.yml
+    - brain/fm_stabilization_approved_baseline_2026-07-20.yml
+    - brain/liquidacion_357515_graph_path_2026-07-20.md
+    - brain/sql/2026-07-20_liquidacion_graph_path_readonly.sql
+    - brain/fm_verbose_trace_2026-07-20.md
+    - brain/pdt_promociones_changes_and_fm_case_2026-07-20.yml
     - road_toledano_agent_setup/operating_context_road_hh_bof_webapi.yml
     - road_toledano_agent_setup/fine_trace_discounts_combo.yml
     - road_toledano_agent_setup/fine_trace_liquidacion_frmLiqVend_2026-06-08.md
@@ -93,6 +110,22 @@ brain_state:
       path: C:/Users/yejc2/Downloads/Tipos de descuentos por Alicia.msg
       usage: Evidencia funcional para clasificacion cliente KNVV.KLABC en la interfaz.
   confirmed_business_rules:
+    - "TC0011 HH b3ebe72: precio especial y promociones son excluyentes; TMP_PRECESPEC vacia conserva P_PRODPRECIO y nunca limpia el total calculado."
+    - "TC0012 BOF a3d52989: al completar combo con cantidad comprada mayor o igual a la requerida, el combo reemplaza el ajuste individual del mismo lado."
+    - "BOF a3d52989 reevalua promociones al agregar, editar, eliminar y antes de guardar; validado con 31 casos y build Debug x86."
+    - "FM confirmado por Anderly en 962ea571: la cantidad evaluada para elegir/aplicar descuentos usa peso cuando MultiplicarPorPeso=true y cantidad para las demas UM; revierte el forzado general por cantidad de dc2bff54."
+    - "Regla transversal SAP/BOF/HH: descuentos y recargos se calculan sobre el total extendido de linea; total_final_linea es autoritativo y el precio unitario promocional es derivado."
+    - "Regla de redondeo SAP: no reconstruir el total desde un precio promocional unitario redondeado a dos decimales; preservar total base, ajuste extendido y total final."
+    - "Arquitectura documental: los artefactos Brain viven exclusivamente en el repositorio toledano-brain, nunca dentro del repositorio de codigo ROAD_TOLEDANO."
+    - "FM aprobado por Anderly: los ajustes promocionales deben ser idempotentes y partir siempre de un precio base inmutable, no de ColPrecioReal ya ajustado."
+    - "FM aprobado por Anderly: conservar por separado precio original/base, ajuste aplicado y precio promocional final."
+    - "FM aprobado por Anderly: evaluar combos agregando lineas compatibles por producto y UM cuando existan lineas repetidas."
+    - "FM aprobado por Anderly: OBLIGATORIO=true bloquea el combo si falta; un detalle opcional ausente no debe invalidarlo."
+    - "PDT 2026-07-20: aplicar exactamente una condicion vigente por material/cliente con prioridad combo, porcentual, escalonado, fijo y finalmente precio base."
+    - "PDT 2026-07-20: la exclusion cliente-material bloquea combo/escalonado, pero no debe bloquear ZK95 ni ZK94; estos son el fallback vigente."
+    - "PDT 2026-07-20: combos por ruta deben validar cliente asignado y dia de visita."
+    - "PDT 2026-07-20 ROAD: mostrar precio base, descuento aplicado y precio unitario final al preventista; el ticket permanece sin precios."
+    - "PDT 2026-07-20 ROAD: no implementar control de stock en preventa porque el inventario se opera como stock abierto."
     - "GLOBDESC='S' aplica al total de factura (totalizacion)."
     - "GLOBDESC='N' aplica por producto (linea individual)."
     - "PRODUCTO='*' representa aplicacion para todos los productos."

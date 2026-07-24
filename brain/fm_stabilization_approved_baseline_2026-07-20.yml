@@ -1,0 +1,85 @@
+fm_stabilization_baseline:
+  date: 2026-07-20
+  branch: devejc_2026
+  scope: BOF Facturacion Manual
+  approval:
+    approved_by: Anderly
+    reported_by: usuario
+    implementation_strategy: aplicar_y_validar_progresivamente_con_escenarios_fm
+
+  approved_improvements:
+    - id: FM-STAB-01
+      name: trazabilidad_fina
+      status: instrumentado_pendiente_validacion_runtime
+      rule: >
+        Registrar por sesion los valores intermedios y resultados de inventario,
+        precio, descuento, recargo, combo, totales, notas, pago y persistencia.
+      acceptance:
+        - El archivo trace_fm se crea desde el ejecutable recompilado.
+        - Cada ajuste identifica cantidad evaluada, precio base, condicion y precio final.
+        - Un fallo de escritura de traza no interrumpe la venta.
+
+    - id: FM-STAB-02
+      name: calculo_idempotente_sobre_precio_base
+      status: aprobado_pendiente_implementacion
+      risk_confirmed: >
+        Aplicar combo sobre ColPrecioReal permite descuento o recargo compuesto cuando
+        pago/guardado falla, se cancela o el usuario reintenta.
+      rule: >
+        Toda reevaluacion promocional debe partir de un precio base inmutable de la linea,
+        nunca del precio promocional previamente calculado.
+      acceptance:
+        - Reintentar Guardar produce exactamente el mismo precio y total.
+        - Cancelar pago y volver a intentar no reaplica el porcentaje.
+        - Recalcular o editar cantidad restaura base y aplica una sola condicion.
+
+    - id: FM-STAB-03
+      name: distinguir_precio_lista_y_promocional
+      status: aprobado_pendiente_implementacion
+      rule: >
+        Conservar y exponer separadamente precio original/base, ajuste aplicado y precio
+        promocional unitario, tanto en estado del grid como en trazabilidad.
+      acceptance:
+        - Puede reconstruirse precio_base - descuento + recargo = precio_final.
+        - La UI permite reconocer el precio original sin inferirlo desde el final.
+        - La persistencia legacy no cambia hasta confirmar contrato requerido.
+
+    - id: FM-STAB-04
+      name: agregacion_combo_producto_um
+      status: aprobado_condicionado_pendiente_implementacion
+      condition: >
+        Aplicar cuando un producto pueda existir en varias lineas, incluyendo cargas por
+        barras, lotes o pallets aunque el ingreso manual normal rechace duplicados.
+      current_evidence:
+        - Existe_Linea_Grid rechaza otro renglon no bonificado del mismo producto.
+        - Carga_Detalle_Pallet y otras cargas agregan filas directamente al grid.
+        - El evaluador actual toma solo la primera fila coincidente.
+      rule: >
+        Evaluar requisitos sumando cantidades comparables por producto y UM normalizada;
+        no sumar unidades incompatibles sin conversion explicita.
+      acceptance:
+        - Dos lineas compatibles que juntas cumplen el minimo activan el requisito.
+        - Una linea aislada insuficiente no invalida si el agregado cumple.
+        - UM incompatibles no se mezclan silenciosamente.
+        - El beneficio se distribuye/aplica una sola vez a las lineas participantes.
+
+    - id: FM-STAB-05
+      name: respetar_obligatorio_combo
+      status: aprobado_pendiente_implementacion
+      current_evidence: >
+        OBLIGATORIO se carga en clsBeP_DESCUENTO_COMBO_DET, pero AplicarAjusteComboEnGrid
+        no lo consulta y retorna ante cualquier detalle ausente.
+      rule: >
+        Un detalle OBLIGATORIO ausente o insuficiente invalida el combo. Un detalle opcional
+        ausente no debe invalidarlo y solo participan en el ajuste las lineas presentes que
+        cumplen su regla.
+      acceptance:
+        - obligatorio=true ausente produce NOT_MET y no aplica combo.
+        - obligatorio=false ausente produce OPTIONAL_SKIPPED y permite continuar.
+        - La traza identifica obligatoriedad y motivo de inclusion o descarte.
+
+  implementation_guardrails:
+    - No cambiar simultaneamente contratos WebAPI, HH o persistencia legacy sin evidencia del escenario.
+    - Implementar cada fix con tag de codigo y prueba de reintento/regresion.
+    - Comparar siempre precio base, cantidad/peso evaluado, condicion seleccionada y precio final.
+    - No realizar commit o push sin autorizacion explicita del usuario.

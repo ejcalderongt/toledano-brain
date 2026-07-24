@@ -1,4 +1,4 @@
 interface:
   display_name: "EJC Skill Toledano"
   short_description: "Operacion ROAD Toledano para WebAPI/BOF/HH con trazabilidad SAP->ROAD fase 1.2."
-  default_prompt: "Usa esta skill para ejecutar cambios del proyecto ROAD Toledano en descuentos/recargos/combos SAP fase 1.2, cargando primero brain/contexto, respetando CTIPO/PTIPO hardcoded, rama HH dev_road_2024_bak3 y politica CODDESC persistente."
+  default_prompt: "Usa esta skill para ROAD Toledano. Resuelve TOLEDANO_BRAIN_ROOT, carga knowledge_manifest y agent_brain_state, respeta CTIPO/PTIPO/CODDESC y verifica BOF devejc_2026 y HH dev_road_2026 antes de actuar."

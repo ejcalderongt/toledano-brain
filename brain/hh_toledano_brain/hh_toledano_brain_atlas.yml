@@ -2,7 +2,8 @@ hh_toledano_brain_atlas:
   updated_at: 2026-06-01
   hh_repo:
     path: C:/Users/yejc2/source/repos/road_hh_toledano
-    branch: dev_road_2024_bak3
+    branch: dev_road_2026
+    verified_commit: b3ebe72
   scope:
     - Venta.java
     - Precio.java

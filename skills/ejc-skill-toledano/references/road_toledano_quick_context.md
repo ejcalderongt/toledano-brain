@@ -14,7 +14,11 @@
 - `GLOBDESC='S'` aplica a total factura; `GLOBDESC='N'` por línea producto.
 - `CLIENTE='*'` aplica a todos según `CTIPO`.
 - `PRODUCTO='*'` aplica a todos los productos.
-- Rama HH vigente para análisis funcional: `dev_road_2024_bak3`.
+- Rama HH vigente: `dev_road_2026`; commit validado TC0011: `b3ebe72`.
+- Rama BOF/WebAPI vigente: `devejc_2026`; commit validado TC0012: `a3d52989`.
+- El total extendido es autoritativo y el precio unitario promocional se deriva a 6 decimales.
+- Precio especial y promociones son excluyentes; sin especial se conserva `P_PRODPRECIO`.
+- Combo completo reemplaza el ajuste individual cuando cantidad comprada >= requerida.
 
 ## Combinaciones SAP relevantes
 
@@ -37,7 +41,7 @@
 
 - Etiquetado inline: `#EJCYYYYMMDD tipo(area): descripcion`.
 - Usar `warning` cuando haya riesgo confirmado sin resolver.
-- Mantener trazabilidad en `road_toledano_agent_setup/*`.
+- Mantener trazabilidad exclusivamente en el repositorio `toledano-brain/brain/*`.
 
 ## Evidencia mínima para validar cambios
 

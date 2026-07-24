@@ -79,6 +79,36 @@ scope:
       escalas (no solo combos).
 
 functional_rules:
+  verified_runtime_baseline_2026_07_24:
+    bof_webapi: devejc_2026_at_a3d52989
+    handheld: dev_road_2026_at_b3ebe72
+    brain_manifest: brain/knowledge_manifest_2026-07-24.yml
+    incidents_closed_in_code:
+      - TC0011_total_cero_y_precio_especial_HH
+      - TC0012_prioridad_combo_FM_BOF
+  sap_extended_total_calculation:
+    source: C:/Users/yejc2/Downloads/Descuento_Cálculo_SAP.xlsx
+    contract: brain/sap_extended_total_calculation_contract_2026-07-20.yml
+    authoritative_value: total_final_linea
+    rule: >
+      Calcular descuentos y recargos sobre el total extendido de la linea para homologar
+      SAP, BOF/FM y HH. El precio promocional unitario es derivado y no debe reconstruir
+      el total despues de redondearse a dos decimales.
+    rollout:
+      bof_fm: implementado_con_ajustes_nc_nd_pendientes_de_commit
+      hh_android: pendiente_portar_segun_contrato
+      webapi: evaluar_segun_responsabilidad
+    hh_handoff_contract: brain/hh_android_fm_ncnd_port_contract_2026-07-21.yml
+  pdt_2026_07_20:
+    source: C:/Users/yejc2/Downloads/Cambios en Requerimiento Proyecto Promociones 1.pdf
+    exactly_one_condition_per_customer_material: true
+    priority: [combo, percentage, scale, fixed, base_price]
+    exclusion_semantics: >
+      La exclusion cliente-material inhabilita combo/escalonado y obliga a continuar la
+      evaluacion hacia ZK95/ZK94 vigentes; no es un bloqueo general de toda condicion.
+    road_visibility: [precio_base, descuento_aplicado, precio_final_unitario]
+    ticket_prices: unchanged_hidden
+    preventive_stock_control: not_required_open_stock
   application_scope:
     all_customers_marker:
       field: CLIENTE

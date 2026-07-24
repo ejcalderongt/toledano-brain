@@ -1,7 +1,8 @@
 hh_toledano_feature_index:
-  updated_at: 2026-06-01
-  repo: C:/Users/yejc2/source/repos/road_hh_toledano
-  baseline_branch: dev_road_2024_bak3
+  updated_at: 2026-07-24
+  repo: road_2023
+  baseline_branch: dev_road_2026
+  verified_commit: b3ebe72
   feature_tracks:
     - feature_id: HH-FEAT-PRICING-CORE
       goal: Blindar motor central de precio/descuento/recargo.

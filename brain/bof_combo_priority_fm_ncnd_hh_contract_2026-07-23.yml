@@ -1,0 +1,159 @@
+contract:
+  id: BOF_COMBO_PRIORITY_20260723
+  status: implemented_in_bof_pending_functional_validation
+  updated_at: 2026-07-23
+  scope:
+    - factura_manual
+    - nota_credito_debito_devolucion_cliente
+    - future_port_to_hh_android
+
+confirmed_business_rules:
+  incomplete_combo:
+    action: apply_individual_provisionally
+    transition: replace_automatically_when_combo_becomes_complete
+  complete_combo:
+    action: replace_only_the_same_promotion_side
+    detail: descuento_combo_reemplaza_descuento_individual_y_recargo_combo_reemplaza_recargo_individual
+  discount_and_surcharge:
+    coexist: true
+    calculation_base: same_immutable_base_extended_total
+  same_priority_completed_combos:
+    comparison_key:
+      - PRIORIDAD_DESCUENTO
+      - PRIORIDAD
+    action: apply_no_combo
+    fallback: apply_individual_promotions
+    visibility:
+      - user_notification
+      - fine_trace_COMBO_SELECTION_AMBIGUOUS
+    forbidden_tiebreaker: CODDESC
+  bonification:
+    counts_for_combo: false
+    receives_discount_or_surcharge: false
+    price: 0
+  document_date:
+    use: invoice_or_return_document_date
+    forbidden: GETDATE_for_promotion_validity
+  repeated_lines:
+    aggregate_by:
+      - product
+      - sales_unit
+    mandatory_combo_detail: respect_OBLIGATORIO
+  arithmetic:
+    authoritative_value: extended_line_total
+    derived_unit_price_decimals: 6
+    final_total_decimals: 2
+    road_weight_rule: line_weight_is_already_total_do_not_multiply_by_quantity_again
+
+nc_nd_scope:
+  included: ROAD_documents_for_customer_returns
+  form: Formas/Procesos/frmNotaCDDevol.vb
+  automatic_error_price_notes_in_fm: separate_existing_flow
+  historical_or_already_generated_document_recalculation:
+    status: not_implemented
+    reason: out_of_scope
+    warning: do_not_delete_or_regenerate_existing_NC_ND_automatically
+  provisional_price_difference_notes_in_current_fm:
+    status: approved_and_implemented
+    types:
+      - Z03_credit_price_error
+      - Z08_debit_price_error
+    action: delete_and_regenerate_after_promotion_resolution
+    when_difference_disappears: delete_and_do_not_regenerate
+    explicitly_untouched:
+      - customer_return_notes
+      - extension_or_sum_notes
+      - historical_or_already_saved_documents
+
+runtime_state_machine:
+  - event: line_added_or_edited_or_deleted
+    steps:
+      - restore_each_line_from_immutable_base_price
+      - calculate_individual_discount_and_surcharge_fallback
+      - evaluate_all_active_combo_candidates_by_document_date
+      - exclude_bonified_lines_from_requirements
+      - aggregate_repeated_product_and_unit_lines
+      - select_unique_best_completed_combo_per_promotion_side
+      - if_tied_keep_individual_and_notify
+      - derive_effective_unit_price_from_extended_total
+  - event: before_save
+    steps:
+      - reevaluate_current_document
+      - reconcile_only_provisional_Z03_Z08_notes_against_final_promotional_price
+      - persist_current_effective_values
+      - do_not_rewrite_previously_generated_documents
+
+fine_trace:
+  non_blocking: true
+  events:
+    - DOCUMENT_RESOLVE
+    - INDIVIDUAL_FALLBACK
+    - COMBO_CANDIDATES
+    - COMBO_REQUIREMENT
+    - COMBO_SELECTION
+    - COMBO_TOTAL_GLOBAL
+  ambiguity_signature: promotion_side_plus_priority_discount_plus_priority_plus_candidate_codes
+  expected_ambiguity_result: accion=individual
+
+qas_reference_fixture:
+  database: ROADSAP_QAS
+  client: '0001002150'
+  combo:
+    CODDESC: 304
+    CODCOMBO: 25
+    discount_percent: 2
+    products:
+      - product: '0108'
+        quantity: 2
+        unit: FLT
+        mandatory: true
+      - product: '0826'
+        quantity: 2
+        unit: CA
+        mandatory: true
+  individual_fallbacks:
+    - product: '0108'
+      CODDESC: 307
+      percent: 1
+    - product: '0826'
+      CODDESC: 306
+      percent: 1
+
+hh_reproduction_contract:
+  purpose: reproduce_BOF_behavior_after_functional_stabilization
+  algorithm:
+    - never_chain_calculation_from_an_already_promotional_price
+    - keep_or_recover_immutable_base_price
+    - apply_individuals_as_provisional_fallback
+    - evaluate_PTIPO_6_combos_over_the_whole_current_document
+    - exclude_free_bonification_lines_from_combo_completion
+    - resolve_discount_and_surcharge_independently
+    - reject_same_priority_combo_ambiguity_and_keep_individuals
+    - recalculate_on_add_edit_delete_and_before_save
+    - use_BigDecimal_and_the_same_extended_total_rounding_contract
+  excluded_from_hh:
+    - automatic_NC_ND_generation_for_price_difference
+    - retroactive_recalculation_of_saved_documents
+
+acceptance_scenarios:
+  - given: only_one_required_product_or_insufficient_quantity
+    expect: individual_1_percent
+  - given: both_0108_and_0826_meet_quantity_and_unit
+    expect: combo_304_2_percent_replaces_individual_discount
+  - given: completed_combo_then_requirement_is_deleted_or_reduced
+    expect: return_to_individual_1_percent
+  - given: two_completed_combos_share_best_priority
+    expect: no_combo_user_warning_trace_and_individuals
+  - given: bonified_line_is_the_missing_combo_requirement
+    expect: combo_remains_incomplete_and_line_stays_zero
+
+code_traceability:
+  bof_worktree: C:/Users/yejc2/source/repos/ROAD_TOLEDANO_COMBO_PRIORITY
+  branch: codex/bof-combo-priority
+  base: origin/devejc_2026
+  principal_files:
+    - DAL/clsLnP_DESCUENTO.vb
+    - Entity/clsBeP_DESCUENTO.vb
+    - Formas/Procesos/frmFM.vb
+    - Formas/Procesos/frmNotaCDDevol.Promociones.vb
+    - tools/tests/Test-BofComboPriority.ps1

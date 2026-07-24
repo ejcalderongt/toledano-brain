@@ -14,7 +14,8 @@ operating_context:
         - ROADWedAPI (.NET WebAPI para integracion SAP descuentos)
     hh_android:
       path: C:/Users/yejc2/source/repos/road_hh_toledano
-      branch: dev_road_2024_bak3
+      branch: dev_road_2026
+      verified_commit: b3ebe72
       components:
         - app Android (SQLite local + consumo SOAP)
 

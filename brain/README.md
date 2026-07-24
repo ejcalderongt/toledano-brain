@@ -7,9 +7,22 @@ Este paquete contiene dos capas:
 
 La idea es reutilizar exactamente la misma estructura en otros proyectos, cambiando solo una configuracion.
 
+## Regla de separacion de repositorios
+
+Los archivos de contexto, analisis, graph-path, decisiones y scripts documentales del Brain
+viven exclusivamente en este repositorio `toledano-brain`, bajo `brain/` o `dba_changes/`.
+No deben crearse ni mantenerse dentro del repositorio de codigo fuente `ROAD_TOLEDANO`.
+El repositorio de codigo conserva solamente implementacion y artefactos tecnicos necesarios
+para compilar o ejecutar el producto.
+
 ## Contexto funcional existente
 
 - `project_context.yml`: contexto funcional, alcance, reglas confirmadas y puntos abiertos.
+- `hh_android_fm_ncnd_port_contract_2026-07-21.yml`: contrato canónico para portar a HH Android/Java el cálculo extendido SAP, idempotencia, combos y decisiones NC/ND de Facturación Manual.
+- `hh_android_discounts_deep_scan_and_fix_proposal_2026-07-21.md`: estado del arte de HH y lista quirúrgica tageada para aprobación del equipo.
+- `knowledge_manifest_2026-07-24.yml`: manifiesto canónico, commits verificados, contratos y etiquetas de recuperación.
+- `codex_carol_restore_2026-07-24.md`: procedimiento portable para instalar el skill y reconstruir vectores en Codex.
+- `bof_combo_priority_fm_ncnd_hh_contract_2026-07-23.yml`: prioridad documental de combos y contrato de reproducción HH.
 - `integration_mapping.yml`: mapeo SAP -> ROAD, tipos de condicion, combinaciones A903/A907/A906 y A908-A912, con notas A909/A910 y trazabilidad RegCond.
 - `change_log_bitacora.yml`: bitacora cronologica de correos, acuerdos, demoras, cambios y trazabilidad.
 - `codex_setup.yml`: setup recomendado para Codex, rutas sugeridas, secuencia de implementacion y prompt base.
