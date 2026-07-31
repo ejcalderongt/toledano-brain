@@ -7,7 +7,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $resolvedBrain = (Resolve-Path -LiteralPath $BrainRoot).Path
 $skillSource = Join-Path $resolvedBrain 'skills\ejc-skill-toledano'
-$manifest = Join-Path $resolvedBrain 'brain\knowledge_manifest_2026-07-24.yml'
+$manifest = Join-Path $resolvedBrain 'brain\knowledge_manifest_2026-07-31.yml'
 $indexBuilder = Join-Path $resolvedBrain 'brain\vector_search\build_index.py'
 $codexSkills = Join-Path $env:USERPROFILE '.codex\skills'
 $skillTarget = Join-Path $codexSkills 'ejc-skill-toledano'

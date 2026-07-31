@@ -1,0 +1,39 @@
+hh_runtime_handoff:
+  version: 1
+  observed_at: 2026-07-31
+  repository:
+    path: C:/Users/carol/StudioProjects/road
+    remote: https://github.com/carolinakfk/road_2023.git
+    branch: road_2028
+    upstream: origin/road_2028
+    head: a3cfb1aa3669efcc85a527b8482c534e5ad2c168
+    package: com.dts.roadp
+    working_tree:
+      status: dirty_preserve
+      files: [app/src/main/java/com/dts/roadp/ComWS.java, app/src/main/java/com/dts/roadp/MainActivity.java]
+  baseline:
+    commit: b3ebe72
+    meaning: TC0011_historico_no_HEAD_actual
+  evolution_summary:
+    commits_since_baseline: 30
+    diff: 76_files_5499_insertions_1274_deletions
+    major_tracks:
+      - combos_y_fechas
+      - repesaje_y_total_autoritativo
+      - consulta_y_pantalla_de_promociones
+      - notas_de_credito_y_anulacion
+      - envio_de_campos_adicionales
+      - precio_y_factor_de_conversion_Rosti_0629
+      - eliminacion_de_precio_especial_en_road_2028
+      - separacion_de_P_DESCUENTO_legacy
+  rosti_0629:
+    commits: [95a8aee95d2555109c022e9070cbc94870b4c592, 6125f83067e93f47b5d21279285bf322b679c685]
+    confirmed_change: separar_cantidad_comercial_de_base_facturacion_convertida
+    calculation: base_facturacion_convertida=cantidad_por_factor_presentacion
+    affected_flows: [Precio.java, PrecioTran.java, Venta.java, clsDescFiltro.java, despacho_barras.java, SapPromotionCalculator.java]
+    pending_runtime_diagnosis_2026_07_31:
+      symptom: producto_0629_muestra_0_por_ciento_y_total_8_16_para_2_CA
+      logcat: sin_eventos_de_decision_de_promocion
+      csv_trace: archivo_detectado_pero_evidencia_del_caso_no_confirmada
+      database_needed: solo_si_trazas_instrumentadas_no_resuelven_candidatos_y_fuente_de_precio
+  source_of_truth_rule: confirmar siempre Git actual; este handoff es snapshot no sustituto del codigo

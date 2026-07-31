@@ -1,0 +1,54 @@
+knowledge_manifest:
+  project: ROAD_TOLEDANO_PROMOCIONES
+  version: 2026-07-31
+  purpose: recuperacion_operativa_aislada_y_trazable
+  governance: brain/knowledge_governance.yml
+  canonical_entrypoints:
+    - brain/project_identity_and_repo_guardrails_2026-07-31.yml
+    - brain/agent_brain_state.yml
+    - brain/project_context.yml
+    - brain/hh_runtime_handoff_2026-07-31.yml
+    - brain/hh_commit_inventory_2026-07-31.yml
+    - brain/hh_promotion_observability_contract_2026-07-31.yml
+    - brain/sap_extended_total_calculation_contract_2026-07-20.yml
+    - brain/bof_combo_priority_fm_ncnd_hh_contract_2026-07-23.yml
+    - brain/integration_mapping.yml
+    - brain/fine_trace_discounts_combo.yml
+  source_repositories:
+    bof_webapi:
+      remote: https://dev.azure.com/ejcalderon0892/ROAD_TOLEDANO/_git/ROAD_TOLEDANO
+      branch_observed: devejc_2026
+      head_observed: deca3105
+      historical_validated_commit: a3d52989
+    handheld_android:
+      remote: https://github.com/carolinakfk/road_2023.git
+      branch_observed: road_2028
+      head_observed: a3cfb1a
+      historical_validated_commit: b3ebe72
+      package: com.dts.roadp
+    brain:
+      remote: https://github.com/ejcalderongt/toledano-brain.git
+      branch: main
+  current_cases:
+    - id: HH_ROSTI_0629_20260731
+      status: diagnostico_abierto
+      contract: brain/hh_promotion_observability_contract_2026-07-31.yml
+      handoff: brain/hh_runtime_handoff_2026-07-31.yml
+  retrieval_tags:
+    - Rosti_0629
+    - road_2028
+    - PromotionTrace
+    - ROAD_PROMO_TRACE
+    - PROMO_NOT_APPLIED
+    - base_facturacion_convertida
+    - factor_presentacion
+    - com.dts.roadp
+    - project_isolation
+    - no_TOMHH2025
+    - commit_inventory_road_2028
+    - CODDESC
+    - P_PRODPRECIO
+    - P_DESCUENTO
+  restore:
+    installer: brain/tools/install_codex_toledano_brain.ps1
+    semantic_index: brain/vector_search/indexes/brain_semantic_index.json

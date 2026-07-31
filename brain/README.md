@@ -17,6 +17,11 @@ para compilar o ejecutar el producto.
 
 ## Contexto funcional existente
 
+- `knowledge_manifest_2026-07-31.yml`: manifiesto canonico vigente y aislamiento de proyectos.
+- `project_identity_and_repo_guardrails_2026-07-31.yml`: firmas de ROAD y exclusion de TOMWMS/TOMHH2025.
+- `hh_runtime_handoff_2026-07-31.yml`: snapshot de `road_2028`, cambios desde TC0011 y caso Rosti 0629.
+- `hh_promotion_observability_contract_2026-07-31.yml`: eventos y reason codes para explicar promociones no aplicadas.
+
 - `project_context.yml`: contexto funcional, alcance, reglas confirmadas y puntos abiertos.
 - `hh_android_fm_ncnd_port_contract_2026-07-21.yml`: contrato canónico para portar a HH Android/Java el cálculo extendido SAP, idempotencia, combos y decisiones NC/ND de Facturación Manual.
 - `hh_android_discounts_deep_scan_and_fix_proposal_2026-07-21.md`: estado del arte de HH y lista quirúrgica tageada para aprobación del equipo.

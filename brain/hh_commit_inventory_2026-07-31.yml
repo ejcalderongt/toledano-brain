@@ -1,0 +1,44 @@
+hh_commit_inventory:
+  generated_at: 2026-07-31
+  repository: https://github.com/carolinakfk/road_2023.git
+  branch: road_2028
+  range: b3ebe72_exclusive_to_a3cfb1a_inclusive
+  source: git_log_local_verified
+  commits:
+    - {hash: a3cfb1a, date: 2026-07-31, topic: no_usar_P_DESCUENTO_en_legacy}
+    - {hash: 66ea5b9, date: 2026-07-30, topic: lista_promociones}
+    - {hash: 1493f8c, date: 2026-07-30, topic: anulacion_NC_e_icono_promociones}
+    - {hash: 0c0fe41, date: 2026-07-30, topic: correccion_NC}
+    - {hash: 14a21e3, date: 2026-07-30, topic: mejoras_promociones_y_NC}
+    - {hash: 4a47877, date: 2026-07-30, topic: mejoras_promociones_y_NC}
+    - {hash: 9de17b8, date: 2026-07-30, topic: consulta_promociones_y_NC}
+    - {hash: 6004900, date: 2026-07-30, topic: consulta_promociones_y_NC}
+    - {hash: acb574f, date: 2026-07-30, topic: correcciones_descuentos}
+    - {hash: ad382b8, date: 2026-07-30, topic: pantalla_precios}
+    - {hash: c066c11, date: 2026-07-30, topic: descuento_producto_0002_NC}
+    - {hash: 08c2e8e, date: 2026-07-30, topic: lista_productos}
+    - {hash: db2ce71, date: 2026-07-30, topic: nueva_version_ROAD}
+    - {hash: 04abfb7, date: 2026-07-29, topic: merge_dev_road_2026_en_road_2028}
+    - {hash: 7df7b72, date: 2026-07-29, topic: repesaje}
+    - {hash: 57f537f, date: 2026-07-29, topic: descuentos}
+    - {hash: 5dc7644, date: 2026-07-29, topic: envio_campos_adicionales}
+    - {hash: 46437e3, date: 2026-07-28, topic: envio_campos_adicionales}
+    - {hash: 1ee41a8, date: 2026-07-28, topic: envio_campo_faltante}
+    - {hash: 8021148, date: 2026-07-28, topic: carga_despacho}
+    - {hash: 79482d6, date: 2026-07-28, topic: boton_descuentos_recargos}
+    - {hash: 6125f83, date: 2026-07-28, topic: Rosti_0629_SapPromotionCalculator_y_despacho}
+    - {hash: 95a8aee, date: 2026-07-28, topic: Rosti_0629_factor_conversion_y_precio}
+    - {hash: a7ed3be, date: 2026-07-28, topic: eliminar_uso_precios_especiales}
+    - {hash: fd095de, date: 2026-07-28, topic: combos_diferentes_condiciones}
+    - {hash: 1de4886, date: 2026-07-27, topic: totales_pedido_y_boton_descuentos}
+    - {hash: 4b746fe, date: 2026-07-27, topic: totales}
+    - {hash: 9446434, date: 2026-07-24, topic: fechas_combos}
+    - {hash: 54de812, date: 2026-07-24, topic: combos}
+    - {hash: 13d98ac, date: 2026-07-24, topic: impresion}
+    - {hash: 61094a2, date: 2026-07-24, topic: factura_repesaje}
+    - {hash: e051f84, date: 2026-07-24, topic: factura_repesaje}
+    - {hash: 9903a29, date: 2026-07-24, topic: ajustes_unidad_medida}
+    - {hash: 8257b36, date: 2026-07-24, topic: descuentos_combos_y_simples}
+    - {hash: e3191dd, date: 2026-07-24, topic: TC0015_escala_por_UMVENTA}
+    - {hash: 31586a7, date: 2026-07-24, topic: recalculo_descuentos}
+  note: El inventario describe commits; las reglas funcionales requieren contrato o prueba adicional antes de tratarse como confirmadas.

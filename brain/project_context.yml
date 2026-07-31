@@ -10,6 +10,14 @@
     Recibir desde SAP condiciones de descuentos y recargos, transformarlas al modelo operativo ROAD
     y aplicar una unica condicion vigente por material/cliente segun prioridad comercial.
 
+runtime_context_2026_07_31:
+  canonical_manifest: brain/knowledge_manifest_2026-07-31.yml
+  repository_guardrail: brain/project_identity_and_repo_guardrails_2026-07-31.yml
+  hh_handoff: brain/hh_runtime_handoff_2026-07-31.yml
+  hh_observability: brain/hh_promotion_observability_contract_2026-07-31.yml
+  branch_note: road_2028 es la rama HH activa observada; dev_road_2026 permanece como baseline historico.
+  project_boundary: TOMHH2025_y_TOMWMS_no_pertenecen_a_ROAD
+
 scope:
   hardcoded_business_catalogs:
     ctipo:

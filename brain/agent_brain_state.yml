@@ -1,5 +1,21 @@
 brain_state:
-  updated_at: 2026-07-24
+  updated_at: 2026-07-31
+  current_workstation_snapshot:
+    owner: Carolina Fuentes
+    bof_webapi:
+      path: C:/Users/carol/OneDrive/Documentos/ROAD/ROAD_TOLEDANO
+      remote: https://dev.azure.com/ejcalderon0892/ROAD_TOLEDANO/_git/ROAD_TOLEDANO
+      branch: devejc_2026
+      head: deca3105
+      status: dirty_preserve_existing_changes
+    hh_android:
+      path: C:/Users/carol/StudioProjects/road
+      remote: https://github.com/carolinakfk/road_2023.git
+      branch: road_2028
+      head: a3cfb1a
+      package: com.dts.roadp
+      status: dirty_preserve_ComWS_and_MainActivity
+    excluded_projects: [TOMHH2025, TOMWMS_BOF, TOMIMSV4, com.dts.tom]
   repository:
     path: C:/Users/yejc2/source/repos/ROAD_TOLEDANO
     remote: origin (Azure DevOps)

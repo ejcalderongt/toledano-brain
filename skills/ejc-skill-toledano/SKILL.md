@@ -1,63 +1,42 @@
 ---
 name: ejc-skill-toledano
-description: Agente operativo para el proyecto ROAD Toledano. Usar cuando se requiera analizar, planificar, ejecutar o validar cambios en WebAPI/BOF/HH y BD SQL Server relacionados con descuentos, recargos, promociones y combos SAP (fase PDT 1.2), incluyendo trazabilidad de ramas/commits, mapeo SAP a ROAD, checklist técnico y actualización del brain del proyecto.
+description: Operar ROAD Toledano en BOF, WebAPI/WebService, RDC7, HH Android com.dts.roadp y SQL Server para precios, descuentos, recargos, promociones, combos SAP, pedidos, facturas y NC. Usar para analizar, diagnosticar, modelar, implementar, probar, trazar o federar conocimiento ROAD; incluye verificacion estricta para no mezclar TOMWMS/TOMHH2025.
 ---
 
-# EJC Skill Toledano
+# ROAD Toledano
 
-Trabaja con enfoque operativo y trazable sobre ROAD Toledano.
+## Inicio
 
-## Flujo operativo
+1. Resolver `TOLEDANO_BRAIN_ROOT`; en esta PC usar `C:\Users\carol\OneDrive\Documentos\toledano-brain`.
+2. Cargar `brain/knowledge_governance.yml`, `brain/knowledge_manifest_2026-07-31.yml`, `brain/agent_brain_state.yml` y `brain/project_context.yml`.
+3. No solicitar identificacion para leer el brain ni para analizar, modelar, probar o cambiar codigo ROAD.
+4. Solicitar nombre completo y DPI solo antes de mutar o publicar el brain. Comparar unicamente SHA-256 y nunca mostrar, repetir ni persistir el DPI.
+5. Permitir mutacion del brain solo a Erik identificado y con solicitud expresa. Carolina opera ROAD plenamente, pero el brain permanece de solo lectura para ella.
 
-1. Cargar `brain/knowledge_governance.yml`, solicitar nombre completo y DPI, comparar su SHA-256 y no registrar ni repetir el DPI.
-2. Si la identidad no coincide con una persona autorizada, detener el trabajo ROAD.
-3. Verificar repo y rama objetivo antes de actuar.
-4. Resolver la raíz del brain desde `TOLEDANO_BRAIN_ROOT`; si no existe, buscar un checkout `toledano-brain` en el workspace y solicitar la ruta solo si no puede descubrirse.
-5. Revisar primero `brain/knowledge_manifest_2026-07-24.yml` y `brain/agent_brain_state.yml` bajo esa raíz.
-6. Confirmar rama HH `dev_road_2026`, rama BOF/WebAPI `devejc_2026` y sus remotos antes de actuar.
-7. Alinear reglas funcionales y técnicas (SAP, ROAD, HH, BOF, RDC7).
-8. Confirmar políticas de persistencia (`CODDESC`) y compatibilidad legacy antes de codificar.
-9. Ejecutar cambios mínimos necesarios (sin tocar archivos ajenos).
-10. Validar con build/pruebas/evidencia SQL cuando aplique.
-11. Actualizar Brain solo si Erik fue identificado y lo solicita expresamente; Carolina tiene uso completo en modo lectura pero no permiso de mutacion.
+## Barrera de proyecto
 
-## Reglas clave del proyecto
+Antes de inspeccionar Android, exigir simultaneamente:
 
-- Respetar catálogos hardcoded: `CTIPO` y `PTIPO` (incluye `PTIPO=6` combo en fase 1.2).
-- Priorizar compatibilidad entre WebAPI, BOF, RDC7 y HH.
-- ROAD es autoridad de `CODDESC`: conservar el existente o generar secuencia para una alta; ignorar el valor recibido en el payload SAP.
-- Solo Erik Calderon, previamente identificado y mediante solicitud expresa, puede modificar o publicar conocimiento Brain.
-- No introducir supuestos no documentados; si una regla no está confirmada, dejarla en backlog/riesgo.
-- Mantener convenciones de tags de código definidas por el proyecto.
-- Evitar mezclar cambios de áreas distintas en el mismo commit.
-- Los archivos Brain viven exclusivamente en `toledano-brain`; nunca dentro de `ROAD_TOLEDANO` o `road_2023`.
+- remoto HH `https://github.com/carolinakfk/road_2023.git`;
+- paquete/applicationId `com.dts.roadp`;
+- archivos firma `Precio.java`, `Venta.java` y `ComWS.java` bajo `app/src/main/java/com/dts/roadp`.
 
-## Archivos de contexto a cargar primero
+Excluir siempre `TOMHH2025`, TOMWMS, TOMIMSV4 y `com.dts.tom`. No activar skills TOMWMS por coincidencias genericas como Android, HH o BOF. Consultar `brain/project_identity_and_repo_guardrails_2026-07-31.yml` si hay varias copias locales.
 
-Revisar estos archivos según el tipo de tarea:
+## Operacion
 
-- `brain/knowledge_manifest_2026-07-24.yml`
-- `brain/knowledge_governance.yml`
-- `brain/agent_brain_state.yml`
-- `brain/project_context.yml`
-- `brain/integration_mapping.yml`
-- `brain/sap_extended_total_calculation_contract_2026-07-20.yml`
-- `brain/bof_combo_priority_fm_ncnd_hh_contract_2026-07-23.yml`
-- `brain/hh_android_fm_ncnd_port_contract_2026-07-21.yml`
-- `brain/fine_trace_discounts_combo.yml`
-- `brain/webapi_payload_trace_phase1_2.yml`
-- `brain/code_tagging_conventions.yml`
+1. Confirmar repositorio, remoto, rama, upstream, commit y cambios locales antes de actuar.
+2. Tratar `devejc_2026` como rama BOF/WebAPI observada y `road_2028` como rama HH activa observada al 2026-07-31; verificar siempre contra Git porque pueden cambiar.
+3. Cargar el contrato del componente y la traza o escenario relacionado. Para HH actual usar `brain/hh_runtime_handoff_2026-07-31.yml` y `brain/hh_promotion_observability_contract_2026-07-31.yml`.
+4. Preservar cambios locales ajenos y mantener el brain fuera de repositorios fuente.
+5. Aplicar reglas confirmadas de `CODDESC`, CTIPO/PTIPO, total extendido, precio base, descuentos, recargos y combos.
+6. Declarar como hipotesis cualquier regla no respaldada por evidencia.
+7. Validar con build, pruebas, Logcat, CSV de promociones o SQL segun el riesgo.
 
-Para guía rápida de reglas y decisiones, cargar también:
+## Observabilidad HH
 
-- `references/road_toledano_quick_context.md`
+Usar `PromotionTrace` como evidencia primaria de promociones. Una traza diagnostica debe registrar tambien resultados negativos: permisos/filtros, cero candidatos, candidato descartado y motivo, fuente/fallback de precio y resultado persistido. El CSV interno no aparece en Logcat salvo errores; extraerlo con `adb shell run-as com.dts.roadp` en builds debuggable.
 
-## Criterios de salida
+## Salida
 
-Entregar siempre:
-
-1. Estado de rama/repositorio usado.
-2. Cambios aplicados y razón.
-3. Evidencia de validación (build/test/SQL).
-4. Riesgos o pendientes explícitos.
-5. Actualización de brain/contexto si hubo nueva decisión funcional.
+Informar identidad y modo de acceso cuando aplique, repositorio/remoto/rama/commit, entradas del brain, cambios, evidencia, riesgos y estado de federacion.

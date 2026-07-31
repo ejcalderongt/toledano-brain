@@ -1,0 +1,53 @@
+hh_promotion_observability_contract:
+  version: 1
+  confirmed_at: 2026-07-31
+  scope: com.dts.roadp_precios_descuentos_recargos_combos
+  source:
+    repository: road_2023
+    branch_observed: road_2028
+    commit_observed: a3cfb1a
+  current_implementation:
+    writer: app/src/main/java/com/dts/roadp/promotions/PromotionTrace.java
+    tag: ROAD_PROMO_TRACE
+    sink: files/trace_promociones/hh_promo_YYYYMMDD.csv
+    logcat_behavior: solo_emite_warning_si_falla_la_escritura
+    extraction_debuggable: adb shell run-as com.dts.roadp cat files/trace_promociones/hh_promo_YYYYMMDD.csv
+  confirmed_gap:
+    - clsDescuento retorna null antes de PROMO_CANDIDATES cuando la consulta produce cero filas.
+    - validaPermisos falso no deja motivo observable.
+    - un candidato que no coincide por PTIPO/producto/linea/marca no registra rechazo ni razon.
+    - excepciones de inicializacion se silencian y las de resolucion solo se muestran en UI.
+    - Logcat vacio no prueba que el motor no se ejecuto porque la traza normal vive en CSV privado.
+  required_events:
+    - {event: PROMO_RESOLUTION_STARTED, fields: [correlation_id, documento, cliente, ruta, producto, cantidad, peso, um_stock, um_venta, um_peso, fecha]}
+    - {event: PROMO_PERMISSION_RESULT, fields: [correlation_id, allowed, reason_code]}
+    - {event: PROMO_QUERY_RESULT, fields: [correlation_id, recargo, rows, base_cantidad, base_peso]}
+    - {event: PROMO_CANDIDATE_REJECTED, fields: [correlation_id, coddesc, desctipo, ptipo, reason_code, expected, actual]}
+    - {event: PROMO_SELECTED, fields: [correlation_id, coddesc, desctipo, prioridad_descuento, prioridad, base, valor]}
+    - {event: PROMO_NOT_APPLIED, fields: [correlation_id, reason_code]}
+    - {event: PROMO_PRICE_SOURCE, fields: [correlation_id, table, nivel, unidad, rows, fallback_used, base_price]}
+    - {event: PROMO_CALCULATION, fields: [correlation_id, total_base, descuento, recargo, total_final, precio_derivado]}
+    - {event: PROMO_PERSISTED, fields: [correlation_id, table, coddesc_aplicado, total]}
+  reason_codes:
+    - FILTER_NOT_LOADED
+    - NO_PERMISSION
+    - NO_CANDIDATES
+    - OUTSIDE_VALIDITY
+    - CUSTOMER_SCOPE_MISMATCH
+    - PRODUCT_SCOPE_MISMATCH
+    - PTIPO_SCOPE_MISMATCH
+    - UM_MISMATCH
+    - RANGE_NOT_MET
+    - LOWER_PRIORITY
+    - COMBO_INCOMPLETE
+    - FREE_LINE_EXCLUDED
+    - BASE_PRICE_NOT_FOUND
+    - PRICE_SOURCE_FALLBACK
+    - EXCEPTION
+  privacy:
+    - no registrar secretos tokens ni cadenas de conexion
+    - usar identificadores operativos minimos y correlation_id por intento
+  acceptance:
+    - Para cualquier descuento no aplicado existe exactamente un PROMO_NOT_APPLIED con reason_code.
+    - La traza permite distinguir cero datos, filtro, vigencia, UM, rango, prioridad y combo incompleto.
+    - CSV y Logcat de depuracion pueden correlacionarse sin alterar el calculo.

@@ -1,9 +1,19 @@
 hh_toledano_feature_index:
-  updated_at: 2026-07-24
+  updated_at: 2026-07-31
   repo: road_2023
-  baseline_branch: dev_road_2026
-  verified_commit: b3ebe72
+  baseline_branch: road_2028
+  verified_commit: a3cfb1a
+  historical_baseline: dev_road_2026_at_b3ebe72
   feature_tracks:
+    - feature_id: HH-FEAT-PROMO-OBSERVABILITY
+      goal: Explicar por que una promocion fue seleccionada o descartada.
+      files:
+        - app/src/main/java/com/dts/roadp/promotions/PromotionTrace.java
+        - app/src/main/java/com/dts/roadp/clsDescuento.java
+        - app/src/main/java/com/dts/roadp/clsDescFiltro.java
+        - app/src/main/java/com/dts/roadp/Precio.java
+      contract: brain/hh_promotion_observability_contract_2026-07-31.yml
+      suggested_branch: feature/hh-promotion-observability
     - feature_id: HH-FEAT-PRICING-CORE
       goal: Blindar motor central de precio/descuento/recargo.
       files:

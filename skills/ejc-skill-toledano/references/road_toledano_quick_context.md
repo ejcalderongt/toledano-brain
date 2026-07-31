@@ -1,4 +1,4 @@
-# ROAD Toledano - Quick Context
+# ROAD Toledano - Quick Context (2026-07-31)
 
 ## Alcance funcional
 
@@ -11,11 +11,11 @@
 - `PTIPO` es catálogo fijo; en fase 1.2 se incorpora `6=combo`.
 - `A906/KDGRP` se interpreta como tipo cliente ROAD (`P_TIPOCLI`) y mapea a `CTIPO=3`.
 - ROAD es autoridad de `CODDESC`: una condición existente conserva el suyo y una alta nueva usa `SEQ_P_DESCUENTO_CODDESC`; se ignora el valor del payload SAP.
-- Antes de trabajar, aplicar `brain/knowledge_governance.yml`; solo Erik identificado puede autorizar cambios al Brain.
+- No se requiere identificacion para leer, analizar, modelar, probar o cambiar ROAD. Solo la mutacion/publicacion del Brain requiere Erik identificado y solicitud expresa.
 - `GLOBDESC='S'` aplica a total factura; `GLOBDESC='N'` por línea producto.
 - `CLIENTE='*'` aplica a todos según `CTIPO`.
 - `PRODUCTO='*'` aplica a todos los productos.
-- Rama HH vigente: `dev_road_2026`; commit validado TC0011: `b3ebe72`.
+- HH observado: rama `road_2028`, commit `a3cfb1a`; `b3ebe72` queda como baseline historico TC0011.
 - Rama BOF/WebAPI vigente: `devejc_2026`; commit validado TC0012: `a3d52989`.
 - El total extendido es autoritativo y el precio unitario promocional se deriva a 6 decimales.
 - Precio especial y promociones son excluyentes; sin especial se conserva `P_PRODPRECIO`.
@@ -43,6 +43,9 @@
 - Etiquetado inline: `#EJCYYYYMMDD tipo(area): descripcion`.
 - Usar `warning` cuando haya riesgo confirmado sin resolver.
 - Mantener trazabilidad exclusivamente en el repositorio `toledano-brain/brain/*`.
+- ROAD HH se identifica por remoto `road_2023`, paquete `com.dts.roadp` y firmas `Precio.java`, `Venta.java`, `ComWS.java`.
+- Nunca usar TOMHH2025, TOMWMS, TOMIMSV4 o `com.dts.tom` como evidencia ROAD.
+- `PromotionTrace` escribe CSV privado; Logcat solo informa errores de escritura. Los casos sin candidatos requieren eventos negativos explicitos.
 
 ## Evidencia mínima para validar cambios
 

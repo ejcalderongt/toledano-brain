@@ -1,5 +1,13 @@
 hh_toledano_brain_atlas:
-  updated_at: 2026-06-01
+  updated_at: 2026-07-31
+  runtime_override:
+    path: C:/Users/carol/StudioProjects/road
+    remote: https://github.com/carolinakfk/road_2023.git
+    branch: road_2028
+    commit: a3cfb1a
+    package: com.dts.roadp
+    rule: las lineas y conductas antiguas de este atlas deben verificarse contra este commit
+    excluded: [TOMHH2025, TOMWMS, com.dts.tom]
   hh_repo:
     path: C:/Users/yejc2/source/repos/road_hh_toledano
     branch: dev_road_2026

@@ -1,0 +1,34 @@
+road_project_identity:
+  version: 1
+  confirmed_at: 2026-07-31
+  purpose: impedir_contaminacion_de_contexto_entre_proyectos_locales
+  brain:
+    path: C:/Users/carol/OneDrive/Documentos/toledano-brain
+    remote: https://github.com/ejcalderongt/toledano-brain.git
+    branch: main
+  bof_webapi:
+    expected_remote: https://dev.azure.com/ejcalderon0892/ROAD_TOLEDANO/_git/ROAD_TOLEDANO
+    workstation_path: C:/Users/carol/OneDrive/Documentos/ROAD/ROAD_TOLEDANO
+    signature_files:
+      - ROADWedAPI/Controllers/SapDescuentoController.cs
+      - RDC7/App_Code/Service.vb
+      - DAL/clsLnP_DESCUENTO.vb
+  handheld_android:
+    expected_remote: https://github.com/carolinakfk/road_2023.git
+    workstation_path: C:/Users/carol/StudioProjects/road
+    application_id: com.dts.roadp
+    signature_files:
+      - app/src/main/java/com/dts/roadp/Precio.java
+      - app/src/main/java/com/dts/roadp/Venta.java
+      - app/src/main/java/com/dts/roadp/ComWS.java
+  exclusions:
+    - project: TOMWMS
+      repositories: [TOMWMS_BOF, TOMHH2025]
+      package: com.dts.tom
+      rule: nunca_usar_como_fuente_evidencia_skill_o_checkout_para_ROAD
+  discovery_algorithm:
+    - Resolver primero desde el manifiesto y rutas conocidas.
+    - Verificar remote origin exacto.
+    - Verificar paquete o archivos firma.
+    - Verificar rama y commit; una rama distinta no invalida el repo, pero debe declararse.
+    - Si falla remoto o firma, excluir el checkout y no cargar skills de ese proyecto.

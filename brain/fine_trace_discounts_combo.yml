@@ -1,6 +1,12 @@
 fine_trace:
-  updated_at: 2026-06-02
+  updated_at: 2026-07-31
   scope: descuentos y recargos (combo/no combo) entre SAP -> WebAPI -> BOF/RDC7 -> HH
+
+  runtime_observability_2026_07_31:
+    source: brain/hh_promotion_observability_contract_2026-07-31.yml
+    finding: PromotionTrace persiste CSV privado y no publica eventos normales a Logcat.
+    negative_path_gap: cero candidatos, permisos fallidos y rechazos por alcance no dejan motivo suficiente.
+    required_outcome: cada no_aplicacion debe emitir reason_code correlacionable.
 
   evidence:
     hh_android:

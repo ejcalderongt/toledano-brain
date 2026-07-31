@@ -280,3 +280,18 @@
       trace_ids: [1335, 1336, 1337]
       tests: {passed: 51, failed: 0}
       knowledge: brain/domains/exclusiones_cliente_producto_sap.yml
+
+  - date: 2026-07-31
+    type: federacion_runtime_gobernanza_y_aislamiento_proyectos
+    actor: Erik Calderon / Codex
+    summary: Se actualiza el brain con el estado local ROAD, el handoff HH road_2028, el caso Rosti 0629, el contrato de observabilidad negativa y una barrera estricta contra TOMWMS/TOMHH2025.
+    impact: Carolina deja de requerir identificacion para trabajo ROAD; la identificacion se reserva para mutar/publicar el Brain. Las futuras sesiones verifican remoto, paquete y firmas antes de cargar contexto Android.
+    status: federado_local_pendiente_commit_publicacion
+    authorization: Erik_identificado_y_solicitud_expresa
+    technical_trace:
+      manifest: brain/knowledge_manifest_2026-07-31.yml
+      governance: brain/knowledge_governance.yml
+      project_guardrail: brain/project_identity_and_repo_guardrails_2026-07-31.yml
+      hh_handoff: brain/hh_runtime_handoff_2026-07-31.yml
+      observability: brain/hh_promotion_observability_contract_2026-07-31.yml
+      commit_inventory: brain/hh_commit_inventory_2026-07-31.yml
