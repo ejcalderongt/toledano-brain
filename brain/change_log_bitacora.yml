@@ -301,7 +301,7 @@
     actor: Erik Calderon / Codex
     summary: Se confirma y federa la copia local canonica de ROAD BOF WebAPI RDC7 para la estacion de Carolina, fuera de OneDrive.
     impact: Las futuras sesiones pueden resolver el checkout correcto desde el manifiesto, las guardas, el estado del agente y la recuperacion semantica sin pedir nuevamente la ruta.
-    status: federado_local_pendiente_commit_publicacion
+    status: federado_y_publicado
     authorization: Erik_identificado_y_solicitud_expresa
     technical_trace:
       knowledge: brain/bof_workstation_repository_handoff_2026-08-19.yml
@@ -311,6 +311,7 @@
       source_branch: devejc_hotfix_2026
       source_commit: f19274dc91503fbea343bd9c9fdf7e732dedc6d9
       source_status: dirty_preserve_existing_changes
+      initial_publication_commit: a2b750c
       validation:
         - Remoto Azure DevOps ROAD_TOLEDANO verificado.
         - Archivos firma de WebAPI, RDC7 y DAL presentes.

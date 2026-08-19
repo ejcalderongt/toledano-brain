@@ -2,6 +2,10 @@ handoff:
   id: ROAD_BOF_WORKSTATION_REPOSITORY_20260819
   title: Ruta canonica BOF WebAPI ROAD en la estacion de Carolina
   status: confirmed_and_federated
+  publication:
+    status: published_origin_main
+    initial_commit: a2b750c
+    published_at: 2026-08-19
   verified_at: 2026-08-19
   authorized_by: Erik_Calderon_identified
   components: [BOF, WebAPI, WebService, RDC7]
