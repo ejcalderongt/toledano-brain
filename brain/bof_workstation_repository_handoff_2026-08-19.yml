@@ -1,0 +1,89 @@
+handoff:
+  id: ROAD_BOF_WORKSTATION_REPOSITORY_20260819
+  title: Ruta canonica BOF WebAPI ROAD en la estacion de Carolina
+  status: confirmed_and_federated
+  verified_at: 2026-08-19
+  authorized_by: Erik_Calderon_identified
+  components: [BOF, WebAPI, WebService, RDC7]
+
+decision:
+  canonical_workstation_path: C:/Users/carol/Documents/Proyectos_DTS/Proyectos_2023/TOLEDANO/ROADBOF_VS2019_23
+  rejected_workstation_path: C:/Users/carol/OneDrive/Documentos/ROAD/ROAD_TOLEDANO
+  rule: >
+    Para trabajo BOF, WebAPI, WebService o RDC7 en la estacion de Carolina, resolver
+    primero la ruta canonica bajo Documents/Proyectos_DTS. La copia BOF/WebAPI bajo
+    OneDrive no es fuente operativa y no debe seleccionarse por proximidad al workspace.
+  brain_separation: >
+    El Brain permanece exclusivamente en C:/Users/carol/OneDrive/Documentos/toledano-brain
+    y nunca se copia, vincula, versiona ni publica dentro del repositorio fuente ROAD.
+
+repository_evidence:
+  expected_remote: https://dev.azure.com/ejcalderon0892/ROAD_TOLEDANO/_git/ROAD_TOLEDANO
+  observed_remote: https://ejcalderon0892@dev.azure.com/ejcalderon0892/ROAD_TOLEDANO/_git/ROAD_TOLEDANO
+  remote_equivalence: same_azure_devops_repository_with_username_in_observed_url
+  observed_branch: devejc_hotfix_2026
+  observed_upstream: origin/devejc_hotfix_2026
+  observed_commit: f19274dc91503fbea343bd9c9fdf7e732dedc6d9
+  signature_files:
+    - ROADWedAPI/Controllers/SapDescuentoController.cs
+    - RDC7/App_Code/Service.vb
+    - DAL/clsLnP_DESCUENTO.vb
+  signature_validation: all_present
+
+working_tree_snapshot:
+  status: dirty_preserve_existing_changes
+  observed_at: 2026-08-19
+  modified_paths:
+    - AppGlobal.dll
+    - BOF_ROAD.vbproj
+    - Clases/Liquidador/clsInventarioLiquidacion.vb
+    - DAL/clsLnP_USUARIO.vb
+    - Formas/Procesos/frmLiqVend.vb
+    - Formas/Seguridad/frmUsuarioN.vb
+    - ROAD_FISCAL.exe
+  preservation_rule: >
+    Tratar todos estos cambios como preexistentes y ajenos hasta demostrar lo contrario;
+    no restaurar, sobrescribir, mover ni incluirlos incidentalmente en otro cambio.
+
+startup_retrieval:
+  load_before_source_inspection:
+    - brain/knowledge_manifest_2026-07-31.yml
+    - brain/agent_brain_state.yml
+    - brain/project_identity_and_repo_guardrails_2026-07-31.yml
+    - brain/bof_workstation_repository_handoff_2026-08-19.yml
+  search_terms:
+    - ROADBOF_VS2019_23
+    - ruta canonica BOF Carolina
+    - repositorio ROAD fuera de OneDrive
+    - devejc_hotfix_2026
+    - f19274dc
+  resolution_algorithm:
+    - Usar canonical_workstation_path como primera opcion local.
+    - Verificar el remoto Azure DevOps ROAD_TOLEDANO.
+    - Verificar los tres archivos firma BOF WebAPI RDC7.
+    - Declarar rama, upstream, commit y estado local observados antes de editar codigo.
+    - Preservar los cambios locales preexistentes.
+
+scope_boundaries:
+  handheld_android: >
+    Este contrato no cambia la ruta ni la identidad del HH Android ROAD, que debe seguir
+    validando el remoto carolinakfk/road_2023, el paquete com.dts.roadp y sus archivos firma.
+  excluded_projects: [TOMWMS, TOMWMS_BOF, TOMHH2025, TOMIMSV4, com.dts.tom]
+
+validation:
+  repository_path_exists: true
+  remote_verified: true
+  branch_upstream_commit_verified: true
+  signature_files_verified: true
+  source_build_or_tests: not_required_knowledge_only_change
+  brain_diff_check: passed
+  semantic_index:
+    mode: local
+    indexed_documents: 110
+    query_route_result: ranked_first
+    query_branch_commit_result: ranked_first
+
+risks_and_follow_up:
+  - La rama y el commit son una instantanea; siempre volver a verificarlos antes de cambiar codigo.
+  - El checkout esta sucio y sus cambios locales deben preservarse.
+  - No inferir que otras copias locales son invalidas historicamente; solo esta ruta es la autoridad operativa actual de Carolina.

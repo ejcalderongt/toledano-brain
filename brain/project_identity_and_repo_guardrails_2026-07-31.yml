@@ -1,6 +1,6 @@
 road_project_identity:
-  version: 1
-  confirmed_at: 2026-07-31
+  version: 2
+  confirmed_at: 2026-08-19
   purpose: impedir_contaminacion_de_contexto_entre_proyectos_locales
   brain:
     path: C:/Users/carol/OneDrive/Documentos/toledano-brain
@@ -8,7 +8,8 @@ road_project_identity:
     branch: main
   bof_webapi:
     expected_remote: https://dev.azure.com/ejcalderon0892/ROAD_TOLEDANO/_git/ROAD_TOLEDANO
-    workstation_path: C:/Users/carol/OneDrive/Documentos/ROAD/ROAD_TOLEDANO
+    workstation_path: C:/Users/carol/Documents/Proyectos_DTS/Proyectos_2023/TOLEDANO/ROADBOF_VS2019_23
+    path_authority: Esta es la copia local canonica para Carolina; no usar la copia BOF/WebAPI bajo OneDrive.
     signature_files:
       - ROADWedAPI/Controllers/SapDescuentoController.cs
       - RDC7/App_Code/Service.vb

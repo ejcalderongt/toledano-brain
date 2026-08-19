@@ -1,12 +1,12 @@
 brain_state:
-  updated_at: 2026-07-31
+  updated_at: 2026-08-19
   current_workstation_snapshot:
     owner: Carolina Fuentes
     bof_webapi:
-      path: C:/Users/carol/OneDrive/Documentos/ROAD/ROAD_TOLEDANO
+      path: C:/Users/carol/Documents/Proyectos_DTS/Proyectos_2023/TOLEDANO/ROADBOF_VS2019_23
       remote: https://dev.azure.com/ejcalderon0892/ROAD_TOLEDANO/_git/ROAD_TOLEDANO
-      branch: devejc_2026
-      head: deca3105
+      branch: devejc_hotfix_2026
+      head: f19274dc91503fbea343bd9c9fdf7e732dedc6d9
       status: dirty_preserve_existing_changes
     hh_android:
       path: C:/Users/carol/StudioProjects/road
@@ -76,6 +76,7 @@ brain_state:
     - El nombre dev_2026_ejc no existia previamente en local y fue creado/publicado.
     - Se recomienda continuar nuevos ajustes de combos en devejc-combos-sofos.
   knowledge_artifacts:
+    - brain/bof_workstation_repository_handoff_2026-08-19.yml
     - brain/knowledge_manifest_2026-07-24.yml
     - brain/tc0013_fm_scale_quantity_weight_edit_contract_2026-07-24.yml
     - brain/codex_carol_restore_2026-07-24.md
