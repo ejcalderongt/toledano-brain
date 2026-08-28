@@ -27,11 +27,20 @@ Excluir siempre `TOMHH2025`, TOMWMS, TOMIMSV4 y `com.dts.tom`. No activar skills
 
 1. Confirmar repositorio, remoto, rama, upstream, commit y cambios locales antes de actuar.
 2. Tratar `devejc_2026` como rama BOF/WebAPI observada y `road_2028` como rama HH activa observada al 2026-07-31; verificar siempre contra Git porque pueden cambiar.
-3. Cargar el contrato del componente y la traza o escenario relacionado. Para HH actual usar `brain/hh_runtime_handoff_2026-07-31.yml` y `brain/hh_promotion_observability_contract_2026-07-31.yml`.
+3. Cargar el contrato del componente y la traza o escenario relacionado. Para conocimiento adquirido entre el 2026-08-20 y 2026-08-28 cargar `brain/recent_operational_knowledge_2026-08-28.yml`. Para HH actual usar tambien `brain/hh_runtime_handoff_2026-07-31.yml` y `brain/hh_promotion_observability_contract_2026-07-31.yml`.
 4. Preservar cambios locales ajenos y mantener el brain fuera de repositorios fuente.
 5. Aplicar reglas confirmadas de `CODDESC`, CTIPO/PTIPO, total extendido, precio base, descuentos, recargos y combos.
 6. Declarar como hipotesis cualquier regla no respaldada por evidencia.
 7. Validar con build, pruebas, Logcat, CSV de promociones o SQL segun el riesgo.
+
+## Rutas operativas recientes
+
+- Liquidacion BOF: separar cola logica de bloqueo SQL. Correlacionar `COLA_ACQUIRED/RELEASED`, duracion de transaccion, snapshot y `TEMP_STOCK_LIQUIDACION`. No aumentar timeouts como sustituto de corregir contencion.
+- Snapshot de liquidacion: no cambiar el aislamiento de una conexion exterior ni retener `sp_getapplock` fuera del alcance previsto. Leer antes de abrir la transaccion de escritura cuando sea posible.
+- Pedidos HH modificados: al abrir conservar la promocion persistida; al mutar, reconstruir la UM comercial por producto con `umStock`/`umStockPV` y luego reevaluar el documento completo.
+- Combos: permitir N combos completos cuyos productos sean disjuntos. Si dos combos comparten producto, rechazar solo los conflictivos y conservar los independientes.
+- Devolucion de canastas HH: usar `D_NOTACRED/D_NOTACREDD`, exigir NC activa no anulada y excluir toda NC referenciada por una ND mediante `COREL_REFERENCIA`; aplicar el mismo filtro a listado, validacion y `D_MOVDCAN`.
+- Orden de compra MI3: mapear `I_SAP_VENTAS.REFERENCIA` hacia `MI3_SAP.ORDEN_COMPRA`; no depender de una columna duplicada en `I_SAP_VENTAS`.
 
 ## Observabilidad HH
 

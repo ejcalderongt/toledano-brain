@@ -1,0 +1,140 @@
+recent_operational_knowledge:
+  id: ROAD_RECENT_KNOWLEDGE_20260828
+  status: confirmed_and_federated
+  captured_at: 2026-08-28
+  authorized_by: Erik_Calderon_identified
+  scope: [BOF, SQL_Server, HH_Android, MI3_SAP, promociones, liquidacion, notas_credito_debito]
+  source_window: 2026-08-20_to_2026-08-28
+
+repositories:
+  bof_webapi:
+    path: C:/Users/carol/Documents/Proyectos_DTS/Proyectos_2023/TOLEDANO/ROADBOF_VS2019_23
+    remote: https://dev.azure.com/ejcalderon0892/ROAD_TOLEDANO/_git/ROAD_TOLEDANO
+    branch: devejc_hotfix_2026
+    head_observed: 84e3ce9fd3429628efd60960e80f826223805e55
+    working_tree: dirty_preserve_all_existing_changes
+  hh_android:
+    path: C:/Users/carol/StudioProjects/road
+    remote: https://github.com/carolinakfk/road_2023.git
+    branch: road_2028
+    head_observed: f8e29a38a00106a20bb4e8f7099d4da20add15f9
+    package: com.dts.roadp
+    signatures: [Precio.java, Venta.java, ComWS.java]
+    working_tree: dirty_preserve_ComWS_DevolBodCan_MainActivity
+  excluded_evidence: [TOMHH2025, TOMWMS, TOMIMSV4, com.dts.tom]
+
+knowledge:
+  liquidation_concurrency:
+    status: hotfix_local_validated_pending_source_commit_and_operational_validation
+    diagnosis:
+      - P_COLA_LIQUIDACION_V2 serializa el guardado, pero el bloqueo visible puede ocurrir antes, durante la carga de inventario temporal o el snapshot.
+      - Tres turnos simultaneos por guardado amplificaban el bloqueo y dejaban mas registros huerfanos ante cierre o congelamiento.
+      - Un heartbeat demuestra que el proceso vive, no que la operacion progresa.
+      - usp_LiqVend_CargarSnapshot_v1 ejecutado dentro de la transaccion exterior cambiaba la sesion a READ COMMITTED y retenia el applock hasta el commit exterior.
+      - TEMP_STOCK_LIQUIDACION es staging global compartido; SqlBulkCopy puede contender aunque las liquidaciones sean diferentes.
+      - Timeouts de 120 segundos prolongan la espera y no corrigen la causa.
+    evidence:
+      queue_turns_analyzed: 185
+      observed_snapshot_timeouts_seconds: [120.050, 120.016]
+      observed_long_turns_seconds: [94.386, 123.006, 172.002]
+      observed_temp_stock_waits_seconds: [33.549, 48.479]
+      affected_liquidations: [390854, 391126, 391231, 391264]
+    immediate_hotfix:
+      - Usar un unico turno tipo 1 para el guardado.
+      - Bloquear atomicamente la reentrada de carga y guardado en una misma pantalla.
+      - Liberar el turno antes de reintentar despues de deadlock.
+      - Desactivar FeatureSnapshotLiquidacionV1 en el publicable inmediato.
+      - Reducir SqlBulkCopy de 120 a 30 segundos.
+      - Corregir el procedimiento para no cambiar aislamiento, no abrir transaccion interna y liberar applock de sesion tambien ante error.
+    traces: [COLA_ACQUIRED, COLA_RELEASED, COLA_REENTRY_BLOCKED, COLA_RETRY_AFTER_RELEASE, CARGA_REENTRY_BLOCKED]
+    structural_follow_up:
+      - Ejecutar lecturas snapshot antes de la transaccion de escritura.
+      - Mantener la transaccion de escritura lo mas corta posible.
+      - Crear staging V2 aislado por token de operacion y filtrar por token todas las lecturas, actualizaciones y borrados.
+      - Revisar indices y restricciones reales de TEMP_STOCK_LIQUIDACION en QAS y PRD.
+      - Evaluar READ_COMMITTED_SNAPSHOT solo en QAS y con evidencia de impacto.
+    rollout_rule: Probar primero con dos liquidadores, liquidaciones y rutas diferentes, y trazas completas; no ampliar hasta confirmar cero timeouts, turnos retenidos, duplicados o inconsistencias.
+
+  promotions_multiple_combos_and_modified_orders:
+    status: code_and_build_validated_with_runtime_evidence
+    rules:
+      - Permitir N combos completos si sus conjuntos de productos son disjuntos.
+      - Si dos combos comparten producto, rechazar solo los combos involucrados y conservar cualquier combo independiente.
+      - Detectar traslape por codigo de producto, aunque las lineas usen unidades diferentes.
+      - Al abrir un pedido modificado conservar la promocion persistida y no recalcular de inmediato.
+      - Al editar una linea, reconstruir T_VENTA con la UM comercial dinamica de cada producto mediante app.umStock para venta o app.umStockPV para preventa; usar UM guardada solo como fallback.
+      - Despues de una mutacion, reevaluar el documento completo para restaurar correctamente combos e individuales.
+    evidence:
+      hh_branch_evidence: road_2028_at_cdfde751_during_implementation
+      automated_tests: HH_COMBO_MANAGEMENT_OK_cases_13
+      android_build: successful_34_tasks
+      runtime_cases:
+        - combo 677 completo para productos 0071 y 0003 aplico 15 por ciento.
+        - combo 675 para 0492 y 0402 exigia 50 UN de 0492; con 5 UN el rechazo era parametrico, no conflicto entre combos.
+        - Al editar 0492, copiar UMVENTA a UMSTOCK hacia que otras lineas acumularan cero; recuperar UM comercial corrigio la reevaluacion.
+    traces: [PROMO_MODIFIED_ORDER_PRESERVED, PROMO_MODIFIED_ORDER_LINE_REBUILT, PROMO_COMBO_SELECTED, COMBO_SELECTION_OVERLAP, PROMO_DOCUMENT_REEVALUATED]
+
+  hh_canasta_credit_debit_filter:
+    status: local_change_build_validated_pending_source_commit
+    component: app/src/main/java/com/dts/roadp/DevolBodCan.java
+    rule: Solo son devolvibles productos de NC pendientes, activas, no anuladas y no asociadas a una ND.
+    authoritative_tables: [D_NOTACRED, D_NOTACREDD]
+    required_predicates:
+      - D_NOTACRED.STATCOM = N
+      - D_NOTACRED.ANULADO = N
+      - D_NOTACRED.TIPO_DOCUMENTO = NC
+      - NOT EXISTS ND con TIPO_DOCUMENTO = ND y ND.COREL_REFERENCIA = NC.COREL
+    consistency_boundary: Aplicar exactamente el mismo filtro al listado, detalle, validacion de devolucion vacia y persistencia en D_MOVDCAN.
+    rejected_legacy_source: D_CXC_y_D_CXCD_por_mezclar_NC_y_ND
+    fixture_evidence:
+      database: road_20260826_115048.db
+      expected_result: producto_0126_cantidad_1_peso_0.34
+      excluded_result: producto_0232_cantidad_10
+      android_build: successful_34_tasks
+
+  purchase_order_to_mi3:
+    status: runtime_validated_pending_source_commit
+    business_flow: cierre_y_reemision_de_liquidacion
+    rule: I_SAP_VENTAS.REFERENCIA es la fuente autoritativa de MI3_SAP.ORDEN_COMPRA.
+    rejected_design: No agregar ni depender de I_SAP_VENTAS.ORDEN_COMPRA porque REFERENCIA ya contiene el dato.
+    runtime_evidence: Flujo I_SAP_VENTAS.REFERENCIA_to_MI3_SAP.ORDEN_COMPRA confirmado en ejecucion.
+    code_scope:
+      - clases/Liquidador/Interface_SAP/MI3_SAP_SOFOS/clsBeMI3_SAP.vb
+      - clases/Liquidador/Interface_SAP/MI3_SAP_SOFOS/clsLnMI3_SAP.vb
+      - Formas/Procesos/frmLiquidacionesList.vb
+      - formas/reportes/Liquidacion Toledano/frmReportesLiquidacion.vb
+    compatibility_evidence:
+      - Los SELECT estrella inspeccionados cargan DataTable y consumen columnas por nombre, no por ordinal.
+      - Los INSERT inspeccionados especifican listas de columnas.
+    external_risk: Revisar procedimientos, vistas, triggers, SSIS y aplicaciones externas no incluidas en el repositorio antes de eliminar una columna en PRD.
+
+verification:
+  brain_inputs:
+    - brain/knowledge_governance.yml
+    - brain/knowledge_manifest_2026-07-31.yml
+    - brain/agent_brain_state.yml
+    - brain/project_context.yml
+    - brain/project_identity_and_repo_guardrails_2026-07-31.yml
+    - brain/bof_workstation_repository_handoff_2026-08-19.yml
+    - brain/hh_runtime_handoff_2026-07-31.yml
+    - brain/hh_promotion_observability_contract_2026-07-31.yml
+    - brain/bof_combo_priority_fm_ncnd_hh_contract_2026-07-23.yml
+  source_evidence:
+    - Trazas de Gabriela, Angelica, Zaira y Luis del proceso de liquidacion.
+    - Builds BOF Debug exitosos durante los hotfixes de concurrencia.
+    - Logcat y PromotionTrace de pruebas de combos HH.
+    - Build Android assembleDebug exitoso.
+    - Base SQLite adjunta de NC/ND consultada en modo read-only.
+    - Confirmacion funcional del mapeo REFERENCIA hacia ORDEN_COMPRA.
+
+risks_and_pending:
+  - Los cambios locales BOF y HH deben conservarse y separarse cuidadosamente antes de cualquier commit de codigo fuente.
+  - La estabilizacion de liquidacion sigue en validacion operativa; no declarar cierre definitivo hasta completar pruebas concurrentes.
+  - El staging por token de sesion es una mejora estructural pendiente, no parte del hotfix inmediato.
+  - La eliminacion fisica de una columna SQL requiere revisar dependencias externas.
+  - Este artefacto federa conocimiento y evidencia; no convierte los cambios fuente sin commit en publicados.
+
+brain_publication:
+  authorization: Erik_Calderon_identified_and_explicit_request
+  pii_persisted: false
+  semantic_index_required: true

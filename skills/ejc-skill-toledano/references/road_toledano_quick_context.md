@@ -1,4 +1,4 @@
-# ROAD Toledano - Quick Context (2026-07-31)
+# ROAD Toledano - Quick Context (actualizado 2026-08-28)
 
 ## Alcance funcional
 
@@ -15,11 +15,17 @@
 - `GLOBDESC='S'` aplica a total factura; `GLOBDESC='N'` por línea producto.
 - `CLIENTE='*'` aplica a todos según `CTIPO`.
 - `PRODUCTO='*'` aplica a todos los productos.
-- HH observado: rama `road_2028`, commit `a3cfb1a`; `b3ebe72` queda como baseline historico TC0011.
-- Rama BOF/WebAPI vigente: `devejc_2026`; commit validado TC0012: `a3d52989`.
+- HH observado: rama `road_2028`, commit `f8e29a38`; `b3ebe72` queda como baseline historico TC0011.
+- BOF observado en la estacion de Carolina: rama `devejc_hotfix_2026`, commit `84e3ce9f`, con cambios locales que deben preservarse.
 - El total extendido es autoritativo y el precio unitario promocional se deriva a 6 decimales.
 - Precio especial y promociones son excluyentes; sin especial se conserva `P_PRODPRECIO`.
 - Combo completo reemplaza el ajuste individual cuando cantidad comprada >= requerida.
+- Pueden coexistir N combos completos cuando sus productos son disjuntos; los combos que comparten producto se rechazan solo entre si.
+- Un pedido HH abierto para modificar conserva la promocion persistida. Tras una mutacion, la reevaluacion debe usar la UM comercial dinamica de cada producto.
+- `DevolBodCan` debe usar NC activas no anuladas y no asociadas a ND desde `D_NOTACRED/D_NOTACREDD`, con el mismo criterio hasta `D_MOVDCAN`.
+- `I_SAP_VENTAS.REFERENCIA` alimenta `MI3_SAP.ORDEN_COMPRA`.
+- En liquidacion, una cola correcta no evita contencion por transacciones largas, snapshot bloqueante o staging global; diagnosticar las capas por separado.
+- El contrato detallado de estas reglas es `brain/recent_operational_knowledge_2026-08-28.yml`.
 
 ## Combinaciones SAP relevantes
 

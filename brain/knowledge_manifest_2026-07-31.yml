@@ -1,9 +1,10 @@
 knowledge_manifest:
   project: ROAD_TOLEDANO_PROMOCIONES
-  version: 2026-08-19
+  version: 2026-08-28
   purpose: recuperacion_operativa_aislada_y_trazable
   governance: brain/knowledge_governance.yml
   canonical_entrypoints:
+    - brain/recent_operational_knowledge_2026-08-28.yml
     - brain/project_identity_and_repo_guardrails_2026-07-31.yml
     - brain/bof_workstation_repository_handoff_2026-08-19.yml
     - brain/agent_brain_state.yml
@@ -20,18 +21,27 @@ knowledge_manifest:
       workstation_path: C:/Users/carol/Documents/Proyectos_DTS/Proyectos_2023/TOLEDANO/ROADBOF_VS2019_23
       remote: https://dev.azure.com/ejcalderon0892/ROAD_TOLEDANO/_git/ROAD_TOLEDANO
       branch_observed: devejc_hotfix_2026
-      head_observed: f19274dc91503fbea343bd9c9fdf7e732dedc6d9
+      head_observed: 84e3ce9fd3429628efd60960e80f826223805e55
       historical_validated_commit: a3d52989
     handheld_android:
       remote: https://github.com/carolinakfk/road_2023.git
       branch_observed: road_2028
-      head_observed: a3cfb1a
+      head_observed: f8e29a38a00106a20bb4e8f7099d4da20add15f9
       historical_validated_commit: b3ebe72
       package: com.dts.roadp
     brain:
       remote: https://github.com/ejcalderongt/toledano-brain.git
       branch: main
   current_cases:
+    - id: BOF_LIQUIDACION_CONCURRENCIA_20260827
+      status: hotfix_local_validado_pendiente_commit_y_prueba_operativa
+      contract: brain/recent_operational_knowledge_2026-08-28.yml
+    - id: BOF_MI3_ORDEN_COMPRA_20260827
+      status: validado_en_ejecucion_pendiente_commit
+      contract: brain/recent_operational_knowledge_2026-08-28.yml
+    - id: HH_DEVOLUCION_CANASTAS_NC_20260826
+      status: build_validado_pendiente_commit
+      contract: brain/recent_operational_knowledge_2026-08-28.yml
     - id: HH_ROSTI_0629_20260731
       status: diagnostico_abierto
       contract: brain/hh_promotion_observability_contract_2026-07-31.yml
@@ -56,6 +66,18 @@ knowledge_manifest:
     - CODDESC
     - P_PRODPRECIO
     - P_DESCUENTO
+    - P_COLA_LIQUIDACION_V2
+    - TEMP_STOCK_LIQUIDACION
+    - usp_LiqVend_CargarSnapshot_v1
+    - CARGA_REENTRY_BLOCKED
+    - multiple_disjoint_combos
+    - modified_order_commercial_um
+    - D_NOTACRED
+    - D_NOTACREDD
+    - COREL_REFERENCIA
+    - D_MOVDCAN
+    - I_SAP_VENTAS_REFERENCIA
+    - MI3_SAP_ORDEN_COMPRA
   restore:
     installer: brain/tools/install_codex_toledano_brain.ps1
     semantic_index: brain/vector_search/indexes/brain_semantic_index.json
