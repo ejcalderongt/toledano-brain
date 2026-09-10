@@ -1,0 +1,214 @@
+contract:
+  id: ROAD_FECHA_PRECIO_20260910
+  status: implementation_local_build_validated_pending_functional_test
+  captured_at: 2026-09-10
+  authorized_by: Erik_Calderon_identified_and_explicit_request
+  pii_persisted: false
+  purpose: preservar_en_factura_y_notas_la_condicion_comercial_vigente_al_crear_el_pedido
+  scope: [BOF, HH_Android, SQL_Server, MI3_SAP, SAP, promociones, prefacturas, facturas, notas_credito_debito]
+
+business_problem:
+  scenario: Una promocion puede ser valida solamente el dia en que se toma el pedido, aunque el despacho y la facturacion ocurran dias despues.
+  failure_without_change: ROAD calcula con la fecha de factura o liquidacion y puede perder la promocion pactada.
+  expected_result: Factura y documentos derivados calculan las promociones con la fecha original del pedido recibida como FECHA_PRECIO.
+
+authoritative_rules:
+  granularity: cabecera
+  sql_type: DATE
+  field_name: FECHA_PRECIO
+  source: DS_PEDIDO.FECHA_PRECIO_recibida_desde_SAP
+  precedence:
+    - Si FECHA_PRECIO viene informada, es la fecha autoritativa para precio y promociones.
+    - El cliente confirmo que una prefactura nueva no deberia llegar sin FECHA_PRECIO.
+    - No aplicar silenciosamente GETDATE a una prefactura nueva sin fecha; debe impedirse su uso y evidenciar el dato faltante.
+  immutability: Una vez asociada la prefactura y capturados productos, no se permite cambiarla.
+  propagation:
+    - DS_PEDIDO.FECHA_PRECIO -> D_FACTURA.FECHA_PRECIO
+    - DS_PEDIDO.FECHA_PRECIO -> D_NOTACRED.FECHA_PRECIO
+    - documentos_derivados -> P_NOTACD.FECHA_PRECIO
+    - D_FACTURA.FECHA_PRECIO -> MI3_SAP.FECHA_PRECIO
+  sap_boundary: ROAD envia FECHA_PRECIO a la tabla intermedia MI3_SAP; SOFOS garantiza que SAP la use y no la sustituya por la fecha de factura.
+  line_representation: Si una interfaz exige la fecha por posicion, repetir la unica FECHA_PRECIO de cabecera en todas las posiciones.
+
+compatibility:
+  legacy_production: La version anterior no recibe ni envia FECHA_PRECIO y debe continuar operando aunque las columnas nuevas existan.
+  sql_default: GETDATE puede conservar el comportamiento historico al crear columnas, pero no debe ocultar una omision en prefacturas de la nueva version.
+  hh_rollout: Las HH con Promociones usan la base y software nuevos; las demas mantienen la version anterior y otra base.
+  historical_documents: No exigir una prefactura retroactivamente al editar documentos legacy que fueron creados antes de esta funcionalidad.
+
+prefactura_selection:
+  route_condition: P_RUTA.VENTA = D
+  applicable_documents:
+    - factura_manual_de_ruta_de_despacho
+    - nota_credito_con_referencia_de_ruta_de_despacho
+  lookup_behavior:
+    - Listar prefacturas activas asignadas a la ruta y al dia de entrega/liquidacion.
+    - Mostrar COREL, cliente, nombre y FECHA_PRECIO.
+    - Al seleccionar, fijar cliente y mostrar FECHA_PRECIO en solo lectura.
+    - Excluir prefacturas asociadas a otra factura activa.
+  invoice_constraints:
+    - Una prefactura solo puede estar asociada a una factura activa.
+    - La factura de ruta de prefactura no admite productos que no existan en DS_PEDIDOD.
+    - DS_PEDIDOD no contiene una UM comercial explicita; cualquier restriccion adicional por UM requiere identificar otra fuente autoritativa.
+  credit_note_constraints:
+    - La seleccion de prefactura ocurre antes de capturar la NC con referencia.
+    - La NC puede contener cualquier producto y no se restringe contra DS_PEDIDOD.
+    - El flujo NC con referencia transfiere prefactura y FECHA_PRECIO a la factura manual relacionada.
+
+promotion_calculation:
+  effective_date: FECHA_PRECIO
+  applies_to:
+    - precio_base_consultado_por_el_flujo
+    - descuento_individual
+    - recargo_individual
+    - combo_descuento
+    - combo_recargo
+    - recalculo_documental_al_cambiar_producto_cantidad_peso_o_um
+    - recalculo_antes_de_guardar
+  partial_delivery:
+    - SAP prioriza antes del despacho y recalcula cuando cambia la cantidad.
+    - ROAD recalcula tambien ante rechazo parcial del cliente usando FECHA_PRECIO.
+    - En insuficiencia o rechazo se excluyen ZK95, ZK96 y ZK97 segun la definicion funcional recibida; ZK94 puede aplicar.
+    - ZR95, ZR96 y ZR97 no seran utilizados en este escenario.
+    - Si un combo queda incompleto, evaluar promocion porcentual, escala o descuento fijo aplicable al material.
+  condition_change_policy:
+    - Conservar la promocion ofrecida segun FECHA_PRECIO, no usar una version posterior al facturar.
+    - Operativamente los responsables no deben modificar una promocion mientras exista una prefactura vigente que la utilice.
+    - Si se elimina la prefactura o no se entrega y la promocion ya no existe, los usuarios deben cargarla nuevamente antes de generar otra prefactura.
+  hh_condition_download:
+    filter: FECHAFIN_mayor_o_igual_a_la_fecha_precio_minima_de_las_prefacturas
+    include:
+      - P_DESCUENTO
+      - P_DESCUENTO_COMBO_DET
+      - exclusiones_cliente_producto
+      - tablas_auxiliares_de_alcance_y_prioridad
+    operational_boundary: La HH que toma pedidos no es la misma que procesa prefacturas; la carga operativa puede vaciar y reconstruir sus tablas.
+
+customer_specific_rules:
+  pricesmart:
+    promotion_restriction_in_road: false
+    expected_configuration: Sin promociones; solamente descuento fijo habitual ZK94.
+    enforcement: La ausencia de promociones debe provenir de la configuracion comercial, no de una exclusion hardcodeada en ROAD.
+
+data_model:
+  sql_server_date_columns:
+    - MI3_SAP.FECHA_PRECIO
+    - DS_PEDIDO.FECHA_PRECIO
+    - D_PEDIDO.FECHA_PRECIO
+    - D_FACTURA.FECHA_PRECIO
+    - D_NOTACRED.FECHA_PRECIO
+    - P_NOTACD.FECHA_PRECIO
+  hh_sqlite_integer_columns:
+    - DS_PEDIDO.FECHA_PRECIO
+    - D_PEDIDO.FECHA_PRECIO
+    - D_FACTURA.FECHA_PRECIO
+    - D_NOTACRED.FECHA_PRECIO
+    - T_VENTA.FECHA_PRECIO
+  hh_encoding: El mismo entero de fecha utilizado por las columnas FECHA existentes.
+  schema_compatibility: En SQLite agregar FECHA_PRECIO al final de CREATE TABLE para no desplazar indices de consumidores SELECT estrella legacy.
+
+implementation_observed:
+  bof:
+    repository: C:/Users/carol/Documents/Proyectos_DTS/Proyectos_2023/TOLEDANO/ROADBOF_VS2019_23
+    remote: https://dev.azure.com/ejcalderon0892/ROAD_TOLEDANO/_git/ROAD_TOLEDANO
+    branch: devejc_2026
+    base_commit: 4b3be2b229d517d91798b868f45682d73a155bc7
+    status: dirty_local_changes_not_committed
+    principal_files:
+      - Formas/Procesos/frmFM.Designer.vb
+      - Formas/Procesos/frmFM.vb
+      - Formas/Procesos/frmNotaCDDevol.vb
+      - Formas/Procesos/frmNotaCDDevol.Promociones.vb
+      - Clases/Liquidador/clsd_factura.vb
+      - Clases/Liquidador/clsd_cxc.vb
+      - Entity/clsBeDS_PEDIDO.vb
+      - Entity/clsBeD_FACTURA.vb
+      - Entity/clsBeD_NOTACRED.vb
+      - Entity/clsBeD_PEDIDO.vb
+      - Entity/clsBeP_NOTACD.vb
+      - DAL/clsLnDS_PEDIDO.vb
+      - DAL/D_FACTURA/clsLnD_FACTURA.vb
+      - DAL/clsLnD_NOTACRED.vb
+      - DAL/clsLnD_PEDIDO.vb
+      - DAL/clsLnP_NOTACD.vb
+    implemented_behavior:
+      - Lookup lePrefactura y fecha visible txtFechaPrecio en FM y NC.
+      - Seleccion requerida para documentos nuevos en rutas de despacho.
+      - Cliente y FECHA_PRECIO se resuelven desde DS_PEDIDO.
+      - La prefactura se bloquea al iniciar captura de productos.
+      - Factura persiste DESPCOREL y FECHA_PRECIO.
+      - NC persiste FECHA_PRECIO y la transfiere a la factura relacionada.
+      - Precio, descuentos, recargos y combos se consultan con FECHA_PRECIO.
+  hh_android:
+    repository: C:/Users/carol/StudioProjects/road
+    remote: https://github.com/carolinakfk/road_2023.git
+    branch: road_2028
+    base_commit: 9077d4bc1018fbcd569735d517191610f3ecaab1
+    package: com.dts.roadp
+    signatures: [Precio.java, Venta.java, ComWS.java]
+    status: dirty_local_changes_not_committed
+    principal_files:
+      - app/src/main/java/com/dts/roadp/BaseDatosScript.java
+      - app/src/main/java/com/dts/roadp/clsClasses.java
+      - app/src/main/java/com/dts/roadp/clsDs_pedidoObj.java
+      - app/src/main/java/com/dts/roadp/appGlobals.java
+      - app/src/main/java/com/dts/roadp/activity_despacho_list.java
+      - app/src/main/java/com/dts/roadp/CliDet.java
+      - app/src/main/java/com/dts/roadp/FacturaRes.java
+      - app/src/main/java/com/dts/roadp/DevolCli.java
+    implemented_behavior:
+      - Esquema inicial incluye FECHA_PRECIO al final de las cinco tablas SQLite afectadas.
+      - Importacion y persistencia de DS_PEDIDO transportan FECHA_PRECIO.
+      - La seleccion de prefactura fija la fecha global del documento.
+      - NC con referencia abre primero la lista de prefacturas de despacho.
+      - Factura y NC guardan la fecha seleccionada.
+      - Reevaluacion de descuentos y combos de devolucion usa FECHA_PRECIO.
+
+verification:
+  bof_project_build:
+    command_scope: BOF_ROAD.vbproj_Debug
+    result: success_0_errors_30_legacy_warnings
+  bof_solution_build:
+    result: source_project_compiled_but_solution_failed_in_unrelated_projects
+    external_failures:
+      - ROADWedAPI requiere SDK .NET 10 y la estacion tenia SDK .NET 9.
+      - wsAndroid tenia conflicto de ensamblado Azure.Core.
+  hh_android_build:
+    command_scope: compileDebugJavaWithJavac
+    result: BUILD_SUCCESSFUL_with_Java_8_deprecation_warnings
+  source_integrity: git_diff_check_without_errors_after_generated_artifacts_cleanup
+  pending_acceptance:
+    - Probar con prefactura cuya promocion sea valida solo el dia del pedido y facturar en fecha posterior.
+    - Confirmar que FM y NC muestran la misma FECHA_PRECIO y la persisten sin sustituirla.
+    - Confirmar recalculo al cambiar cantidad, peso o producto.
+    - Confirmar bloqueo de segunda factura activa para la misma prefactura.
+    - Confirmar restriccion de productos solo en factura y libertad de productos en NC.
+    - Confirmar payload o registro MI3_SAP entregado a SOFOS.
+
+risks_and_follow_up:
+  - La implementacion fuente esta local y aun no tiene commit en BOF ni HH.
+  - La validacion de una sola factura activa no debe depender solo del filtro visual del lookup; validar nuevamente dentro de la transaccion de guardado para evitar concurrencia.
+  - La restriccion por unidad de medida no puede inferirse de DS_PEDIDOD porque el esquema observado no contiene UM.
+  - Falta prueba funcional conectada a una base con prefacturas reales.
+  - El precio base historico por fecha no existe actualmente; el cliente decidio evitar ese esfuerzo por ahora debido a la baja frecuencia de cambios, pero sigue siendo una limitacion conocida.
+  - La conservacion de una condicion modificada depende del historial disponible y de la disciplina operativa de no modificar promociones con prefacturas vigentes.
+  - Verificar procedimientos, triggers, exportadores e interfaces no cubiertos por las clases inspeccionadas.
+
+handoff_to_anderly:
+  recommended_debug_order:
+    - Confirmar DS_PEDIDO.FECHA_PRECIO para la prefactura elegida.
+    - Confirmar P_RUTA.VENTA=D y FECHAENTR usada por el lookup.
+    - Seguir FECHA_PRECIO por formulario, modelo, DAL y tabla D_FACTURA o D_NOTACRED.
+    - Comparar consultas P_DESCUENTO y combos contra FECHA_PRECIO, no fecha de factura.
+    - Forzar cambio de cantidad o peso y verificar reevaluacion documental completa.
+    - Verificar DESPCOREL y ausencia de otra factura activa.
+    - Verificar MI3_SAP.FECHA_PRECIO antes del consumo de SOFOS.
+  do_not_assume:
+    - No restringir productos de NC con DS_PEDIDOD.
+    - No hardcodear exclusion de promociones para PriceSmart.
+    - No usar GETDATE silenciosamente para una prefactura nueva sin FECHA_PRECIO.
+    - No mezclar TOMHH2025, TOMWMS, TOMIMSV4 ni com.dts.tom con ROAD.
+
+brain_publication:
+  semantic_index_required: true
+  source_code_commits_created_by_this_publication: false

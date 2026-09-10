@@ -10,6 +10,14 @@
     Recibir desde SAP condiciones de descuentos y recargos, transformarlas al modelo operativo ROAD
     y aplicar una unica condicion vigente por material/cliente segun prioridad comercial.
 
+fecha_precio_context_2026_09_10:
+  canonical_contract: brain/fecha_precio_prefactura_factura_nc_contract_2026-09-10.yml
+  status: implementation_local_build_validated_pending_functional_test
+  objective: Conservar en despacho y facturacion las condiciones comerciales vigentes en la fecha original del pedido.
+  authority: DS_PEDIDO.FECHA_PRECIO
+  target_documents: [D_FACTURA, D_NOTACRED, P_NOTACD, MI3_SAP]
+  critical_boundary: La restriccion de productos contra DS_PEDIDOD aplica a factura, no a nota de credito.
+
 runtime_context_2026_07_31:
   canonical_manifest: brain/knowledge_manifest_2026-07-31.yml
   repository_guardrail: brain/project_identity_and_repo_guardrails_2026-07-31.yml

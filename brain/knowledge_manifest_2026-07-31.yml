@@ -1,9 +1,10 @@
 knowledge_manifest:
   project: ROAD_TOLEDANO_PROMOCIONES
-  version: 2026-08-28
+  version: 2026-09-10
   purpose: recuperacion_operativa_aislada_y_trazable
   governance: brain/knowledge_governance.yml
   canonical_entrypoints:
+    - brain/fecha_precio_prefactura_factura_nc_contract_2026-09-10.yml
     - brain/recent_operational_knowledge_2026-08-28.yml
     - brain/project_identity_and_repo_guardrails_2026-07-31.yml
     - brain/bof_workstation_repository_handoff_2026-08-19.yml
@@ -33,6 +34,9 @@ knowledge_manifest:
       remote: https://github.com/ejcalderongt/toledano-brain.git
       branch: main
   current_cases:
+    - id: ROAD_FECHA_PRECIO_20260910
+      status: implementacion_local_build_validado_pendiente_prueba_funcional_y_commit_fuente
+      contract: brain/fecha_precio_prefactura_factura_nc_contract_2026-09-10.yml
     - id: BOF_LIQUIDACION_CONCURRENCIA_20260827
       status: hotfix_local_validado_pendiente_commit_y_prueba_operativa
       contract: brain/recent_operational_knowledge_2026-08-28.yml
@@ -47,6 +51,13 @@ knowledge_manifest:
       contract: brain/hh_promotion_observability_contract_2026-07-31.yml
       handoff: brain/hh_runtime_handoff_2026-07-31.yml
   retrieval_tags:
+    - FECHA_PRECIO
+    - DS_PEDIDO
+    - DS_PEDIDOD
+    - prefactura
+    - factura_manual_despacho
+    - nota_credito_con_referencia
+    - DESPCOREL
     - ROADBOF_VS2019_23
     - bof_workstation_carolina
     - repository_outside_onedrive

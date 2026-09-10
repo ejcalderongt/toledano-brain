@@ -1,5 +1,5 @@
 brain_state:
-  updated_at: 2026-08-28
+  updated_at: 2026-09-10
   current_workstation_snapshot:
     owner: Carolina Fuentes
     bof_webapi:
@@ -76,6 +76,7 @@ brain_state:
     - El nombre dev_2026_ejc no existia previamente en local y fue creado/publicado.
     - Se recomienda continuar nuevos ajustes de combos en devejc-combos-sofos.
   knowledge_artifacts:
+    - brain/fecha_precio_prefactura_factura_nc_contract_2026-09-10.yml
     - brain/recent_operational_knowledge_2026-08-28.yml
     - brain/bof_workstation_repository_handoff_2026-08-19.yml
     - brain/knowledge_manifest_2026-07-24.yml
@@ -139,6 +140,9 @@ brain_state:
       path: C:/Users/yejc2/Downloads/Tipos de descuentos por Alicia.msg
       usage: Evidencia funcional para clasificacion cliente KNVV.KLABC en la interfaz.
   confirmed_business_rules:
+    - "FECHA_PRECIO 2026-09-10: para prefacturas de despacho, DS_PEDIDO.FECHA_PRECIO conserva la fecha comercial original del pedido y gobierna precio, descuentos, recargos y combos en factura y NC, aunque la liquidacion ocurra despues."
+    - "FECHA_PRECIO 2026-09-10: en rutas P_RUTA.VENTA=D, FM y NC con referencia seleccionan prefactura antes de capturar; factura restringe productos a DS_PEDIDOD, pero NC puede contener cualquier producto."
+    - "FECHA_PRECIO 2026-09-10: una prefactura no puede participar en dos facturas activas; la asociacion se persiste en D_FACTURA.DESPCOREL y la fecha se propaga a D_FACTURA, D_NOTACRED, P_NOTACD y MI3_SAP."
     - "TC0013 BOF local sobre deca3105: al editar peso en FM, la seleccion de una escala UMVENTA=CA conserva Cantidad=cajas; el peso editado se usa solo como base monetaria extendida."
     - "TC0013 fixture CODDESC 376: cantidad 3 selecciona recargo 3.7%; con precio base 1.44 y peso total 41.399, total final SAP=61.82 y precio derivado=1.493273."
     - "TC0011 HH b3ebe72: precio especial y promociones son excluyentes; TMP_PRECESPEC vacia conserva P_PRODPRECIO y nunca limpia el total calculado."
