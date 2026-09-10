@@ -5,6 +5,7 @@ knowledge_manifest:
   governance: brain/knowledge_governance.yml
   canonical_entrypoints:
     - brain/fecha_precio_prefactura_factura_nc_contract_2026-09-10.yml
+    - brain/bof_liquidacion_concurrency_hotfix_contract_2026-09-10.yml
     - brain/recent_operational_knowledge_2026-08-28.yml
     - brain/project_identity_and_repo_guardrails_2026-07-31.yml
     - brain/bof_workstation_repository_handoff_2026-08-19.yml
@@ -22,7 +23,7 @@ knowledge_manifest:
       workstation_path: C:/Users/carol/Documents/Proyectos_DTS/Proyectos_2023/TOLEDANO/ROADBOF_VS2019_23
       remote: https://dev.azure.com/ejcalderon0892/ROAD_TOLEDANO/_git/ROAD_TOLEDANO
       branch_observed: devejc_hotfix_2026
-      head_observed: 84e3ce9fd3429628efd60960e80f826223805e55
+      head_observed: 23face2ec5f25d7af2efd284c9b736c3af8dd715
       historical_validated_commit: a3d52989
     handheld_android:
       remote: https://github.com/carolinakfk/road_2023.git
@@ -38,8 +39,8 @@ knowledge_manifest:
       status: implementacion_local_build_validado_pendiente_prueba_funcional_y_commit_fuente
       contract: brain/fecha_precio_prefactura_factura_nc_contract_2026-09-10.yml
     - id: BOF_LIQUIDACION_CONCURRENCIA_20260827
-      status: hotfix_local_validado_pendiente_commit_y_prueba_operativa
-      contract: brain/recent_operational_knowledge_2026-08-28.yml
+      status: commits_fuente_publicados_pendiente_validacion_operativa
+      contract: brain/bof_liquidacion_concurrency_hotfix_contract_2026-09-10.yml
     - id: BOF_MI3_ORDEN_COMPRA_20260827
       status: validado_en_ejecucion_pendiente_commit
       contract: brain/recent_operational_knowledge_2026-08-28.yml
@@ -81,6 +82,9 @@ knowledge_manifest:
     - TEMP_STOCK_LIQUIDACION
     - usp_LiqVend_CargarSnapshot_v1
     - CARGA_REENTRY_BLOCKED
+    - COLA_RETRY_AFTER_RELEASE
+    - GUARDADO_RELEASE_BEFORE_UI
+    - INV_GRID_DETALLE
     - multiple_disjoint_combos
     - modified_order_commercial_um
     - D_NOTACRED

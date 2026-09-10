@@ -5,9 +5,12 @@ brain_state:
     bof_webapi:
       path: C:/Users/carol/Documents/Proyectos_DTS/Proyectos_2023/TOLEDANO/ROADBOF_VS2019_23
       remote: https://dev.azure.com/ejcalderon0892/ROAD_TOLEDANO/_git/ROAD_TOLEDANO
-      branch: devejc_hotfix_2026
-      head: 84e3ce9fd3429628efd60960e80f826223805e55
-      status: dirty_preserve_existing_changes
+      branch: devejc_2026
+      head: 89df31dc5efc91f8e4c9644ee0d8202d0ec6318c
+      status: clean
+      related_published_hotfix:
+        branch: devejc_hotfix_2026
+        remote_head: 23face2ec5f25d7af2efd284c9b736c3af8dd715
     hh_android:
       path: C:/Users/carol/StudioProjects/road
       remote: https://github.com/carolinakfk/road_2023.git
@@ -77,6 +80,7 @@ brain_state:
     - Se recomienda continuar nuevos ajustes de combos en devejc-combos-sofos.
   knowledge_artifacts:
     - brain/fecha_precio_prefactura_factura_nc_contract_2026-09-10.yml
+    - brain/bof_liquidacion_concurrency_hotfix_contract_2026-09-10.yml
     - brain/recent_operational_knowledge_2026-08-28.yml
     - brain/bof_workstation_repository_handoff_2026-08-19.yml
     - brain/knowledge_manifest_2026-07-24.yml
@@ -140,6 +144,7 @@ brain_state:
       path: C:/Users/yejc2/Downloads/Tipos de descuentos por Alicia.msg
       usage: Evidencia funcional para clasificacion cliente KNVV.KLABC en la interfaz.
   confirmed_business_rules:
+    - "BOF concurrencia 2026-09-10: devejc_hotfix_2026 publica guardas atomicas contra reentrada, liberacion de cola antes de UI o reintento, timeout BulkCopy de 30 segundos y trazas por etapa; la validacion operativa concurrente sigue pendiente."
     - "FECHA_PRECIO 2026-09-10: para prefacturas de despacho, DS_PEDIDO.FECHA_PRECIO conserva la fecha comercial original del pedido y gobierna precio, descuentos, recargos y combos en factura y NC, aunque la liquidacion ocurra despues."
     - "FECHA_PRECIO 2026-09-10: en rutas P_RUTA.VENTA=D, FM y NC con referencia seleccionan prefactura antes de capturar; factura restringe productos a DS_PEDIDOD, pero NC puede contener cualquier producto."
     - "FECHA_PRECIO 2026-09-10: una prefactura no puede participar en dos facturas activas; la asociacion se persiste en D_FACTURA.DESPCOREL y la fecha se propaga a D_FACTURA, D_NOTACRED, P_NOTACD y MI3_SAP."

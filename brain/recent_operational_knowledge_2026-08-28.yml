@@ -25,7 +25,15 @@ repositories:
 
 knowledge:
   liquidation_concurrency:
-    status: hotfix_local_validated_pending_source_commit_and_operational_validation
+    status: superseded_by_published_source_contract_pending_operational_validation
+    canonical_follow_up: brain/bof_liquidacion_concurrency_hotfix_contract_2026-09-10.yml
+    source_publication:
+      branch: devejc_hotfix_2026
+      remote_head_observed_2026_09_10: 23face2ec5f25d7af2efd284c9b736c3af8dd715
+      relevant_commits:
+        - 18f8b567f50f3fced98f6e27bed30797d7b79aaf
+        - a066e7420094dbb51ce16cb657e21f16b04cb865
+        - 3c849e9f187aabb90b0a5b8b5a5d1cc42594d2df
     diagnosis:
       - P_COLA_LIQUIDACION_V2 serializa el guardado, pero el bloqueo visible puede ocurrir antes, durante la carga de inventario temporal o el snapshot.
       - Tres turnos simultaneos por guardado amplificaban el bloqueo y dejaban mas registros huerfanos ante cierre o congelamiento.

@@ -1,0 +1,93 @@
+bof_liquidacion_concurrency_hotfix:
+  id: BOF_LIQUIDACION_CONCURRENCIA_20260910
+  status: source_commits_published_pending_operational_validation
+  federated_at: 2026-09-10
+  authorized_by: Erik_Calderon_identified_and_explicit_request
+  purpose: >
+    Conservar el diagnostico, las decisiones de estabilizacion y la trazabilidad necesaria
+    para depurar concurrencia en la carga y guardado de liquidaciones BOF.
+
+repository:
+  path: C:/Users/carol/Documents/Proyectos_DTS/Proyectos_2023/TOLEDANO/ROADBOF_VS2019_23
+  remote: https://dev.azure.com/ejcalderon0892/ROAD_TOLEDANO/_git/ROAD_TOLEDANO
+  branch: devejc_hotfix_2026
+  remote_head_observed: 23face2ec5f25d7af2efd284c9b736c3af8dd715
+  current_checkout_during_federation: devejc_2026
+  current_checkout_modified: false
+  relevant_published_commits:
+    - hash: 18f8b567f50f3fced98f6e27bed30797d7b79aaf
+      date: 2026-08-28
+      subject: Se agrego ORDEN_COMPRA a MI3_SAP y se corrigieron temas de concurrencia.
+    - hash: a066e7420094dbb51ce16cb657e21f16b04cb865
+      date: 2026-09-02
+      subject: Mejoras al proceso de certificacion y trazas necesarias.
+    - hash: 3c849e9f187aabb90b0a5b8b5a5d1cc42594d2df
+      date: 2026-09-08
+      subject: Mejoras en proceso de liquidacion y concurrencia.
+  branch_head_note: El commit 23face2 actualiza fecha y es el HEAD observado, pero no constituye por si mismo una mejora de concurrencia.
+
+diagnosis:
+  - P_COLA_LIQUIDACION_V2 serializa el guardado, pero la espera visible tambien puede originarse en carga de inventario temporal o snapshot.
+  - Mantener varios turnos por un mismo guardado amplifica bloqueos y registros huerfanos.
+  - El heartbeat prueba que la pantalla sigue viva; no prueba avance de la operacion.
+  - Ejecutar el snapshot dentro de una transaccion exterior puede prolongar locks y alterar el comportamiento de la sesion.
+  - TEMP_STOCK_LIQUIDACION continua siendo staging global compartido y puede generar contencion entre liquidaciones distintas.
+  - Un timeout largo limita la espera del usuario, pero no elimina la causa de contencion.
+
+implemented_contract:
+  queue:
+    - Usar un unico turno tipo 1 para el guardado de liquidacion.
+    - Adquirir el turno atomicamente con token de sesion, PID y maquina.
+    - Esperar como maximo 120 segundos y emitir COLA_WAIT al inicio y cada 30 segundos.
+    - Renovar los turnos adquiridos mediante heartbeat sin solapar ejecuciones del temporizador.
+    - Liberar todos los turnos adquiridos en finally y antes de mostrar UI de error o iniciar un reintento.
+    - Ante deadlock SQL 1205, reintentar solamente despues de liberar el turno anterior.
+  reentry_guards:
+    - CargaLiquidacionEnCurso impide dos cargas simultaneas en la misma pantalla.
+    - GuardadoLiquidacionEnCurso impide dos guardados simultaneos en la misma pantalla.
+    - Restablecer ambos controles aun cuando ocurra excepcion.
+  snapshot:
+    - FeatureSnapshotLiquidacionV1 permanece deshabilitado en el hotfix publicable.
+    - Registrar el motivo de omision o fallback; no confundir snapshot omitido con snapshot exitoso.
+  inventory_staging:
+    - Validar coherencia entre SqlConnection y SqlTransaction antes de cargar existencias.
+    - Reportar subetapas de conexion, creacion de tabla, preparacion de filas, BulkCopy y commit.
+    - SqlBulkCopy usa timeout de 30 segundos y convierte timeout en cancelacion controlada con rollback.
+    - La tabla TEMP_STOCK_LIQUIDACION sigue siendo global; este hotfix no implementa aislamiento por token.
+  observability:
+    queue_traces: [COLA_ACQUIRED, COLA_WAIT, COLA_TIMEOUT, COLA_HEARTBEAT_EMPTY, COLA_HEARTBEAT_FAILED, COLA_RELEASED, COLA_RELEASE_FAILED, COLA_REENTRY_BLOCKED, COLA_RETRY_AFTER_RELEASE]
+    load_traces: [CARGA_REENTRY_BLOCKED, SNAPSHOT_SKIPPED, SNAPSHOT_FALLBACK, POST_SNAPSHOT]
+    recalculation_traces: [RECALCULO_FACTURAS_BEGIN, RECALCULA_FACTURA, POST_RECALCULO_FACTURAS]
+    save_traces: [GUARDADO_RELEASE_BEFORE_UI, GUARDADO_COMMIT_BEGIN, GUARDADO_COMMIT_OK, GUARDADO_END]
+    inventory_traces: [INV_INSERT_CONEXION, INV_INSERT_CREAR_TABLA, INV_INSERT_PREPARAR_FILAS, INV_INSERT_BULK_COPY, INV_INSERT_BULK_COPY_OMITIDO, INV_INSERT_COMMIT, INV_GRID_DETALLE]
+    adjacent_scope: clsD_Factura_DGI incorpora mayor trazabilidad por etapas de certificacion; sirve para separar espera de liquidacion de fallas FEL/DGI.
+
+operational_acceptance:
+  minimum_scenario:
+    - Ejecutar al menos dos liquidadores concurrentes con liquidaciones y rutas diferentes.
+    - Capturar la secuencia completa de adquisicion, heartbeat, guardado, commit y liberacion.
+    - Forzar o reproducir timeout, error SQL y deadlock para comprobar liberacion antes de UI o reintento.
+    - Verificar que no existan turnos retenidos, facturas duplicadas, inventario cruzado ni liquidaciones parciales.
+    - Medir por separado tiempo de recálculo de facturas, otras etapas de guardado y carga de inventario.
+  closure_rule: No declarar resuelta la concurrencia solo porque el build pase o el heartbeat continue.
+
+structural_follow_up:
+  - Crear staging V2 aislado por token de operacion y filtrar por token todas las lecturas, actualizaciones y borrados.
+  - Ejecutar lecturas snapshot fuera de la transaccion de escritura y mantener esta ultima lo mas corta posible.
+  - Revisar indices, constraints y dependencias reales de TEMP_STOCK_LIQUIDACION en QAS y PRD.
+  - Evaluar READ_COMMITTED_SNAPSHOT solo en QAS y con evidencia de impacto.
+  - No eliminar metodos legacy de cola sin validar previamente su grafo de llamadas.
+
+verification:
+  evidence:
+    - Inspeccion read-only de origin/devejc_hotfix_2026 y de los commits publicados relevantes.
+    - Inspeccion de frmLiqVend.vb, clsInventarioLiquidacion.vb, clsd_factura.vb y clsD_Factura_DGI.vb en la rama hotfix.
+    - Evidencia operativa federada previamente en brain/recent_operational_knowledge_2026-08-28.yml.
+  not_claimed:
+    - No se ejecuto un nuevo build durante esta federacion de conocimiento.
+    - No se ejecuto una nueva prueba concurrente operativa durante esta federacion.
+    - No se modifico ni se publico codigo fuente en esta operacion.
+
+brain_publication:
+  pii_persisted: false
+  semantic_index_required: true

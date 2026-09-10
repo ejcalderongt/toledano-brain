@@ -18,6 +18,14 @@ fecha_precio_context_2026_09_10:
   target_documents: [D_FACTURA, D_NOTACRED, P_NOTACD, MI3_SAP]
   critical_boundary: La restriccion de productos contra DS_PEDIDOD aplica a factura, no a nota de credito.
 
+bof_liquidacion_concurrency_context_2026_09_10:
+  canonical_contract: brain/bof_liquidacion_concurrency_hotfix_contract_2026-09-10.yml
+  status: source_commits_published_pending_operational_validation
+  branch: devejc_hotfix_2026
+  remote_head_observed: 23face2ec5f25d7af2efd284c9b736c3af8dd715
+  objective: Evitar reentradas, liberar correctamente la cola y localizar por trazas la etapa real de espera durante carga y guardado de liquidaciones.
+  critical_boundary: TEMP_STOCK_LIQUIDACION sigue siendo staging global; el aislamiento por token es una mejora estructural pendiente.
+
 runtime_context_2026_07_31:
   canonical_manifest: brain/knowledge_manifest_2026-07-31.yml
   repository_guardrail: brain/project_identity_and_repo_guardrails_2026-07-31.yml
