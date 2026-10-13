@@ -1,0 +1,138 @@
+hh_important_processes_handoff:
+  id: ROAD_HH_IMPORTANT_PROCESSES_20261013
+  version: 1
+  captured_at: 2026-10-13
+  status: source_commits_published_documentation_federated
+  authorized_by: Erik_Calderon_identified
+  scope: HH_Android_com.dts.roadp
+
+  repository_evidence:
+    path_observed: D:/Proyectos DTS/Android/road_2023
+    remote: https://github.com/carolinakfk/road_2023.git
+    branch: road_2028
+    upstream: origin/road_2028
+    head_observed: 128ae735761b10b944b7ca0a57dab277f2c8f1c9
+    commit_window:
+      from_inclusive: 9077d4bc1018fbcd569735d517191610f3ecaab1
+      through_inclusive: 128ae735761b10b944b7ca0a57dab277f2c8f1c9
+    application_id: com.dts.roadp
+    signature_files: [Precio.java, Venta.java, ComWS.java]
+    source_worktree: clean_except_untracked_AGENTS_md
+    excluded_projects: [TOMHH2025, TOMWMS, TOMIMSV4, com.dts.tom]
+
+  important_processes:
+    - id: HH_FECHA_PRECIO_END_TO_END
+      purpose: conservar la fecha comercial original durante pedido, prefactura, factura y nota de credito
+      confirmed_rules:
+        - D_PEDIDO captura FECHA_PRECIO al iniciar el resumen y no la sustituye por la fecha de entrega.
+        - FECHA_PRECIO se serializa como fecha hacia BOF y retorna en DS_PEDIDO.
+        - Una prefactura seleccionada propaga su FECHA_PRECIO a factura y NC con referencia.
+        - La evaluacion de precios, descuentos, recargos y combos usa FECHA_PRECIO; la fecha operativa no debe cambiar la condicion comercial.
+        - ROAD acepta representaciones yyMMddHHmmss y yyyyMMddHHmmss al preparar la fecha para BOF.
+      source_commits:
+        - 466790acc8c41c0c6ef9cf96d35e46b67d86d049
+        - d13de0d5ec4993e32dddd59d93fb2239f30210ff
+        - 170c99f6dd8efe96d65782ebb6053be26bc841cc
+        - 53be27cbf473ae68f96ecaf45cc20f0b82f81c3a
+        - dae70f8a77bce9a06d617c34809ba12c875b8c9d
+        - 7c431297317481dc83c6fffe292e632d95e950a2
+      related_contract: brain/fecha_precio_prefactura_factura_nc_contract_2026-09-10.yml
+
+    - id: HH_PREFACTURA_PROMOTIONS_ORIGIN_ROUTE
+      purpose: facturar o acreditar una prefactura con las condiciones que correspondian al pedido original
+      confirmed_rules:
+        - Una ruta de despacho descarga tambien clientes, productos y promociones requeridos por sus prefacturas pendientes.
+        - La ruta origen de preventa se obtiene de DS_PEDIDO.ADD1 con formato RUTA_YYMMDDHHMMSS; ADD2 representa la ruta de despacho y no gobierna CTIPO=11.
+        - La ruta activa de despacho se conserva y la ruta origen solo agrega las promociones asociadas al pedido seleccionado.
+        - Vigencia y exclusiones se evaluan contra FECHA_PRECIO de la prefactura; la vigencia historica no habilita indiscriminadamente condiciones para ventas actuales.
+        - Para CTIPO=11 se conserva la validacion normal ruta/dia y se admite la ruta origen exclusivamente en el contexto de la prefactura.
+      source_commits:
+        - dae70f8a77bce9a06d617c34809ba12c875b8c9d
+        - 128ae735761b10b944b7ca0a57dab277f2c8f1c9
+      critical_tables: [DS_PEDIDO, DS_PEDIDOD, P_DESCUENTO, P_DESCUENTO_COMBO_DET, P_CLIENTE_PROD_EXCLUIDOS, P_CLIRUTA]
+
+    - id: HH_PROMOTION_GENEALOGY_ORDER
+      purpose: conservar y sincronizar la condicion efectivamente aplicada en cada linea de pedido
+      confirmed_rules:
+        - D_PEDIDOD persiste CODDESC_APLICADO y CODRECARGO_APLICADO.
+        - Ambos codigos forman parte del contrato sincronizado con WebService.
+        - PRECIO_BASE y TOTAL_BASE permanecen como genealogia local y no se agregan al payload legacy.
+        - T_PEDIDO_PROMO_STATE conserva el estado local necesario para reconstruir pedidos modificados.
+      source_commit: d2f45aa215be7b48681e98904401d3dbd648cdf4
+      critical_tables: [D_PEDIDOD, T_PEDIDO_PROMO_STATE, T_VENTA]
+
+    - id: HH_P_DESCUENTO_TEMPORAL_IDENTITY
+      purpose: permitir condiciones con la misma identidad comercial general pero distintos periodos de vigencia
+      confirmed_rules:
+        - FECHAINI forma parte de la llave primaria local de P_DESCUENTO, ademas de DESCTIPO y los campos comerciales existentes.
+        - La base SQLite sube a version 2 y ejecuta una migracion explicita para instalaciones existentes.
+        - La migracion copia todas las filas, compara conteos antes de reemplazar la tabla y recrea indices.
+        - Si P_DESCUENTO no existe o el conteo cambia, la migracion falla en lugar de ocultar perdida de datos.
+      source_commit: 2822bc6c2a239e992a4b545fcf20e0166a7a075e
+      critical_table: P_DESCUENTO
+      compatibility_boundary: cualquier busqueda_reemplazo_o_deduplicacion_debe_incluir_FECHAINI_y_DESCTIPO
+
+    - id: HH_MANUAL_COMMUNICATION_IDEMPOTENCY
+      purpose: permitir reintentos y comunicacion manual sin duplicar eventos operativos en BOF
+      confirmed_rules:
+        - La comunicacion manual incluye D_DESPACHOD_NO_ENTREGADO antes del envio de pedidos.
+        - D_DESPACHOD_NO_ENTREGADO se inserta solo si no existe COREL+PRODUCTO.
+        - D_ATENCION se inserta solo si no existe RUTA+FECHA+HORALLEG.
+        - La fecha de la guarda SQL de D_ATENCION se convierte al formato SQL externo, no se compara como entero ROAD.
+        - Los valores de texto usados por las guardas se escapan antes de construir el lote SQL.
+      source_commits:
+        - 7c431297317481dc83c6fffe292e632d95e950a2
+        - fbbc1c7060d562720ff29463e0605b79f8628fd7
+      critical_tables: [D_DESPACHOD_NO_ENTREGADO, D_ATENCION]
+
+    - id: HH_PREORDER_PRODUCT_AND_UM_CONSISTENCY
+      purpose: evitar duplicados de catalogo y cantidades de combo incorrectas durante preventa
+      confirmed_rules:
+        - El listado de productos usa EXISTS sobre P_STOCK_PV para no producir una fila por documento de stock.
+        - En preventa, la UM comercial se valida contra P_PRODUCTO.UM_SALIDA cuando P_STOCK_PV conserva una configuracion anterior.
+        - La misma UM validada se usa al agregar lineas y al reconstruir un pedido modificado antes de reevaluar combos.
+        - La correccion de UM deja el evento PREORDER_UMSTOCK_CORRECTED en PromotionTrace.
+      source_commits:
+        - dbef06179c7552df24be3974b808d9f1b1329157
+        - 7c431297317481dc83c6fffe292e632d95e950a2
+      critical_tables: [P_STOCK_PV, P_PRODUCTO, P_PRODPRECIO, T_VENTA]
+
+  related_existing_processes:
+    - id: HH_CANASTA_CREDIT_DEBIT_FILTER
+      status: already_federated
+      source_commit: 9077d4bc1018fbcd569735d517191610f3ecaab1
+      contract: brain/recent_operational_knowledge_2026-08-28.yml
+    - id: HH_NC_PRINTING
+      status: source_commit_observed_not_promoted_to_independent_contract
+      source_commit: 9077d4bc1018fbcd569735d517191610f3ecaab1
+      reason: correccion_acotada_cubierta_por_el_flujo_de_notas_de_credito
+
+  validation:
+    evidence_type: committed_source_review
+    automated_build_at_federation:
+      command: gradlew.bat assembleDebug
+      result: successful
+      tasks: 34
+      duration_seconds: 55
+      warnings:
+        - Java_26_depreca_source_target_8
+        - deprecated_and_unchecked_API_notes
+    runtime_validation_at_federation: not_provided
+    required_follow_up:
+      - Probar factura y NC de prefactura cuya ruta origen difiera de la ruta de despacho y cuya promocion ya no este vigente hoy.
+      - Actualizar una base version 1 con filas P_DESCUENTO solapadas y confirmar conteos, llave e indices.
+      - Reintentar comunicacion manual dos veces y confirmar ausencia de duplicados en D_ATENCION y D_DESPACHOD_NO_ENTREGADO.
+      - Confirmar en payload y BOF los codigos CODDESC_APLICADO y CODRECARGO_APLICADO de D_PEDIDOD.
+
+  risks:
+    - La evidencia revisada confirma implementacion publicada, no validacion funcional en dispositivo para todos los escenarios.
+    - La extraccion de ruta desde ADD1 depende del formato RUTA_YYMMDDHHMMSS y conserva fallback a ADD2 o ruta activa.
+    - La vigencia historica debe permanecer limitada a prefacturas pendientes; ampliarla afectaria ventas actuales.
+    - La migracion SQLite cambia la identidad de P_DESCUENTO y debe probarse con bases reales antes de distribuirse ampliamente.
+
+  federation:
+    brain_repository: D:/Proyectos DTS/toledano-brain
+    manifest: brain/knowledge_manifest_2026-07-31.yml
+    semantic_index_required: true
+    source_repository_modified: false
+    pii_persisted: false

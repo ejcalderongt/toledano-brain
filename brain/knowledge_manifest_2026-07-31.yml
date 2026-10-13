@@ -1,9 +1,10 @@
 knowledge_manifest:
   project: ROAD_TOLEDANO_PROMOCIONES
-  version: 2026-09-10
+  version: 2026-10-13
   purpose: recuperacion_operativa_aislada_y_trazable
   governance: brain/knowledge_governance.yml
   canonical_entrypoints:
+    - brain/hh_important_processes_handoff_2026-10-13.yml
     - brain/fecha_precio_prefactura_factura_nc_contract_2026-09-10.yml
     - brain/bof_liquidacion_concurrency_hotfix_contract_2026-09-10.yml
     - brain/recent_operational_knowledge_2026-08-28.yml
@@ -28,13 +29,16 @@ knowledge_manifest:
     handheld_android:
       remote: https://github.com/carolinakfk/road_2023.git
       branch_observed: road_2028
-      head_observed: f8e29a38a00106a20bb4e8f7099d4da20add15f9
+      head_observed: 128ae735761b10b944b7ca0a57dab277f2c8f1c9
       historical_validated_commit: b3ebe72
       package: com.dts.roadp
     brain:
       remote: https://github.com/ejcalderongt/toledano-brain.git
       branch: main
   current_cases:
+    - id: ROAD_HH_IMPORTANT_PROCESSES_20261013
+      status: source_commits_published_build_validated_documentation_federated_runtime_pending
+      contract: brain/hh_important_processes_handoff_2026-10-13.yml
     - id: ROAD_FECHA_PRECIO_20260910
       status: implementacion_local_build_validado_pendiente_prueba_funcional_y_commit_fuente
       contract: brain/fecha_precio_prefactura_factura_nc_contract_2026-09-10.yml
@@ -52,6 +56,14 @@ knowledge_manifest:
       contract: brain/hh_promotion_observability_contract_2026-07-31.yml
       handoff: brain/hh_runtime_handoff_2026-07-31.yml
   retrieval_tags:
+    - HH_IMPORTANT_PROCESSES_20261013
+    - route_origin_prefactura
+    - historical_promotion_validity
+    - CODDESC_APLICADO
+    - CODRECARGO_APLICADO
+    - P_DESCUENTO_FECHAINI_PK
+    - manual_communication_idempotency
+    - PREORDER_UMSTOCK_CORRECTED
     - FECHA_PRECIO
     - DS_PEDIDO
     - DS_PEDIDOD

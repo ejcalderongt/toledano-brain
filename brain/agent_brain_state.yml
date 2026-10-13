@@ -1,7 +1,7 @@
 brain_state:
-  updated_at: 2026-09-10
+  updated_at: 2026-10-13
   current_workstation_snapshot:
-    owner: Carolina Fuentes
+    owner: Erik Calderon
     bof_webapi:
       path: C:/Users/carol/Documents/Proyectos_DTS/Proyectos_2023/TOLEDANO/ROADBOF_VS2019_23
       remote: https://dev.azure.com/ejcalderon0892/ROAD_TOLEDANO/_git/ROAD_TOLEDANO
@@ -12,12 +12,12 @@ brain_state:
         branch: devejc_hotfix_2026
         remote_head: 23face2ec5f25d7af2efd284c9b736c3af8dd715
     hh_android:
-      path: C:/Users/carol/StudioProjects/road
+      path: D:/Proyectos DTS/Android/road_2023
       remote: https://github.com/carolinakfk/road_2023.git
       branch: road_2028
-      head: f8e29a38a00106a20bb4e8f7099d4da20add15f9
+      head: 128ae735761b10b944b7ca0a57dab277f2c8f1c9
       package: com.dts.roadp
-      status: dirty_preserve_ComWS_and_MainActivity
+      status: clean_except_untracked_AGENTS_md
     excluded_projects: [TOMHH2025, TOMWMS_BOF, TOMIMSV4, com.dts.tom]
   repository:
     path: C:/Users/yejc2/source/repos/ROAD_TOLEDANO
@@ -79,6 +79,7 @@ brain_state:
     - El nombre dev_2026_ejc no existia previamente en local y fue creado/publicado.
     - Se recomienda continuar nuevos ajustes de combos en devejc-combos-sofos.
   knowledge_artifacts:
+    - brain/hh_important_processes_handoff_2026-10-13.yml
     - brain/fecha_precio_prefactura_factura_nc_contract_2026-09-10.yml
     - brain/bof_liquidacion_concurrency_hotfix_contract_2026-09-10.yml
     - brain/recent_operational_knowledge_2026-08-28.yml
